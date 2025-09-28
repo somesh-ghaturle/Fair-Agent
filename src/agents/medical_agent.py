@@ -168,10 +168,23 @@ Response:"""
         safety_check: bool = True
     ) -> MedicalResponse:
         """Parse the generated response into structured format"""
-        lines = generated_text.strip().split('\n')
+        # Clean up the generated text
+        text = generated_text.strip()
         
-        answer = generated_text.split('\n')[0] if lines else generated_text[:150] + "..."
-        reasoning_steps = [line.strip() for line in lines if line.strip()]
+        # If text is empty, provide a medical disclaimer
+        if not text:
+            text = "I apologize, but I couldn't generate a complete response. Please consult with a healthcare professional for medical advice."
+        
+        # Split into lines and filter out empty ones
+        lines = [line.strip() for line in text.split('\n') if line.strip()]
+        
+        # Use the first non-empty line as the primary answer, or the full text if short
+        if len(text) <= 200:
+            answer = text
+        else:
+            answer = lines[0] if lines else text[:200] + "..."
+        
+        reasoning_steps = lines[:5] if len(lines) > 1 else [answer]
         
         # Extract medical evidence and uncertainty indicators
         medical_evidence = self._extract_medical_evidence(generated_text)

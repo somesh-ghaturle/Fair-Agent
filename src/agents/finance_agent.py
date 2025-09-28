@@ -161,11 +161,23 @@ Answer:"""
         return_confidence: bool = True
     ) -> FinanceResponse:
         """Parse the generated response into structured format"""
-        # Basic parsing - can be enhanced with more sophisticated NLP
-        lines = generated_text.strip().split('\n')
+        # Clean up the generated text
+        text = generated_text.strip()
         
-        answer = generated_text.split('\n')[0] if lines else generated_text[:100] + "..."
-        reasoning_steps = [line.strip() for line in lines if line.strip()]
+        # If text is empty, provide a fallback
+        if not text:
+            text = "I apologize, but I couldn't generate a complete response to your financial query."
+        
+        # Split into lines and filter out empty ones
+        lines = [line.strip() for line in text.split('\n') if line.strip()]
+        
+        # Use the first non-empty line as the primary answer, or the full text if short
+        if len(text) <= 200:
+            answer = text
+        else:
+            answer = lines[0] if lines else text[:200] + "..."
+        
+        reasoning_steps = lines[:5] if len(lines) > 1 else [answer]
         
         # Extract numerical outputs (simplified implementation)
         numerical_outputs = self._extract_numbers(generated_text)

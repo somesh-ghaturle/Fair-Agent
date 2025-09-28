@@ -1,49 +1,79 @@
-# FAIR-Agent Requirements
+# FAIR-Agent System Requirements
 # Dependencies for the FAIR-Agent multi-agent system
 
+# Web Framework
+Django==4.2.24
+django-cors-headers==4.3.1
+asgiref>=3.8.0
+
 # Core ML and NLP libraries
-torch>=1.9.0
-transformers>=4.20.0
-datasets>=2.0.0
+torch>=2.0.0
+transformers>=4.30.0
 accelerate>=0.20.0
+datasets>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
 
-# Language Model frameworks
+# Language Model Integration
 langchain>=0.0.200
-openai>=0.27.0  # For potential GPT integration
-anthropic>=0.3.0  # For potential Claude integration
+openai>=0.27.0
+anthropic>=0.3.0
 
-# Data processing and analysis
-pandas>=1.3.0
-numpy>=1.21.0
+# Data Processing
+pandas>=2.0.0
 scipy>=1.7.0
-scikit-learn>=1.0.0
 
-# Configuration and utilities
-pyyaml>=6.0
-python-dotenv>=0.19.0
-click>=8.0.0  # For CLI interface
-tqdm>=4.62.0  # Progress bars
+# Async & Real-time
+channels>=4.0.0
+channels-redis>=4.2.0
 
-# Evaluation and metrics
+# Data Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.15.0
+
+# Configuration & Utilities
+PyYAML>=6.0
+python-dotenv>=1.0.0
+click>=8.0.0
+tqdm>=4.62.0
+requests>=2.31.0
+
+# Evaluation and Metrics
 rouge-score>=0.1.2
-bert-score>=0.3.13
-bleurt>=0.0.2
 nltk>=3.7
 
-# Medical domain specific
-bio-embeddings>=0.2.2
-scispacy>=0.5.0
-medspacy>=1.0.0
+# Database
+sqlparse>=0.4.4
 
-# Finance domain specific
-yfinance>=0.1.70  # For financial data
-quantlib>=1.26  # Quantitative finance
+# Development & Testing (optional)
+pytest>=7.4.0
+pytest-django>=4.5.2
+black>=23.0.0
+flake8>=6.0.0
+
+# Medical Domain Specific (optional - uncomment if needed)
+# bio-embeddings>=0.2.2
+# scispacy>=0.5.0
+# medspacy>=1.0.0
+
+# Finance Domain Specific
+yfinance>=0.1.70
+# quantlib>=1.26  # May have compilation issues in Docker
+
+# Optional: Enhanced NLP capabilities (uncomment if needed)
+# sentence-transformers>=2.2.0
+# spacy>=3.6.0
 
 # Web and API frameworks (for future API development)
-fastapi>=0.68.0
-uvicorn>=0.15.0
-requests>=2.26.0
 
+# Production deployment (optional)fastapi>=0.68.0
+
+# gunicorn>=21.0.0              # Uncomment for productionuvicorn>=0.15.0
+
+# whitenoise>=6.5.0             # Uncomment for static filesrequests>=2.26.0
+
+# psycopg2-binary>=2.9.7        # Uncomment for PostgreSQL
 # Visualization
 matplotlib>=3.4.0
 seaborn>=0.11.0
@@ -53,6 +83,25 @@ plotly>=5.0.0
 pytest>=6.2.0
 pytest-cov>=2.12.0
 pytest-mock>=3.6.0
+
+# Development and testing
+pytest>=6.2.0
+pytest-asyncio>=0.18.0
+pytest-mock>=3.6.0
+black>=21.0.0
+flake8>=3.9.0
+mypy>=0.910
+
+# Django Web Application Dependencies
+Django>=4.2.0,<5.0
+djangorestframework>=3.14.0
+django-cors-headers>=4.0.0
+channels>=4.0.0
+channels-redis>=4.1.0
+redis>=4.5.0
+gunicorn>=20.1.0
+whitenoise>=6.4.0
+daphne>=4.0.0
 
 # Documentation
 sphinx>=4.0.0
@@ -84,8 +133,7 @@ python-decouple>=3.4
 # torch-audio>=0.9.0
 # torchvision>=0.10.0
 
-# Development dependencies (install with pip install -e ".[dev]")
-[dev]
+# Development dependencies (for notebook/interactive work)
 jupyter>=1.0.0
 ipython>=7.25.0
 notebook>=6.4.0

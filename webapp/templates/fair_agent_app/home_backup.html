@@ -1,0 +1,363 @@
+{% extends 'base.html' %}
+
+{% block title %}FAIR-Agent - Home{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-lg-10 mx-auto text-center">
+            <div class="card border-0 shadow-lg p-5" style="background: linear-gradient(135deg, #f8f9fa, #e9ecef);">
+                <h1 class="display-3 mb-4 fw-bold" style="color: #2c3e50;">
+                    <i class="fas fa-shield-alt me-3 text-primary"></i>FAIR-Agent
+                </h1>
+                <h2 class="h3 mb-4 text-secondary fw-light">
+                    Faithful, Adaptive, Interpretable, and Risk-Aware AI
+                </h2>
+                <p class="lead text-muted mb-5">
+                    A comprehensive multi-agent framework for trustworthy AI deployment in critical domains 
+                    including Finance and Medicine. Built for <strong>CS668 Analytics Capstone Fall 2025</strong>.
+                </p>
+                
+                <!-- Action Buttons -->
+                <div class="d-grid gap-3 d-md-flex justify-content-center">
+                    <a href="{% url 'fair_agent_app:query_interface' %}" class="btn btn-primary btn-lg px-5 py-3">
+                        <i class="fas fa-comments me-2"></i>Launch FAIR-Agent Interface
+                    </a>
+                    <a href="{% url 'fair_agent_app:health_check' %}" class="btn btn-outline-success btn-lg px-4 py-3">
+                        <i class="fas fa-heartbeat me-2"></i>System Health
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAIR Principles Grid -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4">
+            <h2 class="fw-bold" style="color: #2c3e50;">FAIR Principles</h2>
+            <p class="text-muted">Our framework is built on four core principles for trustworthy AI</p>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <i class="fas fa-check-circle fa-3x text-success"></i>
+                    </div>
+                    <h5 class="card-title fw-bold text-success">Faithfulness</h5>
+                    <p class="card-text text-muted">
+                        Ensuring responses are grounded in reliable sources and maintain accuracy
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <i class="fas fa-exchange-alt fa-3x text-primary"></i>
+                    </div>
+                    <h5 class="card-title fw-bold text-primary">Adaptability</h5>
+                    <p class="card-text text-muted">
+                        Dynamic adaptation to different domains and query contexts
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <i class="fas fa-lightbulb fa-3x text-info"></i>
+                    </div>
+                    <h5 class="card-title fw-bold text-info">Interpretability</h5>
+                    <p class="card-text text-muted">
+                        Clear reasoning and transparent decision-making processes
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <i class="fas fa-shield-alt fa-3x text-warning"></i>
+                    </div>
+                    <h5 class="card-title fw-bold text-warning">Risk-Awareness</h5>
+                    <p class="card-text text-muted">
+                        Proactive identification and mitigation of potential risks
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Status -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>System Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3">
+                            <h6 class="text-muted">Target Domains</h6>
+                            <p class="mb-0"><span class="badge bg-primary me-1">Finance</span><span class="badge bg-success">Medicine</span></p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <h6 class="text-muted">Framework</h6>
+                            <p class="mb-0">Multi-Agent LLM System</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <h6 class="text-muted">Evaluation</h6>
+                            <p class="mb-0">Comprehensive FAIR Metrics</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Custom styles for home page */
+.card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.btn {
+    transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+</style>
+{% endblock %}
+
+    <!-- System Status Overview -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="text-center mb-4" style="color: var(--fair-dark);">System Status</h2>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="metric-card text-center">
+                <div class="metric-value" id="total-queries">0</div>
+                <div class="metric-label">Total Queries Processed</div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="metric-card text-center" style="background: linear-gradient(135deg, var(--fair-success), #10b981);">
+                <div class="metric-value" id="success-rate">0%</div>
+                <div class="metric-label">Success Rate</div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="metric-card text-center" style="background: linear-gradient(135deg, var(--fair-warning), #f59e0b);">
+                <div class="metric-value" id="avg-response-time">0ms</div>
+                <div class="metric-label">Avg Response Time</div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="metric-card text-center" style="background: linear-gradient(135deg, var(--fair-secondary), #6b7280);">
+                <div class="metric-value" id="active-sessions">0</div>
+                <div class="metric-label">Active Sessions</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agent Status -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="text-center mb-4" style="color: var(--fair-dark);">Agent Status</h2>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="fair-card p-4">
+                <h5 class="card-title">
+                    <span class="status-indicator status-healthy"></span>
+                    Master Agent
+                </h5>
+                <p class="text-muted mb-2">Coordinates all agent activities</p>
+                <div class="progress progress-fair mb-2">
+                    <div class="progress-bar-fair" style="width: 95%"></div>
+                </div>
+                <small class="text-muted">Performance: 95%</small>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="fair-card p-4">
+                <h5 class="card-title">
+                    <span class="status-indicator status-healthy"></span>
+                    Safety Agent
+                </h5>
+                <p class="text-muted mb-2">Monitors risks and safety concerns</p>
+                <div class="progress progress-fair mb-2">
+                    <div class="progress-bar-fair" style="width: 92%"></div>
+                </div>
+                <small class="text-muted">Performance: 92%</small>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="fair-card p-4">
+                <h5 class="card-title">
+                    <span class="status-indicator status-healthy"></span>
+                    Evaluation Agent
+                </h5>
+                <p class="text-muted mb-2">Assesses response quality and accuracy</p>
+                <div class="progress progress-fair mb-2">
+                    <div class="progress-bar-fair" style="width: 88%"></div>
+                </div>
+                <small class="text-muted">Performance: 88%</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-12">
+            <div class="fair-card p-4">
+                <h3 class="card-title mb-4">
+                    <i class="fas fa-clock me-2"></i>Recent Activity
+                </h3>
+                <div id="recent-activity">
+                    <!-- Activity items will be loaded here -->
+                    <div class="text-center py-4">
+                        <div class="loading-spinner"></div>
+                        <p class="text-muted mt-2">Loading recent activity...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load system metrics
+    loadSystemMetrics();
+    
+    // Load recent activity
+    loadRecentActivity();
+    
+    // Set up auto-refresh
+    setInterval(loadSystemMetrics, 30000); // Refresh every 30 seconds
+    setInterval(loadRecentActivity, 60000); // Refresh every minute
+});
+
+function loadSystemMetrics() {
+    fetch('/api/system/status/')
+        .then(response => response.json())
+        .then(data => {
+            // Update metrics
+            document.getElementById('total-queries').textContent = formatNumber(data.total_queries || 0);
+            document.getElementById('success-rate').textContent = formatPercentage(data.success_rate || 0);
+            document.getElementById('avg-response-time').textContent = (data.avg_response_time || 0) + 'ms';
+            document.getElementById('active-sessions').textContent = formatNumber(data.active_sessions || 0);
+        })
+        .catch(error => {
+            console.error('Error loading system metrics:', error);
+        });
+}
+
+function loadRecentActivity() {
+    fetch('/api/recent-activity/')
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('recent-activity');
+            
+            if (data.activities && data.activities.length > 0) {
+                container.innerHTML = data.activities.map(activity => `
+                    <div class="d-flex align-items-center py-2 border-bottom">
+                        <div class="me-3">
+                            <i class="fas ${getActivityIcon(activity.type)} text-muted"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-medium">${activity.description}</div>
+                            <small class="text-muted">${formatTimestamp(activity.timestamp)}</small>
+                        </div>
+                        ${activity.status ? `<span class="fair-badge bg-${getStatusColor(activity.status)}">${activity.status}</span>` : ''}
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No recent activity to display</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading recent activity:', error);
+            document.getElementById('recent-activity').innerHTML = `
+                <div class="text-center py-4">
+                    <i class="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
+                    <p class="text-muted">Failed to load recent activity</p>
+                </div>
+            `;
+        });
+}
+
+function getActivityIcon(type) {
+    const icons = {
+        query: 'fa-comment',
+        evaluation: 'fa-chart-line',
+        safety: 'fa-shield-alt',
+        system: 'fa-cog',
+        error: 'fa-exclamation-triangle'
+    };
+    return icons[type] || 'fa-info-circle';
+}
+
+function getStatusColor(status) {
+    const colors = {
+        success: 'success',
+        completed: 'success',
+        warning: 'warning',
+        error: 'danger',
+        failed: 'danger',
+        pending: 'secondary'
+    };
+    return colors[status.toLowerCase()] || 'secondary';
+}
+
+function formatTimestamp(timestamp) {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now - date;
+    
+    if (diff < 60000) { // Less than 1 minute
+        return 'Just now';
+    } else if (diff < 3600000) { // Less than 1 hour
+        const minutes = Math.floor(diff / 60000);
+        return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    } else if (diff < 86400000) { // Less than 1 day
+        const hours = Math.floor(diff / 3600000);
+        return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    } else {
+        return date.toLocaleDateString();
+    }
+}
+</script>
+{% endblock %}

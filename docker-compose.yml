@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  fair-agent:
+    build: .
+    container_name: fair-agent-system
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount configuration files
+      - ./config:/app/config:ro
+      # Mount logs directory for persistence
+      - ./logs:/app/logs
+      # Mount data directory for models and database
+      - ./data:/app/data
+      # Mount webapp database for persistence
+      - ./webapp/db.sqlite3:/app/webapp/db.sqlite3
+    environment:
+      - DJANGO_SETTINGS_MODULE=webapp.settings
+      - PYTHONPATH=/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Optional: Add a separate service for CLI mode
+  fair-agent-cli:
+    build: .
+    container_name: fair-agent-cli
+    volumes:
+      - ./config:/app/config:ro
+      - ./logs:/app/logs
+      - ./data:/app/data
+    environment:
+      - PYTHONPATH=/app
+    command: ["python", "main.py", "--mode", "cli"]
+    profiles:
+      - cli
+    stdin_open: true
+    tty: true
+
+networks:
+  default:
+    name: fair-agent-network

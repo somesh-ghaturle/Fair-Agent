@@ -1,0 +1,65 @@
+# FAIR-Agent System Configuration
+# CS668 Analytics Capstone - Fall 2025
+
+# Finance Agent Configuration
+finance_agent:
+  model_name: "gpt2"  # Using GPT-2 for compatibility
+  device: "auto"      # Auto-detect best device (MPS/CUDA/CPU)
+  max_length: 256     # Maximum token length
+  temperature: 0.7    # Sampling temperature
+  top_p: 0.9         # Nucleus sampling parameter
+
+# Medical Agent Configuration  
+medical_agent:
+  model_name: "gpt2"  # Using GPT-2 for compatibility
+  device: "auto"      # Auto-detect best device (MPS/CUDA/CPU)
+  max_length: 256     # Maximum token length
+  temperature: 0.7    # Sampling temperature
+  top_p: 0.9         # Nucleus sampling parameter
+
+# System Configuration
+system:
+  enable_cross_domain: true      # Enable cross-domain reasoning
+  log_level: "INFO"              # Logging level
+  web_host: "127.0.0.1"         # Web interface host
+  web_port: 8000                 # Web interface port
+  debug_mode: false              # Debug mode for development
+  database_url: "sqlite:///fair_agent.db"  # Database connection
+  enable_fair_metrics: true      # Enable FAIR metrics evaluation
+  evaluation_timeout: 30         # Timeout for evaluations (seconds)
+
+# Domain Classification Settings
+classification:
+  # Threshold for domain classification confidence
+  confidence_threshold: 0.7
+  
+  # Enable adaptive thresholds for single strong terms
+  adaptive_thresholds: true
+  
+  # Cross-domain detection sensitivity
+  cross_domain_sensitivity: 0.8
+
+# Web Interface Settings
+web_interface:
+  # Enable real-time query processing
+  real_time_processing: true
+  
+  # Maximum queries per session
+  max_queries_per_session: 100
+  
+  # Session timeout (minutes)  
+  session_timeout: 30
+  
+  # Enable activity logging
+  activity_logging: true
+
+# Security Settings
+security:
+  # Rate limiting (requests per minute)
+  rate_limit: 60
+  
+  # Enable input sanitization
+  input_sanitization: true
+  
+  # Maximum query length
+  max_query_length: 1000

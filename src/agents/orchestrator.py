@@ -136,25 +136,51 @@ class Orchestrator:
         medical_keywords = [
             'medical', 'health', 'disease', 'symptom', 'treatment', 'diagnosis',
             'patient', 'clinical', 'drug', 'medication', 'therapy', 'hospital',
-            'doctor', 'physician', 'nurse', 'surgery', 'cancer', 'diabetes',
+            'doctor', 'physician', 'nurse', 'surgery', 'cancer', 'diabetes', 'diabetic', 'diabetics',
             'blood', 'heart', 'brain', 'infection', 'virus', 'bacteria',
-            'pharmaceutical', 'biomedical', 'pathology', 'anatomy'
+            'pharmaceutical', 'biomedical', 'pathology', 'anatomy', 'condition',
+            'illness', 'syndrome', 'disorder', 'chronic', 'acute', 'pain',
+            'fever', 'headache', 'medicine', 'vaccine', 'immunization',
+            'hypertension', 'cholesterol', 'obesity', 'depression', 'anxiety',
+            'asthma', 'arthritis', 'allergies', 'pneumonia', 'flu', 'covid'
         ]
         
         # Count keyword matches
         finance_score = sum(1 for keyword in finance_keywords if keyword in query_lower)
         medical_score = sum(1 for keyword in medical_keywords if keyword in query_lower)
         
-        # Determine domain based on scores
-        if finance_score > medical_score and finance_score > 0:
+        # Determine domain based on scores with adaptive thresholds
+        strong_threshold = 2  # For clear domain assignment
+        weak_threshold = 1    # For single strong medical/finance terms
+        
+        # Strong domain classification with multiple matches
+        if finance_score >= strong_threshold and finance_score > medical_score:
             return QueryDomain.FINANCE
-        elif medical_score > finance_score and medical_score > 0:
+        elif medical_score >= strong_threshold and medical_score > finance_score:
             return QueryDomain.MEDICAL
-        elif finance_score > 0 and medical_score > 0:
+        elif finance_score >= strong_threshold and medical_score >= strong_threshold:
             return QueryDomain.CROSS_DOMAIN if self.enable_cross_domain else QueryDomain.FINANCE
-        else:
-            # Use heuristics for edge cases
+        
+        # Weak domain classification with single clear matches
+        elif finance_score >= weak_threshold and finance_score > medical_score:
+            # Check if it's a clear finance term that should be routed
+            if any(term in query_lower for term in ['investment', 'stock', 'portfolio', 'financial', 'finance', 'market']):
+                return QueryDomain.FINANCE
+            else:
+                return self._heuristic_classification(query)
+        elif medical_score >= weak_threshold and medical_score > finance_score:
+            # Check if it's a clear medical term that should be routed
+            if any(term in query_lower for term in ['diabetes', 'diabetic', 'cancer', 'disease', 'medical', 'health', 'treatment', 'symptom']):
+                return QueryDomain.MEDICAL
+            else:
+                return self._heuristic_classification(query)
+        
+        # Use heuristics for any remaining weak signals
+        elif finance_score > 0 or medical_score > 0:
             return self._heuristic_classification(query)
+        else:
+            # No domain keywords found - treat as general query
+            return QueryDomain.UNKNOWN
     
     def _heuristic_classification(self, query: str) -> QueryDomain:
         """Apply heuristic rules for edge case classification"""
@@ -175,11 +201,13 @@ class Orchestrator:
         finance_matches = sum(1 for pattern in finance_patterns if re.search(pattern, query_lower))
         medical_matches = sum(1 for pattern in medical_patterns if re.search(pattern, query_lower))
         
-        if finance_matches > medical_matches:
+        # Only assign domain if there are clear pattern matches
+        if finance_matches > 0 and finance_matches > medical_matches:
             return QueryDomain.FINANCE
-        elif medical_matches > finance_matches:
+        elif medical_matches > 0 and medical_matches > finance_matches:
             return QueryDomain.MEDICAL
         else:
+            # No clear domain patterns - treat as general query
             return QueryDomain.UNKNOWN
     
     def _handle_finance_query(self, query: str, context: Optional[Dict]) -> OrchestratedResponse:
@@ -237,16 +265,78 @@ class Orchestrator:
     
     def _handle_unknown_query(self, query: str, context: Optional[Dict]) -> OrchestratedResponse:
         """Handle queries that don't clearly fit any domain"""
-        # Default to finance agent with low confidence
-        finance_response = self.finance_agent.query(query, context)
+        # For general queries, provide a general response without forcing domain-specific analysis
+        general_response = self._generate_general_response(query)
         
         return OrchestratedResponse(
-            primary_answer=f"Domain unclear. Attempted finance analysis: {finance_response.answer}",
+            primary_answer=general_response,
             domain=QueryDomain.UNKNOWN,
-            confidence_score=0.3,  # Low confidence for unknown domain
-            finance_response=finance_response,
-            routing_explanation="Query domain unclear, defaulted to Finance Agent with reduced confidence"
+            confidence_score=0.7,  # Moderate confidence for general responses
+            routing_explanation="Query identified as general topic, providing general knowledge response"
         )
+    
+    def _generate_general_response(self, query: str) -> str:
+        """Generate a general response for non-domain-specific queries"""
+        query_lower = query.lower()
+        
+        # Handle common general topics
+        if "machine learning" in query_lower or "ml" in query_lower:
+            return """Machine Learning is a subset of artificial intelligence (AI) that focuses on algorithms and statistical models that enable computers to improve their performance on tasks through experience without being explicitly programmed.
+
+Key concepts include:
+- **Supervised Learning**: Learning from labeled training data
+- **Unsupervised Learning**: Finding patterns in data without labels  
+- **Reinforcement Learning**: Learning through interaction with an environment
+- **Deep Learning**: Using neural networks with multiple layers
+
+Common applications include image recognition, natural language processing, recommendation systems, and predictive analytics. Machine learning is widely used across industries including finance, healthcare, technology, and research."""
+
+        elif "artificial intelligence" in query_lower or "ai" in query_lower:
+            return """Artificial Intelligence (AI) refers to computer systems that can perform tasks typically requiring human intelligence, such as learning, reasoning, problem-solving, and decision-making.
+
+AI encompasses various approaches:
+- **Machine Learning**: Systems that learn from data
+- **Natural Language Processing**: Understanding and generating human language
+- **Computer Vision**: Interpreting visual information
+- **Robotics**: AI-powered physical systems
+- **Expert Systems**: Knowledge-based decision support
+
+AI applications are transforming industries by automating processes, enhancing decision-making, and enabling new capabilities in areas like healthcare diagnosis, financial analysis, autonomous vehicles, and personalized recommendations."""
+
+        elif any(term in query_lower for term in ["diabetes", "diabetic", "cancer", "heart", "blood", "disease", "medical", "health"]):
+            return f"""I notice your query appears to be medical in nature. While I can provide some general information, for detailed medical analysis, please rephrase your query to be more specific about the medical context.
+
+For example, instead of "{query}", try:
+- "What are the symptoms and treatment options for diabetes?"
+- "How does diabetes affect blood sugar levels and what treatments are available?"
+- "What are the medical complications associated with diabetes?"
+
+This will route your query to our specialized Medical Agent for comprehensive, trustworthy medical analysis with proper safety assessments and evidence-based information.
+
+**Important**: This system provides educational information only and should not replace professional medical advice. Always consult healthcare professionals for medical decisions."""
+
+        elif "explain" in query_lower and any(word in query_lower for word in ["concept", "theory", "principle"]):
+            return f"""I'd be happy to help explain this topic. However, for the most comprehensive and accurate information about '{query}', I recommend:
+
+1. **Domain-Specific Analysis**: If this relates to finance or healthcare, please rephrase your query with domain-specific context for specialized insights.
+
+2. **General Resources**: For broad topics, consider consulting academic sources, textbooks, or specialized educational platforms.
+
+3. **Refined Query**: Try providing more specific context about what aspect you'd like explained.
+
+The FAIR-Agent system is optimized for finance and medical domain queries, but I'm happy to provide general guidance where possible."""
+
+        else:
+            return f"""Thank you for your question about '{query}'. 
+
+The FAIR-Agent system is specifically designed for finance and healthcare domain queries, where it can provide specialized, trustworthy analysis with comprehensive evaluation metrics.
+
+For general topics like this, I recommend:
+- **Finance-related queries**: Ask about investments, financial analysis, market trends, or economic topics
+- **Medical queries**: Ask about health conditions, treatments, medical research, or healthcare topics
+- **Cross-domain queries**: Ask about topics that intersect both domains
+
+If your question relates to either domain, please rephrase it with that context for more detailed analysis. Otherwise, consider consulting general knowledge resources or educational platforms for comprehensive information on this topic."""
     
     def _synthesize_cross_domain_response(
         self,
