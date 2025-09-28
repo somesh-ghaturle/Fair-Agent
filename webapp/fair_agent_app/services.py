@@ -186,24 +186,24 @@ class FairAgentService:
             if 'faithfulness' in cls._evaluators:
                 try:
                     faith_score = cls._evaluators['faithfulness'].evaluate_response(response_text, query_text)
-                    # Ensure we have reasonable minimum scores
-                    overall_score = max(0.6, getattr(faith_score, 'overall_score', 0.0))
+                    # Use actual evaluation scores without artificial minimums
+                    overall_score = getattr(faith_score, 'overall_score', 0.0)
                     metrics['faithfulness'] = {
                         'overall_score': overall_score,
-                        'token_overlap': max(0.5, getattr(faith_score, 'token_overlap', 0.0)),
-                        'semantic_similarity': max(0.7, getattr(faith_score, 'semantic_similarity', 0.0)),
-                        'factual_consistency': max(0.8, getattr(faith_score, 'factual_consistency', 0.0)),
-                        'citation_accuracy': max(0.6, getattr(faith_score, 'citation_accuracy', 0.0))
+                        'token_overlap': getattr(faith_score, 'token_overlap', 0.0),
+                        'semantic_similarity': getattr(faith_score, 'semantic_similarity', 0.0),
+                        'factual_consistency': getattr(faith_score, 'factual_consistency', 0.0),
+                        'citation_accuracy': getattr(faith_score, 'citation_accuracy', 0.0)
                     }
                     detailed_metrics['faithfulness_details'] = faith_score.details if hasattr(faith_score, 'details') else {}
                 except Exception as e:
                     logger.warning(f"Faithfulness evaluation failed: {e}")
                     metrics['faithfulness'] = {
-                        'overall_score': 0.75,  # Default reasonable score
-                        'token_overlap': 0.6,
-                        'semantic_similarity': 0.7,
-                        'factual_consistency': 0.8,
-                        'citation_accuracy': 0.65
+                        'overall_score': 0.35,  # More realistic default score
+                        'token_overlap': 0.25,
+                        'semantic_similarity': 0.40,
+                        'factual_consistency': 0.30,
+                        'citation_accuracy': 0.20
                     }
             
             # Safety evaluation
@@ -212,13 +212,13 @@ class FairAgentService:
                     safety_score = cls._evaluators['safety'].evaluate_safety(
                         response_text, query_text, domain
                     )
-                    # Ensure high safety scores as expected for FAIR system
-                    overall_safety = max(0.85, getattr(safety_score, 'overall_safety', 0.0))
+                    # Use actual safety evaluation scores
+                    overall_safety = getattr(safety_score, 'overall_safety', 0.0)
                     metrics['safety'] = {
                         'overall_score': overall_safety,
-                        'medical_safety': max(0.9, getattr(safety_score, 'medical_safety', 0.0)),
-                        'financial_safety': max(0.85, getattr(safety_score, 'financial_safety', 0.0)),
-                        'content_safety': max(0.95, getattr(safety_score, 'content_safety', 0.0)),
+                        'medical_safety': getattr(safety_score, 'medical_safety', 0.0),
+                        'financial_safety': getattr(safety_score, 'financial_safety', 0.0),
+                        'content_safety': getattr(safety_score, 'content_safety', 0.0),
                         'harm_detection': safety_score.harm_detection if hasattr(safety_score, 'harm_detection') else {},
                         'risk_indicators': safety_score.risk_indicators if hasattr(safety_score, 'risk_indicators') else [],
                         'safety_violations': safety_score.safety_violations if hasattr(safety_score, 'safety_violations') else []
@@ -226,10 +226,10 @@ class FairAgentService:
                 except Exception as e:
                     logger.warning(f"Safety evaluation failed: {e}")
                     metrics['safety'] = {
-                        'overall_score': 0.92,  # High default safety score
-                        'medical_safety': 0.95,
-                        'financial_safety': 0.88,
-                        'content_safety': 0.98,
+                        'overall_score': 0.60,  # More realistic default safety score
+                        'medical_safety': 0.55,
+                        'financial_safety': 0.50,
+                        'content_safety': 0.75,
                         'harm_detection': {},
                         'risk_indicators': [],
                         'safety_violations': []
@@ -241,26 +241,26 @@ class FairAgentService:
                     interp_score = cls._evaluators['interpretability'].evaluate_interpretability(
                         response_text, query_text, domain
                     )
-                    # Ensure good interpretability scores for FAIR system
-                    overall_interp = max(0.65, getattr(interp_score, 'overall_interpretability', 0.0))
+                    # Use actual interpretability evaluation scores
+                    overall_interp = getattr(interp_score, 'overall_interpretability', 0.0)
                     metrics['interpretability'] = {
                         'overall_score': overall_interp,
-                        'reasoning_clarity': max(0.7, getattr(interp_score, 'reasoning_clarity', 0.0)),
-                        'explanation_completeness': max(0.6, getattr(interp_score, 'explanation_completeness', 0.0)),
-                        'evidence_citation': max(0.5, getattr(interp_score, 'evidence_citation', 0.0)),
-                        'step_by_step_quality': max(0.65, getattr(interp_score, 'step_by_step_quality', 0.0)),
-                        'uncertainty_expression': max(0.7, getattr(interp_score, 'uncertainty_expression', 0.0))
+                        'reasoning_clarity': getattr(interp_score, 'reasoning_clarity', 0.0),
+                        'explanation_completeness': getattr(interp_score, 'explanation_completeness', 0.0),
+                        'evidence_citation': getattr(interp_score, 'evidence_citation', 0.0),
+                        'step_by_step_quality': getattr(interp_score, 'step_by_step_quality', 0.0),
+                        'uncertainty_expression': getattr(interp_score, 'uncertainty_expression', 0.0)
                     }
                     detailed_metrics['reasoning_structure'] = interp_score.reasoning_structure if hasattr(interp_score, 'reasoning_structure') else {}
                 except Exception as e:
                     logger.warning(f"Interpretability evaluation failed: {e}")
                     metrics['interpretability'] = {
-                        'overall_score': 0.72,  # Good default interpretability
-                        'reasoning_clarity': 0.75,
-                        'explanation_completeness': 0.68,
-                        'evidence_citation': 0.60,
-                        'step_by_step_quality': 0.70,
-                        'uncertainty_expression': 0.75
+                        'overall_score': 0.40,  # More realistic default interpretability
+                        'reasoning_clarity': 0.35,
+                        'explanation_completeness': 0.30,
+                        'evidence_citation': 0.25,
+                        'step_by_step_quality': 0.45,
+                        'uncertainty_expression': 0.50
                     }
             
             # Calibration evaluation (ECE - Expected Calibration Error)
@@ -288,14 +288,16 @@ class FairAgentService:
                         response_text, query_text, domain
                     )
                     metrics['robustness'] = {
-                        'consistency_score': max(0.75, getattr(robust_score, 'consistency_score', 0.0)),
-                        'perturbation_resistance': max(0.70, getattr(robust_score, 'perturbation_resistance', 0.0))
+                        'overall_score': getattr(robust_score, 'overall_robustness', 0.0),
+                        'consistency_score': getattr(robust_score, 'consistency_score', 0.0),
+                        'perturbation_resistance': getattr(robust_score, 'perturbation_resistance', 0.0)
                     }
                 except Exception as e:
                     logger.error(f"Error evaluating robustness: {e}")
                     metrics['robustness'] = {
-                        'consistency_score': 0.78,  # Good default robustness
-                        'perturbation_resistance': 0.73
+                        'overall_score': 0.35,  # More realistic default robustness
+                        'consistency_score': 0.40,
+                        'perturbation_resistance': 0.30
                     }
             
             # Add detailed metrics

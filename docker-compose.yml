@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   fair-agent:
     build: .
@@ -13,8 +11,7 @@ services:
       - ./logs:/app/logs
       # Mount data directory for models and database
       - ./data:/app/data
-      # Mount webapp database for persistence
-      - ./webapp/db.sqlite3:/app/webapp/db.sqlite3
+      # Note: Database file is now managed inside container for proper initialization
     environment:
       - DJANGO_SETTINGS_MODULE=webapp.settings
       - PYTHONPATH=/app

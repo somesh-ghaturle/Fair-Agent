@@ -183,24 +183,24 @@ def process_query_api(request):
             
             # Return successful response with comprehensive metrics
             # Ensure we have valid FAIR metrics with fallback defaults
-            faithfulness_score = query_record.faithfulness_score or metrics.get('faithfulness', {}).get('overall_score', 0.75)
-            interpretability_score = query_record.interpretability_score or metrics.get('interpretability', {}).get('overall_score', 0.72)
-            risk_awareness_score = query_record.risk_awareness_score or metrics.get('safety', {}).get('overall_score', 0.92)
+            faithfulness_score = query_record.faithfulness_score or metrics.get('faithfulness', {}).get('overall_score', 0.35)
+            interpretability_score = query_record.interpretability_score or metrics.get('interpretability', {}).get('overall_score', 0.40)
+            risk_awareness_score = query_record.risk_awareness_score or metrics.get('safety', {}).get('overall_score', 0.60)
             
             response_data = {
                 'query_id': query_record.id,
                 'answer': result.get('primary_answer', ''),
-                'confidence': result.get('confidence_score', 0.8),
+                'confidence': result.get('confidence_score', 0.6),
                 'domain': domain,
-                'safety_score': result.get('safety_score', 0.9),
+                'safety_score': result.get('safety_score', 0.65),
                 'processing_time': result.get('processing_time'),
                 'status': 'success',
                 'fair_metrics': {
                     'faithfulness': faithfulness_score,
                     'interpretability': interpretability_score,
                     'risk_awareness': risk_awareness_score,
-                    'calibration_error': metrics.get('calibration', {}).get('expected_calibration_error', 0.05),
-                    'robustness': metrics.get('robustness', {}).get('consistency_score', 0.78),
+                    'calibration_error': metrics.get('calibration', {}).get('expected_calibration_error', 0.25),
+                    'robustness': metrics.get('robustness', {}).get('overall_score', 0.35),
                     'detailed_faithfulness': {
                         'token_overlap': metrics.get('faithfulness', {}).get('token_overlap', 0.0),
                         'semantic_similarity': metrics.get('faithfulness', {}).get('semantic_similarity', 0.0),

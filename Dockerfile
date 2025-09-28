@@ -31,6 +31,9 @@ RUN mkdir -p logs data/models config
 # Make setup script executable
 RUN chmod +x setup.sh
 
+# Initialize database and run migrations
+RUN cd webapp && python manage.py migrate --run-syncdb
+
 # Expose port
 EXPOSE 8000
 

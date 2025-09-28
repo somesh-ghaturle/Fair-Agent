@@ -21,7 +21,7 @@ medical_agent:
 system:
   enable_cross_domain: true      # Enable cross-domain reasoning
   log_level: "INFO"              # Logging level
-  web_host: "127.0.0.1"         # Web interface host
+  web_host: "0.0.0.0"           # Web interface host (0.0.0.0 for Docker)
   web_port: 8000                 # Web interface port
   debug_mode: false              # Debug mode for development
   database_url: "sqlite:///fair_agent.db"  # Database connection
