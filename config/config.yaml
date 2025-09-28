@@ -1,0 +1,177 @@
+# FAIR-Agent Configuration
+# Faithful, Adaptive, Interpretable, and Risk-Aware Agentic LLMs for Finance and Medicine
+# Configuration file for FAIR-Agent system components
+
+# Model Configuration
+models:
+  finance:
+    model_name: "gpt2"
+    device: "auto"
+    max_length: 256
+    
+  medical:
+    model_name: "gpt2"
+    device: "auto"
+    max_length: 256
+
+# Dataset Configuration
+datasets:
+  finance:
+    - name: "finqa"
+      source: "ibm-research/finqa"
+      local_path: "./datasets/finance/finqa"
+      preprocessing_required: true
+    - name: "tatqa"
+      source: "NExTplusplus/tat-qa"
+      local_path: "./datasets/finance/tatqa"
+      preprocessing_required: true
+    - name: "convfinqa"
+      source: "ibm-research/convfinqa"
+      local_path: "./datasets/finance/convfinqa"
+      preprocessing_required: true
+      
+  medical:
+    - name: "mimiciv"
+      source: "physionet/mimiciv"
+      local_path: "./datasets/medical/mimiciv"
+      preprocessing_required: true
+      access_required: true
+    - name: "pubmedqa"
+      source: "pubmedqa/pubmedqa"
+      local_path: "./datasets/medical/pubmedqa"
+      preprocessing_required: true
+    - name: "medmcqa"
+      source: "medmcqa/medmcqa"
+      local_path: "./datasets/medical/medmcqa"
+      preprocessing_required: false
+
+# Orchestrator Configuration
+orchestrator:
+  enable_cross_domain: true
+  confidence_threshold: 0.5
+  max_retries: 3
+  timeout_seconds: 30
+  
+# Evaluation Configuration
+evaluation:
+  metrics:
+    - faithfulness
+    - calibration
+    - robustness
+    - safety
+    - interpretability
+  
+  faithfulness:
+    method: "token_overlap"
+    threshold: 0.7
+    
+  calibration:
+    method: "confidence_accuracy"
+    bins: 10
+    
+  robustness:
+    perturbation_types:
+      - "synonym_replacement"
+      - "random_insertion"
+      - "random_deletion"
+    perturbation_ratio: 0.1
+    
+  safety:
+    enable_medical_safety: true
+    enable_financial_risk: true
+    safety_keywords_file: "./config/safety_keywords.yaml"
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file_path: "./logs/fair_agent.log"
+  max_file_size: "10MB"
+  backup_count: 5
+
+# API Configuration (for future extensions)
+api:
+  host: "localhost"
+  port: 8000
+  enable_cors: true
+  rate_limit: 100  # requests per minute
+
+# Cache Configuration
+cache:
+  enable: true
+  type: "file"  # options: file, redis, memory
+  path: "./cache"
+  ttl_seconds: 3600  # 1 hour
+
+# Security Configuration
+security:
+  enable_input_validation: true
+  max_query_length: 1000
+  blocked_patterns:
+    - "harmful medical advice"
+    - "financial manipulation"
+
+# FAIR-Agent Specific Configuration
+fair_agent:
+  # Faithfulness settings
+  faithfulness:
+    target_improvement: 0.20  # 20% improvement over baseline
+    baseline_methods: ["react", "toolformer"]
+    evaluation_datasets: ["finqa", "tatqa", "pubmedqa", "mimiciv"]
+    
+  # Adaptability settings  
+  adaptability:
+    enable_domain_switching: true
+    cross_domain_threshold: 0.3
+    adaptation_methods: ["few_shot", "fine_tuning"]
+    
+  # Interpretability settings
+  interpretability:
+    enable_reasoning_chains: true
+    enable_confidence_scores: true
+    enable_evidence_citation: true
+    explanation_methods: ["attention", "gradient", "lime"]
+    
+  # Risk-Awareness settings
+  risk_awareness:
+    enable_uncertainty_quantification: true
+    hallucination_reduction_target: 0.30  # 30% reduction
+    calibration_error_threshold: 0.1  # ECE under 0.1
+    risk_domains: ["medical_safety", "financial_risk", "ethical_concerns"]
+
+# Benchmarking Configuration
+benchmarking:
+  baseline_models:
+    - name: "react"
+      description: "ReAct baseline for comparison"
+    - name: "toolformer" 
+      description: "Toolformer baseline for comparison"
+    - name: "vanilla_gpt2"
+      description: "Standard GPT-2 without enhancements"
+      
+  metrics:
+    faithfulness:
+      - "token_overlap"
+      - "semantic_similarity" 
+      - "factual_consistency"
+    adaptability:
+      - "cross_domain_transfer"
+      - "few_shot_learning"
+      - "domain_adaptation_speed"
+    interpretability:
+      - "reasoning_clarity"
+      - "explanation_completeness"
+      - "evidence_quality"
+    risk_awareness:
+      - "hallucination_rate"
+      - "calibration_error"
+      - "safety_violation_rate"
+      - "uncertainty_correlation"
+
+# Project Timeline Configuration
+timeline:
+  phase1_domain_agents: "2025-09-01 to 2025-10-31"
+  phase2_technical_docs: "2025-11-01 to 2025-11-03" 
+  phase3_system_analysis: "2025-10-01 to 2025-11-30"
+  phase4_final_deliverables: "2025-12-01 to 2025-12-15"
+  enable_content_filtering: true
