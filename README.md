@@ -135,13 +135,15 @@ Answer: [Finance Agent provides market analysis insights]
 
 ## 📊 FAIR Metrics
 
-The system evaluates responses across multiple dimensions:
+The system evaluates responses across multiple dimensions with realistic GPT-2 based scoring:
 
-- **Faithfulness** (~75%): Accuracy and consistency with source information
-- **Interpretability** (~72%): Clarity and explainability of responses  
-- **Risk-Awareness** (~92%): Safety and risk assessment capabilities
-- **Calibration Error**: Confidence calibration accuracy
-- **Robustness**: Performance under various conditions
+- **Faithfulness** (25-60%): Accuracy and consistency with source information
+- **Interpretability** (40-60%): Clarity and explainability of responses with enhanced reasoning
+- **Risk-Awareness** (56-76%): Safety and risk assessment capabilities with domain-specific disclaimers
+- **Calibration Error** (30-70%): Confidence calibration accuracy
+- **Robustness** (20-25%): Performance under various conditions, reflecting base model limitations
+
+*Note: Scores reflect realistic GPT-2 model capabilities after system recalibration.*
 
 ## 🔧 Configuration
 
@@ -308,258 +310,27 @@ For questions or issues related to this capstone project, please refer to:
 
 ---
 
-**CS668 Analytics Capstone - Fall 2025**  
-**FAIR-Agent System - Trustworthy AI for Finance and Healthcare**: Faithful, Adaptive, Interpretable, and Risk-aware Multi-Agent Framework
+## 🏆 Academic Project Information
 
-![FAIR-Agent Logo](https://img.shields.io/badge/FAIR-Agent-blue.svg) ![Python](https://img.shields.io/badge/python-3.7+-blue.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg)
+**Course**: CS668 Analytics Capstone - Fall 2025  
+**Institution**: Pace University  
+**Team Members**: 
+- Somesh Ramesh Ghaturle
+- Darshil Malaviya  
+- Priyank Mistry
 
-## Overview
+![FAIR-Agent Logo](https://img.shields.io/badge/FAIR-Agent-blue.svg) ![Python](https://img.shields.io/badge/python-3.9+-blue.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-FAIR-Agent is a modular multi-agent framework that integrates **Faithful**, **Adaptive**, **Interpretable**, and **Risk-aware** LLM agents specifically designed for high-stakes domains like finance and medicine. The system ensures reliable, safe, and transparent AI assistance while maintaining domain-specific expertise.
 
-## System Architecture
 
-```mermaid
-graph TD
-    A[User Query] --> B[Orchestrator]
-    B --> C{Query Classification}
-    
-    C -->|Finance| D[Finance Agent]
-    C -->|Medical| E[Medical Agent]  
-    C -->|Cross-Domain| F[Multi-Agent Coordination]
-    
-    D --> G[Financial Risk Assessment]
-    E --> H[Medical Safety Check]
-    F --> I[Domain Integration]
-    
-    G --> J[Faithfulness Validation]
-    H --> J
-    I --> J
-    
-    J --> K[Response Calibration]
-    K --> L[Interpretability Enhancement]
-    L --> M[Final Response]
-    
-    M --> N[Comprehensive Evaluation]
-    N --> O[FAIR Metrics Dashboard]
-    
-    subgraph "Evaluation Framework"
-        P[Faithfulness Score]
-        Q[Calibration Score]  
-        R[Robustness Score]
-        S[Safety Score]
-        T[Interpretability Score]
-    end
-    
-    N --> P
-    N --> Q
-    N --> R
-    N --> S
-    N --> T
-    
-    style A fill:#e1f5fe
-    style M fill:#c8e6c9
-    style O fill:#fff3e0
-```
+## 📄 License
 
-## The FAIR Framework
+MIT License - Copyright (c) 2025 FAIR-Agent Team
 
-### 🔍 Faithful
-- **Truthfulness and Reliability**: Ensures agents provide accurate, verifiable information
-- **Source Verification**: Tracks and validates information sources
-- **Hallucination Detection**: Identifies and mitigates false or fabricated content
-- **Evidence Grounding**: Bases responses on solid factual foundations
-
-### 🔄 Adaptive
-- **Context Awareness**: Adjusts responses based on user expertise and situation
-- **Dynamic Complexity**: Modifies technical depth based on audience
-- **Domain Specialization**: Tailors behavior for specific fields (finance, medicine)
-- **Personalized Interaction**: Adapts communication style to user needs
-
-### 📊 Interpretable
-- **Transparency**: Provides clear explanations of reasoning processes
-- **Confidence Scoring**: Quantifies certainty levels in responses
-- **Decision Traceability**: Shows step-by-step logic chains
-- **Uncertainty Communication**: Clearly expresses limitations and unknowns
-
-### 🛡️ Risk-Aware
-- **Safety Protocols**: Implements domain-specific safety measures
-- **Ethical Guidelines**: Ensures responses align with professional standards
-- **Harm Prevention**: Detects and prevents potentially dangerous advice
-- **Professional Disclaimers**: Includes appropriate legal and safety warnings
-
-## Key Features
-
-### Domain Specialization
-- **Finance**: Portfolio analysis, investment recommendations, risk assessment, market analysis
-- **Medicine**: Symptom analysis, treatment information, drug interactions, medical literature review
-- **Cross-Domain**: Healthcare economics, pharmaceutical investments, medical device markets
-
-### Safety First Design
-- Real-time harmful content detection
-- Medical advice disclaimers and limitations
-- Financial risk warnings and disclaimers
-- Escalation protocols for high-risk queries
-
-### Technical Stack
-- **Python 3.7+**: Core programming language
-- **Transformers**: Hugging Face model integration
-- **PyTorch**: Deep learning backend
-- **LangChain**: LLM orchestration and chaining
-- **sentence-transformers**: Semantic similarity and embeddings
-
-## Quick Start
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/your-org/fair-agent.git
-cd fair-agent
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### Basic Usage
-
-```python
-from src.agents import Orchestrator
-
-# Initialize the system
-orchestrator = Orchestrator()
-
-# Process a query
-result = orchestrator.process_query(
-    "What are the investment risks of pharmaceutical stocks during a pandemic?"
-)
-
-print(f"Answer: {result.primary_answer}")
-print(f"Confidence: {result.confidence_score}")
-print(f"Domain: {result.domain}")
-print(f"Safety Score: {result.safety_score}")
-```
-
-### Running Evaluations
-
-```bash
-# Run comprehensive evaluation
-python scripts/evaluate.py --config config/config.yaml --output results/
-
-# Preprocess datasets
-python scripts/preprocess_finance_data.py
-python scripts/preprocess_medical_data.py
-
-# Run pipeline with custom data
-python scripts/run_pipeline.py --input data/test_queries.json
-```
-
-## Project Structure
-
-```
-fair-agent/
-├── README.md                          # This file
-├── requirements.txt                   # Python dependencies
-├── config/
-│   ├── config.yaml                   # Main configuration
-│   └── safety_keywords.yaml          # Safety filtering rules
-├── src/
-│   ├── __init__.py
-│   ├── agents/
-│   │   ├── __init__.py
-│   │   ├── finance_agent.py          # Financial domain specialist
-│   │   ├── medical_agent.py          # Medical domain specialist
-│   │   └── orchestrator.py           # Central coordination
-│   └── evaluation/
-│       ├── __init__.py
-│       ├── faithfulness.py           # Faithfulness metrics
-│       ├── calibration.py            # Confidence calibration
-│       ├── robustness.py             # Adversarial robustness
-│       ├── safety.py                 # Safety evaluation
-│       └── interpretability.py       # Explanation quality
-├── scripts/
-│   ├── download_models.py            # Model setup
-│   ├── preprocess_finance_data.py    # Finance data preparation
-│   ├── preprocess_medical_data.py    # Medical data preparation
-│   ├── run_pipeline.py               # End-to-end pipeline
-│   └── evaluate.py                   # Comprehensive evaluation
-├── data/                             # Datasets and test data
-├── results/                          # Evaluation outputs
-└── tests/                           # Unit and integration tests
-```
-
-## Evaluation Metrics
-
-### FAIR Scoring System
-
-| Dimension | Metrics | Weight |
-|-----------|---------|---------|
-| **Faithfulness** | Token overlap, semantic similarity, factual consistency | 25% |
-| **Adaptability** | Cross-domain performance, context adaptation | 25% |
-| **Interpretability** | Reasoning clarity, explanation completeness, evidence citation | 25% |
-| **Risk-awareness** | Safety compliance, uncertainty quantification, harm prevention | 25% |
-
-### Performance Benchmarks
-
-- **Faithfulness Score**: >0.8 for production readiness
-- **Safety Compliance**: 100% for harmful content detection
-- **Interpretability**: >0.75 for explanation quality
-- **Calibration ECE**: <0.1 for well-calibrated confidence
-
-## Safety and Ethics
-
-### Medical Safety Protocols
-- No direct diagnostic advice
-- Clear disclaimers about professional consultation
-- Harm detection for dangerous self-treatment suggestions
-- Escalation for emergency medical situations
-
-### Financial Safety Measures
-- Risk warnings for investment advice
-- Disclaimers about market volatility
-- Detection of pump-and-dump schemes
-- Compliance with financial advisory regulations
-
-## Team Members
-
-This project is developed by a team of three students:
-
-- **Somesh Ramesh Ghaturle**
-- **Darshil Malaviya**  
-- **Priyank Mistry**
-
-## MIT License
-
-MIT License
-
-Copyright (c) 2025 Somesh Ramesh Ghaturle, Darshil Malaviya, Priyank Mistry
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-## Disclaimer
+## ⚠️ Disclaimer
 
 FAIR-Agent is a research project designed for educational and research purposes. It should not be used as a substitute for professional medical advice, diagnosis, or treatment, nor for professional financial advice. Always consult qualified professionals for important decisions in these domains.
 
 ---
 
-© 2025 FAIR-Agent Team - Educational Research Project
+© 2025 FAIR-Agent Team - CS668 Analytics Capstone Project
