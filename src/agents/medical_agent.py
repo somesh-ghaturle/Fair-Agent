@@ -45,9 +45,9 @@ class MedicalAgent:
     
     def __init__(
         self, 
-        model_name: str = "microsoft/BioGPT-Large",
+        model_name: str = "gpt2",
         device: str = "auto",
-        max_length: int = 512
+        max_length: int = 256
     ):
         """
         Initialize the Medical Agent

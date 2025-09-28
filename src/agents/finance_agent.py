@@ -44,9 +44,9 @@ class FinanceAgent:
     
     def __init__(
         self, 
-        model_name: str = "meta-llama/Llama-2-7b-hf",
+        model_name: str = "gpt2",
         device: str = "auto",
-        max_length: int = 512
+        max_length: int = 256
     ):
         """
         Initialize the Finance Agent
