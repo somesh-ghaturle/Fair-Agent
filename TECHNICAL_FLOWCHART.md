@@ -398,7 +398,7 @@ graph TB
 
 ### 12. **Complete Codebase Map**
 
-```
+```text
 FAIR-Agent/
 ├── 🏠 main.py                          # System Entry Point
 ├── 🐳 docker-compose.yml               # Container Orchestration
