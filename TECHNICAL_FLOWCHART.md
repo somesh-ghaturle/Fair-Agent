@@ -553,7 +553,7 @@ graph TB
     
     B -->|New Agent| C[📁 src/agents/<br/>Create new agent class<br/>Follow pattern of existing agents]
     
-    B -->|New Metric| D[📁 src/evaluation/<br/>Create evaluator class<br/>Implement evaluate() method]
+    B -->|New Metric| D[📁 src/evaluation/<br/>Create evaluator class<br/>Implement evaluate method]
     
     B -->|Enhancement| E[📁 src/enhancement/<br/>Create enhancement module<br/>Follow existing patterns]
     
