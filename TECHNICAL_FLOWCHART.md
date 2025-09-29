@@ -159,7 +159,7 @@ graph TB
     E -->|Financial| G[Financial Citations<br/>- Market Data<br/>- Economic Reports<br/>- Analysis]
     E -->|General| H[General Sources<br/>- Educational Content]
     
-    F --> I[Citation Formatter<br/>[1] [2] [3] Format]
+    F --> I[Citation Formatter<br/>Reference Format]
     G --> I
     H --> I
     
@@ -352,7 +352,7 @@ graph TB
     F --> J[JSON API Response<br/>services.py]
     G --> K[Template Rendering<br/>results.html]
     
-    J --> L[Response Format:<br/>{<br/>  "query_id": int,<br/>  "answer": string,<br/>  "confidence": float,<br/>  "domain": string,<br/>  "fair_metrics": object,<br/>  "processing_time": float<br/>}]
+    J --> L[Response Format:<br/>JSON with query_id,<br/>answer, confidence,<br/>domain, fair_metrics,<br/>processing_time]
     
     style B fill:#e3f2fd
     style F fill:#fff3e0
@@ -510,7 +510,7 @@ graph TB
 
 ```mermaid
 graph TB
-    A[👤 User Query:<br/>"What are symptoms of diabetes?"] --> B[🌐 Web Interface<br/>Form Submission]
+    A[👤 User Query:<br/>What are symptoms of diabetes?] --> B[🌐 Web Interface<br/>Form Submission]
     
     B --> C[📡 API Endpoint<br/>/api/query/process/]
     
@@ -524,7 +524,7 @@ graph TB
     
     G --> H[🛡️ Safety Enhancement<br/>Medical Disclaimer Added]
     
-    H --> I[📚 Evidence Enhancement<br/>Medical Citations Added<br/>[1] Diabetes Guidelines<br/>[2] Medical Research]
+    H --> I[📚 Evidence Enhancement<br/>Medical Citations Added<br/>Diabetes Guidelines<br/>Medical Research]
     
     I --> J[🧠 Reasoning Enhancement<br/>6-Step Medical Analysis<br/>Step 1: Symptom Analysis<br/>Step 2: Common Causes<br/>...etc]
     
@@ -532,7 +532,7 @@ graph TB
     
     K --> L[💾 Database Storage<br/>QueryRecord Saved<br/>ID: 123, Timestamp, Metrics]
     
-    L --> M[📤 JSON Response<br/>{<br/>  "answer": "Enhanced Response...",<br/>  "fair_metrics": {...},<br/>  "confidence": 1.0<br/>}]
+    L --> M[📤 JSON Response<br/>Contains answer,<br/>fair_metrics,<br/>confidence data]
     
     M --> N[🌐 Frontend Display<br/>Results Page with<br/>Metrics Dashboard]
     
@@ -616,9 +616,148 @@ graph TB
 
 ---
 
-**📅 Last Updated**: September 28, 2025  
+## 📚 **Ethical Foundations & Research Citations**
+
+### **Core Research Papers Informing FAIR-Agent Design**
+
+The FAIR-Agent system is built upon rigorous ethical and methodological foundations drawn from leading research in AI ethics, medical statistics, and data science accountability. The following citations directly inform our system architecture and evaluation frameworks:
+
+#### **1. Ethics in Medical Trials: Where Does Statistics Fit In? (Andrew Gelman)**
+
+**Key Insights for FAIR-Agent:**
+- **Faithfulness Priority**: Just as trial physicians faced incentives to suppress negative outcomes, AI systems can produce hallucinations that obscure risks. Our system prioritizes faithfulness through reliable evidence grounding and risk-awareness by flagging uncertainty.
+- **Evaluation Metric Alignment**: The debate over progression-free survival (PFS) versus overall survival (OS) highlights the importance of choosing evaluation metrics that capture real-world utility rather than narrow statistical endpoints.
+- **Transparency Requirements**: Gelman's call for data archiving aligns with our reproducible pipeline development for benchmarking against FinQA, TAT-QA, MIMIC-IV, and PubMedQA datasets.
+
+**Implementation in FAIR-Agent:**
+- Enhanced safety disclaimer system preventing misleading medical advice
+- Evidence-based response grounding with source citations
+- Realistic FAIR metrics reflecting actual model capabilities vs. inflated benchmarks
+
+#### **2. Data Rights and Wrongs (Robert Langkjær-Bain)**
+
+**Key Insights for FAIR-Agent:**
+- **Interpretability Culture**: Establishes need for "culture of explanation" where systems articulate decision-making processes, trade-offs, and accountability for errors.
+- **Multiple Fairness Definitions**: COMPAS algorithm analysis shows fairness is context-dependent, requiring multiple fairness criteria evaluation.
+- **Privacy & Contextual Integrity**: Emphasizes using sensitive data only for intended purposes with strong governance practices.
+
+**Implementation in FAIR-Agent:**
+- Chain-of-thought reasoning providing transparent decision traces
+- Multi-dimensional fairness evaluation (calibration error, subgroup parity)
+- Strict data governance for sensitive datasets like MIMIC-IV
+- Confidence scoring and uncertainty quantification
+
+#### **3. Honesty and Transparency Are Not Enough (Andrew Gelman)**
+
+**Key Insights for FAIR-Agent:**
+- **Transparency vs. Quality**: Open data doesn't guarantee reliable results; design quality must take priority over procedural openness.
+- **Replication Crisis Parallels**: LLM hallucinations represent outputs that appear correct but lack faithfulness to evidence, mirroring scientific replication failures.
+- **Methodological Rigor**: Emphasizes Type S (sign) and Type M (magnitude) error assessment for reliable results.
+
+**Implementation in FAIR-Agent:**
+- Rigorous evaluation pipelines prioritizing data quality over benchmark optimization
+- Robustness testing against adversarial inputs and edge cases
+- Comprehensive error analysis including hallucination detection
+- Reproducible research methodology with full code and benchmark sharing
+
+### **Integrated Ethical Framework**
+
+These research foundations establish four critical design principles embedded throughout FAIR-Agent:
+
+#### **🔍 Incentive Alignment**
+- **Problem**: Financial and professional incentives often undermine integrity in medical trials and AI systems
+- **FAIR-Agent Solution**: Calibrated, risk-aware outputs prioritized over superficially impressive but unreliable predictions
+- **Implementation**: Realistic performance metrics, honest uncertainty quantification
+
+#### **📊 Faithful Evaluation Metrics**
+- **Problem**: Proxy measures (PFS vs OS, biased fairness metrics) can mislead stakeholders
+- **FAIR-Agent Solution**: Evaluation metrics aligned with real-world finance and medical outcomes
+- **Implementation**: Multi-dimensional FAIR assessment, domain-specific validation
+
+#### **🔓 Substantive Transparency**
+- **Problem**: Procedural openness without methodological rigor produces unreliable results
+- **FAIR-Agent Solution**: Interpretable outputs paired with robust evaluation and reproducible design
+- **Implementation**: Evidence citations, reasoning traces, confidence estimates, open benchmarking
+
+#### **⚖️ Proactive Fairness**
+- **Problem**: Data-driven systems inadvertently amplify bias and discrimination
+- **FAIR-Agent Solution**: Multi-criteria fairness auditing with subgroup calibration checks
+- **Implementation**: Fairness evaluation across demographic groups, bias detection in financial/medical recommendations
+
+### **Risk Mitigation Strategies**
+
+Based on cited research, FAIR-Agent addresses key concerns:
+
+**Data Limitations**: Public datasets may not capture real-world complexity
+- *Mitigation*: Multi-source validation, external benchmarking, domain expert review
+
+**Privacy & Sensitive Data**: De-identified data carries contextual integrity risks  
+- *Mitigation*: Strict data governance, purpose limitation, access controls
+
+**Evaluation Pressure**: Academic metrics may prioritize benchmarks over faithfulness
+- *Mitigation*: Balanced scorecard including faithfulness, safety, and real-world utility metrics
+
+### **Citation Integration in System Architecture**
+
+These ethical foundations are embedded in FAIR-Agent's technical architecture:
+
+```mermaid
+graph TB
+    A[Ethical Research Foundation] --> B[System Design Principles]
+    
+    B --> C[Gelman: Medical Ethics<br/>& Statistical Rigor]
+    B --> D[Langkjær-Bain: Data Ethics<br/>& Fairness Framework]
+    B --> E[Gelman: Transparency<br/>& Methodological Quality]
+    
+    C --> F[Safety Disclaimer System<br/>Evidence Grounding<br/>Risk Awareness]
+    D --> G[Interpretability Framework<br/>Fairness Evaluation<br/>Privacy Protection]
+    E --> H[Robust Evaluation<br/>Reproducible Methods<br/>Quality Assurance]
+    
+    F --> I[FAIR-Agent Implementation]
+    G --> I
+    H --> I
+    
+    I --> J[Trustworthy AI for<br/>Finance & Medicine]
+    
+    style A fill:#e1f5fe
+    style I fill:#fff3e0
+    style J fill:#c8e6c9
+```
+
+---
+
+**📅 Last Updated**: September 29, 2025  
 **👥 Team**: Somesh Ghaturle, Darshil Malaviya, Priyank Mistry  
 **📧 Contact**: Refer to individual team members for specific component questions
+
+---
+
+## 📖 **Bibliography & References**
+
+### **Primary Research Citations**
+
+1. **Gelman, A.** "Ethics in Medical Trials: Where Does Statistics Fit In?" *Statistical Analysis and Data Mining*, focusing on intersection of statistical methodology and medical ethics through contract research exploitation and pharmaceutical endpoint controversies.
+
+2. **Langkjær-Bain, R.** "Data Rights and Wrongs." Investigation of data ethics challenges in big data and AI era, covering privacy, consent, algorithmic bias, fairness definitions, and accountability frameworks including Cambridge Analytica case study and COMPAS algorithm analysis.
+
+3. **Gelman, A.** "Honesty and Transparency Are Not Enough." Critique of transparency assumptions in addressing scientific replication crisis, emphasizing design quality, Type S/M error assessment, and institutional culture reform in academic publishing.
+
+### **Technical Implementation References**
+
+- **FinQA Dataset**: Financial question-answering benchmark for numerical reasoning
+- **TAT-QA Dataset**: Tabular and textual question-answering for financial analysis  
+- **MIMIC-IV Dataset**: Medical intensive care unit database for clinical decision support
+- **PubMedQA Dataset**: Biomedical question-answering from research literature
+- **COMPAS Algorithm**: Correctional Offender Management Profiling for Alternative Sanctions risk assessment tool
+- **GDPR Right to Explanation**: European Union data protection regulation transparency requirements
+
+### **Methodological Frameworks Referenced**
+
+- **FAIR Principles**: Faithfulness, Adaptability, Interpretability, Risk-awareness for trustworthy AI
+- **Type S/M Error Analysis**: Statistical methodology for assessing sign and magnitude errors in research
+- **Contextual Integrity**: Privacy framework emphasizing appropriate data use within intended contexts
+- **Multi-Criteria Fairness**: Evaluation across multiple fairness definitions (calibration, demographic parity, equalized odds)
+- **Chain-of-Thought Reasoning**: Transparent decision-making process with step-by-step logic traces
 
 ---
 
