@@ -744,20 +744,65 @@ graph TB
 
 ### **Technical Implementation References**
 
-- **FinQA Dataset**: Financial question-answering benchmark for numerical reasoning
-- **TAT-QA Dataset**: Tabular and textual question-answering for financial analysis  
-- **MIMIC-IV Dataset**: Medical intensive care unit database for clinical decision support
-- **PubMedQA Dataset**: Biomedical question-answering from research literature
-- **COMPAS Algorithm**: Correctional Offender Management Profiling for Alternative Sanctions risk assessment tool
-- **GDPR Right to Explanation**: European Union data protection regulation transparency requirements
+- **FinQA Dataset**: Chen, Z., et al. (2021). "FinQA: A Dataset of Numerical Reasoning over Financial Data." *EMNLP 2021*. 
+  - 🔗 [Dataset](https://huggingface.co/datasets/ibm-research/finqa) | [Paper](https://arxiv.org/abs/2109.00122)
+  - Financial question-answering benchmark for numerical reasoning over earnings reports
+
+- **TAT-QA Dataset**: Zhu, F., et al. (2021). "TAT-QA: A Question Answering Benchmark on a Hybrid of Tabular and Textual Content in Finance." 
+  - 🔗 [Dataset](https://huggingface.co/datasets/NExTplusplus/tat-qa) | [Paper](https://arxiv.org/abs/2105.07624)
+  - Tabular and textual question-answering for financial analysis with hybrid reasoning
+
+- **MIMIC-IV Dataset**: Johnson, A., et al. (2023). "MIMIC-IV: A freely accessible electronic health record dataset." *Scientific Data*.
+  - 🔗 [Dataset](https://physionet.org/content/mimiciv/) | [Documentation](https://mimic.mit.edu/)
+  - Medical intensive care unit database for clinical decision support (access requires training)
+
+- **PubMedQA Dataset**: Jin, Q., et al. (2019). "PubMedQA: A Dataset for Biomedical Research Question Answering." *EMNLP 2019*.
+  - 🔗 [Dataset](https://huggingface.co/datasets/pubmedqa) | [Paper](https://arxiv.org/abs/1909.06146)
+  - Biomedical question-answering from peer-reviewed research literature
+
+- **COMPAS Algorithm**: Northpointe Inc. Correctional Offender Management Profiling for Alternative Sanctions.
+  - 🔗 [ProPublica Analysis](https://www.propublica.org/article/machine-bias-risk-assessments-in-criminal-sentencing) | [Data](https://github.com/propublica/compas-analysis)
+  - Risk assessment tool highlighting algorithmic bias in criminal justice system
+
+- **GDPR Right to Explanation**: European Union General Data Protection Regulation, Article 22.
+  - 🔗 [Official Text](https://gdpr-info.eu/art-22-gdpr/) | [Guidance](https://ico.org.uk/for-organisations/guide-to-data-protection/guide-to-the-general-data-protection-regulation-gdpr/automated-decision-making-and-profiling/)
+  - Legal framework requiring transparency in automated decision-making systems
 
 ### **Methodological Frameworks Referenced**
 
-- **FAIR Principles**: Faithfulness, Adaptability, Interpretability, Risk-awareness for trustworthy AI
-- **Type S/M Error Analysis**: Statistical methodology for assessing sign and magnitude errors in research
-- **Contextual Integrity**: Privacy framework emphasizing appropriate data use within intended contexts
-- **Multi-Criteria Fairness**: Evaluation across multiple fairness definitions (calibration, demographic parity, equalized odds)
-- **Chain-of-Thought Reasoning**: Transparent decision-making process with step-by-step logic traces
+- **FAIR Principles**: Wilkinson, M.D., et al. (2016). "The FAIR Guiding Principles for scientific data management and stewardship." *Scientific Data*.
+  - 🔗 [Paper](https://www.nature.com/articles/sdata201618) | [FAIR Initiative](https://www.go-fair.org/)
+  - Findable, Accessible, Interoperable, Reusable data principles (adapted for AI: Faithful, Adaptive, Interpretable, Risk-aware)
+
+- **Type S/M Error Analysis**: Gelman, A. & Carlin, J. (2014). "Beyond Power Calculations: Assessing Type S (Sign) and Type M (Magnitude) Errors." *Perspectives on Psychological Science*.
+  - 🔗 [Paper](https://doi.org/10.1177/1745691614551642) | [Blog](https://statmodeling.stat.columbia.edu/)
+  - Statistical framework for evaluating sign errors and magnitude exaggeration in research findings
+
+- **Contextual Integrity**: Nissenbaum, H. (2009). "Privacy in Context: Technology, Policy, and the Integrity of Social Life." Stanford University Press.
+  - 🔗 [Book](https://www.sup.org/books/title/?id=8862) | [Framework](https://privacypatterns.org/patterns/Contextual-Integrity)
+  - Privacy theory emphasizing appropriate information flow within specific contexts and norms
+
+- **Multi-Criteria Fairness**: Verma, S. & Rubin, J. (2018). "Fairness definitions explained." *IEEE/ACM International Workshop on Software Fairness*.
+  - 🔗 [Paper](https://doi.org/10.1145/3194770.3194776) | [Survey](https://arxiv.org/abs/1808.00023)
+  - Comprehensive framework covering demographic parity, equalized odds, calibration, and individual fairness
+
+- **Chain-of-Thought Reasoning**: Wei, J., et al. (2022). "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models." *NeurIPS 2022*.
+  - 🔗 [Paper](https://arxiv.org/abs/2201.11903) | [Examples](https://github.com/jasonwei20/chain-of-thought-prompting)
+  - Methodology for transparent step-by-step reasoning in language model outputs
+
+### **Additional Technical Standards**
+
+- **Model Cards**: Mitchell, M., et al. (2019). "Model Cards for Model Reporting." *FAT* 2019*.
+  - 🔗 [Paper](https://arxiv.org/abs/1810.03993) | [Template](https://modelcards.withgoogle.com/)
+  - Standardized documentation for machine learning model transparency and accountability
+
+- **Algorithmic Impact Assessments**: Reisman, D., et al. (2018). "Algorithmic Impact Assessments: A Practical Framework." AI Now Institute.
+  - 🔗 [Report](https://ainowinstitute.org/publication/algorithmic-impact-assessments-practical-framework-2/)
+  - Framework for evaluating algorithmic systems' societal impacts before deployment
+
+- **IEEE Standards for AI**: IEEE 2857-2021 "Privacy Engineering for Artificial Intelligence and Machine Learning Systems."
+  - 🔗 [Standard](https://standards.ieee.org/ieee/2857/7448/) | [Overview](https://standards.ieee.org/initiatives/artificial-intelligence-systems/)
+  - Technical standards for privacy-preserving AI system design and implementation
 
 ---
 
