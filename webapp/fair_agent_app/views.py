@@ -338,7 +338,7 @@ def process_query_api(request):
             }, status=400)
         
         # Log selected model
-        logger.info(f"Processing query with model: {selected_model}")
+        logger.info(f"[QUERY] 📝 Processing query with selected model: {selected_model}")
         
         # Validate query length
         max_length = getattr(settings, 'FAIR_AGENT_SETTINGS', {}).get('MAX_QUERY_LENGTH', 1000)

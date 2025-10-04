@@ -81,7 +81,9 @@ class FairAgentService:
             }
             
             cls._initialized = True
-            logger.info("FAIR-Agent system initialized successfully")
+            finance_model = finance_config.get('model_name', 'unknown')
+            medical_model = medical_config.get('model_name', 'unknown')
+            logger.info(f"[STARTUP] FAIR-Agent initialized with Finance={finance_model}, Medical={medical_model}")
             
         except ImportError as e:
             logger.error(f"Failed to import FAIR-Agent modules: {e}")
@@ -127,7 +129,7 @@ class FairAgentService:
                 medical_config=medical_config
             )
             
-            logger.info(f"Agents reinitialized with model: {model_name}")
+            logger.info(f"[QUERY] 🔄 Agents reinitialized with model: {model_name}")
             
         except Exception as e:
             logger.error(f"Failed to reinitialize agents with model {model_name}: {e}")
@@ -160,7 +162,7 @@ class FairAgentService:
             # If model is different from current, reinitialize agents
             current_finance_model = cls._orchestrator.finance_agent.model_name if cls._orchestrator else None
             if current_finance_model != model_name:
-                logger.info(f"Switching models from {current_finance_model} to {model_name}")
+                logger.info(f"[QUERY] 🔄 Switching models from {current_finance_model} to {model_name}")
                 cls._reinitialize_agents_with_model(model_name)
             
             # Process query through orchestrator

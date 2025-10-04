@@ -8,6 +8,7 @@ faithfulness scores by providing evidence-based responses with proper citations.
 import logging
 import json
 import hashlib
+import yaml
 from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
 from pathlib import Path
@@ -48,15 +49,78 @@ class EnhancedResponse:
 class EvidenceDatabase:
     """Database of evidence sources for different domains"""
     
-    def __init__(self, data_dir: str = "./data/evidence"):
+    def __init__(self, data_dir: str = "./data/evidence", config_path: str = "./config/evidence_sources.yaml"):
         self.data_dir = Path(data_dir)
         self.data_dir.mkdir(parents=True, exist_ok=True)
+        self.config_path = Path(config_path)
         self.sources: Dict[str, EvidenceSource] = {}
         self.domain_index: Dict[str, List[str]] = {}
         self._load_evidence_sources()
     
     def _load_evidence_sources(self):
-        """Load evidence sources from database"""
+        """Load evidence sources from YAML configuration file"""
+        
+        # Try to load from YAML config first
+        if self.config_path.exists():
+            try:
+                with open(self.config_path, 'r') as f:
+                    config = yaml.safe_load(f)
+                
+                all_sources = []
+                
+                # Load medical sources
+                if 'medical_sources' in config:
+                    for source_data in config['medical_sources']:
+                        source = EvidenceSource(
+                            id=source_data['id'],
+                            title=source_data['title'],
+                            content=source_data['content'].strip(),
+                            source_type=source_data['source_type'],
+                            url=source_data.get('url'),
+                            publication_date=source_data.get('publication_date'),
+                            reliability_score=source_data.get('reliability_score', 0.8),
+                            domain=source_data.get('domain', 'medical')
+                        )
+                        all_sources.append(source)
+                
+                # Load finance sources
+                if 'finance_sources' in config:
+                    for source_data in config['finance_sources']:
+                        source = EvidenceSource(
+                            id=source_data['id'],
+                            title=source_data['title'],
+                            content=source_data['content'].strip(),
+                            source_type=source_data['source_type'],
+                            url=source_data.get('url'),
+                            publication_date=source_data.get('publication_date'),
+                            reliability_score=source_data.get('reliability_score', 0.8),
+                            domain=source_data.get('domain', 'finance')
+                        )
+                        all_sources.append(source)
+                
+                # Add sources to database
+                for source in all_sources:
+                    self.sources[source.id] = source
+                    
+                    # Update domain index
+                    if source.domain not in self.domain_index:
+                        self.domain_index[source.domain] = []
+                    self.domain_index[source.domain].append(source.id)
+                
+                logger.info(f"✅ Loaded {len(all_sources)} evidence sources from {self.config_path}")
+                logger.info(f"   Medical: {len([s for s in all_sources if s.domain == 'medical'])}")
+                logger.info(f"   Finance: {len([s for s in all_sources if s.domain == 'finance'])}")
+                return
+                
+            except Exception as e:
+                logger.warning(f"Failed to load evidence from config: {e}. Using fallback hardcoded sources.")
+        
+        # Fallback to hardcoded sources if config not found
+        logger.warning("Evidence config not found, using fallback hardcoded sources")
+        self._load_hardcoded_sources()
+    
+    def _load_hardcoded_sources(self):
+        """Fallback method with hardcoded evidence sources"""
         # Medical evidence sources
         medical_sources = [
             EvidenceSource(
@@ -380,11 +444,55 @@ class EvidenceIntegrator:
 class RAGSystem:
     """Complete Retrieval-Augmented Generation system"""
     
-    def __init__(self, data_dir: str = "./data/evidence"):
-        self.evidence_db = EvidenceDatabase(data_dir)
+    def __init__(self, data_dir: str = "./data/evidence", config_path: str = "./config/evidence_sources.yaml"):
+        self.evidence_db = EvidenceDatabase(data_dir, config_path)
         self.citation_manager = CitationManager()
         self.evidence_integrator = EvidenceIntegrator(self.evidence_db, self.citation_manager)
         self.logger = logging.getLogger(__name__)
+    
+    def retrieve_evidence(self, query: str, domain: str = "general", top_k: int = 3) -> List[EvidenceSource]:
+        """
+        Retrieve relevant evidence sources for a query
+        
+        Args:
+            query: The query to find evidence for
+            domain: Domain to search in ('medical', 'finance', or 'general')
+            top_k: Number of sources to return
+            
+        Returns:
+            List of relevant EvidenceSource objects
+        """
+        return self.evidence_db.search_sources(query, domain, max_results=top_k)
+    
+    def format_evidence_for_prompt(self, sources: List[EvidenceSource]) -> str:
+        """
+        Format evidence sources for inclusion in LLM prompts
+        
+        Args:
+            sources: List of evidence sources
+            
+        Returns:
+            Formatted string with numbered sources
+        """
+        if not sources:
+            return "No specific evidence sources available for this query."
+        
+        formatted = "=== EVIDENCE SOURCES ===\n\n"
+        
+        for i, source in enumerate(sources, 1):
+            formatted += f"[Source {i}] {source.title}\n"
+            formatted += f"Type: {source.source_type}\n"
+            formatted += f"Reliability: {source.reliability_score:.0%}\n"
+            formatted += f"Content: {source.content[:400]}...\n"  # First 400 chars
+            if source.url:
+                formatted += f"URL: {source.url}\n"
+            formatted += "\n"
+        
+        formatted += "=== CITATION INSTRUCTIONS ===\n"
+        formatted += "You MUST cite these sources in your response using [Source X] format.\n"
+        formatted += "Example: 'Low-dose aspirin reduces cardiovascular risk [Source 1].'\n\n"
+        
+        return formatted
     
     def enhance_agent_response(
         self, 

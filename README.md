@@ -1,236 +1,564 @@
-# FAIR-Agent System# FAIR-Agent System 🤖# FAIR-Agent System
+# FAIR-Agent System 🤖# FAIR-Agent System# FAIR-Agent System 🤖# FAIR-Agent System
 
 
 
-> **F**aithful, **A**daptive, **I**nterpretable, and **R**isk-Aware Multi-Agent AI System for Finance and Medical Domains
+> **F**aithful, **A**daptive, **I**nterpretable, and **R**isk-Aware Multi-Agent AI System
 
 
 
-A sophisticated multi-agent system featuring specialized Finance and Medical AI agents with comprehensive FAIR metrics evaluation, powered by Django web framework and Ollama for local LLM inference.[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)**CS668 Analytics Capstone - Fall 2025**  
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)> **F**aithful, **A**daptive, **I**nterpretable, and **R**isk-Aware Multi-Agent AI System for Finance and Medical Domains
 
-
-
-**CS668 Analytics Capstone - Fall 2025**  [![Django 4.2](https://img.shields.io/badge/django-4.2-green.svg)](https://www.djangoproject.com/)**Author:** Somesh Ghaturle
-
-**Author:** Somesh Ghaturle
+[![Django 4.2](https://img.shields.io/badge/django-4.2-green.svg)](https://www.djangoproject.com/)
 
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org/)
 
----
+[![Ollama](https://img.shields.io/badge/Ollama-Supported-orange.svg)](https://ollama.ai/)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)A comprehensive AI system featuring specialized Finance and Medical agents with domain classification, cross-domain reasoning, and FAIR (Faithfulness, Adaptability, Interpretability, Risk-awareness) metrics evaluation.
+A sophisticated multi-agent system featuring specialized Finance and Medical AI agents with comprehensive FAIR metrics evaluation, powered by Django web framework and Ollama for local LLM inference.[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)**CS668 Analytics Capstone - Fall 2025**  
 
-## 📋 Table of Contents
+**CS668 Analytics Capstone - Fall 2025**  
+
+**Author:** Somesh Ghaturle
 
 
 
-- [Overview](#overview)
+---**CS668 Analytics Capstone - Fall 2025**  [![Django 4.2](https://img.shields.io/badge/django-4.2-green.svg)](https://www.djangoproject.com/)**Author:** Somesh Ghaturle
+
+
+
+## 📋 Table of Contents**Author:** Somesh Ghaturle
+
+
+
+- [Overview](#-overview)[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org/)
+
+- [Key Features](#-key-features)
+
+- [System Architecture](#-system-architecture)---
+
+- [Installation](#-installation)
+
+- [Quick Start](#-quick-start)[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)A comprehensive AI system featuring specialized Finance and Medical agents with domain classification, cross-domain reasoning, and FAIR (Faithfulness, Adaptability, Interpretability, Risk-awareness) metrics evaluation.
+
+- [Usage](#-usage)
+
+- [FAIR Metrics](#-fair-metrics)## 📋 Table of Contents
+
+- [Project Structure](#-project-structure)
+
+- [Configuration](#-configuration)
+
+- [Model Support](#-model-support)
+
+- [API Documentation](#-api-documentation)- [Overview](#overview)
+
+- [Development](#-development)
 
 - [Key Features](#key-features)**FAIR-Agent** is an advanced multi-agent AI system designed to provide trustworthy, evidence-based responses for Finance and Medical domains. Built with safety-first principles, comprehensive evaluation metrics, and real-time enhancement systems.## 🎯 Project Overview
 
-- [System Architecture](#system-architecture)
-
-- [Installation](#installation)
-
-- [Quick Start](#quick-start)
-
-- [Model Selection](#model-selection)---The FAIR-Agent system is designed to provide trustworthy, domain-specific AI assistance in finance and healthcare domains. It features:
-
-- [Project Structure](#project-structure)
-
-- [Usage](#usage)
-
-- [FAIR Metrics](#fair-metrics)
-
-- [Configuration](#configuration)## 🎯 Overview- **Multi-Agent Architecture**: Specialized Finance and Medical agents
-
-- [Development](#development)
-
-- **Intelligent Routing**: Automated domain classification for query routing
-
 ---
 
-FAIR-Agent implements a sophisticated **Orchestrator-Agent Architecture** that intelligently routes queries to specialized domain agents, enhances responses with real-time data, and evaluates outputs using comprehensive FAIR (Faithful, Accountable, Interpretable, Robust) metrics.- **Cross-Domain Reasoning**: Ability to handle queries spanning multiple domains
+- [System Architecture](#system-architecture)
 
 ## 🎯 Overview
 
-- **FAIR Metrics**: Comprehensive evaluation of faithfulness, interpretability, and risk-awareness
+- [Installation](#installation)
 
-FAIR-Agent is an advanced multi-agent AI system designed to provide domain-specific expertise in Finance and Medical fields. The system automatically classifies queries, routes them to specialized agents, and evaluates responses using FAIR metrics to ensure reliability, interpretability, and safety.
+**FAIR-Agent** is an advanced multi-agent AI system designed to provide trustworthy, evidence-based responses for **Finance** and **Medical** domains. The system combines specialized domain agents with comprehensive evaluation metrics to ensure safety, accuracy, and interpretability.
 
-### Key Features- **Web Interface**: User-friendly Django-based web application
+- [Quick Start](#quick-start)
 
 ### What Makes FAIR-Agent Special?
 
-- **CLI Mode**: Interactive command-line interface for testing
+- [Model Selection](#model-selection)---The FAIR-Agent system is designed to provide trustworthy, domain-specific AI assistance in finance and healthcare domains. It features:
 
-- **Domain Specialization**: Dedicated agents for Finance and Medical domains with domain-specific reasoning
+- **🏦 Finance Agent** - Investment analysis, portfolio strategies, market insights, financial planning
+
+- **🏥 Medical Agent** - Health information, medical concepts, treatment options, safety-vetted responses- [Project Structure](#project-structure)
+
+- **🎭 Orchestrator** - Intelligent query routing, domain classification, cross-domain reasoning
+
+- **📚 Evidence System** - Curated knowledge base with 16 high-reliability sources (85-98% reliability)- [Usage](#usage)
+
+- **🌐 Internet RAG** - Real-time enhancement from trusted sources (Mayo Clinic, Investopedia, CDC, SEC)
+
+- **🛡️ Safety First** - Multi-layer disclaimers, harmful content detection, professional consultation emphasis- [FAIR Metrics](#fair-metrics)
+
+- **📊 FAIR Metrics** - Real-time evaluation of Faithfulness, Interpretability, Risk Awareness, Calibration, Robustness, Safety
+
+- **🚀 Modern UI** - Responsive Django web interface with real-time metrics visualization- [Configuration](#configuration)## 🎯 Overview- **Multi-Agent Architecture**: Specialized Finance and Medical agents
+
+- **🔒 Privacy-First** - Local LLM inference via Ollama (no data sent to cloud APIs)
+
+- [Development](#development)
+
+---
+
+- **Intelligent Routing**: Automated domain classification for query routing
+
+## ✨ Key Features
+
+---
+
+### 1. Multi-Agent Architecture
+
+- **Specialized Agents**: Dedicated Finance and Medical agents with domain-specific reasoningFAIR-Agent implements a sophisticated **Orchestrator-Agent Architecture** that intelligently routes queries to specialized domain agents, enhances responses with real-time data, and evaluates outputs using comprehensive FAIR (Faithful, Accountable, Interpretable, Robust) metrics.- **Cross-Domain Reasoning**: Ability to handle queries spanning multiple domains
+
+- **Intelligent Routing**: Automatic domain classification using keyword-based and semantic analysis
+
+- **Cross-Domain Support**: Handles queries spanning multiple domains (e.g., "health insurance costs")## 🎯 Overview
+
+
+
+### 2. Evidence-Based Responses- **FAIR Metrics**: Comprehensive evaluation of faithfulness, interpretability, and risk-awareness
+
+- **Curated Evidence Database**: 16 sources (8 medical, 8 finance) with 85-98% reliability scores
+
+- **Source Citations**: Responses include [Source X] citations for transparencyFAIR-Agent is an advanced multi-agent AI system designed to provide domain-specific expertise in Finance and Medical fields. The system automatically classifies queries, routes them to specialized agents, and evaluates responses using FAIR metrics to ensure reliability, interpretability, and safety.
+
+- **Real-Time Enhancement**: Internet RAG for up-to-date information from trusted sources
+
+### Key Features- **Web Interface**: User-friendly Django-based web application
+
+### 3. FAIR Metrics Evaluation
+
+- **Faithfulness** (29.7% → 50-60%): Accuracy and factual correctness via evidence grounding### What Makes FAIR-Agent Special?
+
+- **Interpretability** (48.3% → 65-72%): Step-by-step reasoning and structured responses
+
+- **Risk Awareness** (56.2% → 72-78%): Comprehensive disclaimers and risk assessments- **CLI Mode**: Interactive command-line interface for testing
+
+- **Calibration**: Confidence score accuracy
+
+- **Robustness**: Response consistency across variations- **Domain Specialization**: Dedicated agents for Finance and Medical domains with domain-specific reasoning
+
+- **Safety**: Harmful content detection and filtering
 
 - **Intelligent Orchestration**: Automatic query classification and cross-domain reasoning capabilities- 🏦 **Specialized Finance Agent** - Investment strategies, market analysis, financial planning
 
-- **FAIR Metrics**: Real-time evaluation of Faithfulness, Interpretability, Risk Awareness, and Calibration
+### 4. Model Flexibility
 
-- **Model Flexibility**: Support for 40+ Ollama models including Llama 3, Mistral, Gemma, and specialized medical/finance models- 🏥 **Specialized Medical Agent** - Health information, medical concepts, safety-vetted responses## 🏗 System Architecture
+- **40+ Ollama Models**: Llama 3.2, Llama 3, CodeLlama, Mistral, Gemma- **FAIR Metrics**: Real-time evaluation of Faithfulness, Interpretability, Risk Awareness, and Calibration
+
+- **HuggingFace Support**: GPT-2 and compatible models
+
+- **Specialized Models**: MedLlama2, FinLlama (when available)- **Model Flexibility**: Support for 40+ Ollama models including Llama 3, Mistral, Gemma, and specialized medical/finance models- 🏥 **Specialized Medical Agent** - Health information, medical concepts, safety-vetted responses## 🏗 System Architecture
+
+- **Dynamic Switching**: Change models per query without restart
 
 - **Web Interface**: Clean, responsive Django-based UI with real-time processing and metrics visualization
 
-- **Local Inference**: Privacy-first approach using Ollama for local model execution- 🎭 **Intelligent Orchestrator** - Domain classification, query routing, cross-domain reasoning
+### 5. Safety Systems
 
+- **Medical Disclaimers**: "NOT A SUBSTITUTE FOR PROFESSIONAL MEDICAL ADVICE" with 911 emergency info- **Local Inference**: Privacy-first approach using Ollama for local model execution- 🎭 **Intelligent Orchestrator** - Domain classification, query routing, cross-domain reasoning
 
+- **Finance Disclaimers**: Investment risk warnings and professional consultation guidance
+
+- **Harmful Content Detection**: Filters dangerous queries (self-harm, illegal activities)
+
+- **Professional Emphasis**: Consistent reminder to consult qualified professionals
 
 ---- 🌐 **Internet RAG System** - Real-time data from trusted sources (Investopedia, Mayo Clinic, SEC, CDC)```
 
+---
 
+
+
+## 🏗 System Architecture
 
 ## ✨ Key Features- 📚 **Evidence Database** - Curated knowledge base with reliability scoringFAIR-Agent System
 
+```
 
+FAIR-Agent System
 
-### 🤖 Multi-Agent System- 🛡️ **Safety Systems** - Multi-layer content filtering, disclaimers, harmful content detection├── Core System
+│
 
-- **Finance Agent**: Specialized in financial analysis, market insights, and economic reasoning
+├── 🌐 Django Web Application (Port 8000)### 🤖 Multi-Agent System- 🛡️ **Safety Systems** - Multi-layer content filtering, disclaimers, harmful content detection├── Core System
 
-- **Medical Agent**: Expert in medical knowledge, diagnosis support, and healthcare information- 📊 **FAIR Metrics** - Comprehensive evaluation (faithfulness, calibration, interpretability, robustness, safety)│   ├── Orchestrator (Query routing & coordination)
+│   ├── Query Interface (UI)
 
-- **Orchestrator**: Intelligent query routing and cross-domain reasoning coordination
+│   ├── API Endpoints (/api/query/, /api/models/)- **Finance Agent**: Specialized in financial analysis, market insights, and economic reasoning
 
-- 🚀 **Django Web Interface** - Modern, responsive UI with real-time interaction│   ├── Finance Agent (GPT-2 based)
+│   └── Real-time Metrics Display
 
-### 📊 FAIR Metrics Evaluation
+│- **Medical Agent**: Expert in medical knowledge, diagnosis support, and healthcare information- 📊 **FAIR Metrics** - Comprehensive evaluation (faithfulness, calibration, interpretability, robustness, safety)│   ├── Orchestrator (Query routing & coordination)
 
-- **Faithfulness (29.7%)**: Measures accuracy and factual correctness│   └── Medical Agent (GPT-2 based)
+├── 🎭 Orchestrator
 
-- **Interpretability (48.3%)**: Evaluates clarity and explainability
+│   ├── Domain Classification (Finance/Medical/General)- **Orchestrator**: Intelligent query routing and cross-domain reasoning coordination
 
-- **Risk Awareness (56.2%)**: Assesses safety and risk communication---├── Web Interface (Django)
+│   ├── Query Routing
 
-- **Calibration**: Confidence alignment with actual accuracy
+│   └── Cross-Domain Coordination- 🚀 **Django Web Interface** - Modern, responsive UI with real-time interaction│   ├── Finance Agent (GPT-2 based)
 
-├── FAIR Evaluation Metrics
+│
 
-### 🚀 Performance
+├── 🏦 Finance Agent### 📊 FAIR Metrics Evaluation
 
-- **Fast Inference**: ~10 seconds average response time with Llama 3.2## 🏗️ Architecture└── Domain Classification Engine
+│   ├── Model: Ollama (llama3.2:latest) or HuggingFace (gpt2)
 
-- **Scalable**: Handles multiple concurrent queries
+│   ├── Evidence Retrieval (8 finance sources)- **Faithfulness (29.7%)**: Measures accuracy and factual correctness│   └── Medical Agent (GPT-2 based)
 
-- **Efficient**: Optimized for local execution on standard hardware```
+│   ├── Chain-of-Thought Reasoning
 
+│   ├── Internet RAG (Investopedia, SEC)- **Interpretability (48.3%)**: Evaluates clarity and explainability
 
+│   └── Financial Disclaimer System
 
-### 🎨 User Interface```
+│- **Risk Awareness (56.2%)**: Assesses safety and risk communication---├── Web Interface (Django)
 
-- Clean, modern web interface built with Bootstrap 5
+├── 🏥 Medical Agent
 
-- Real-time query processing with live status updates┌─────────────────────────────────────────────────────────────┐## 🚀 Quick Start
+│   ├── Model: Ollama (llama3.2:latest) or HuggingFace (gpt2)- **Calibration**: Confidence alignment with actual accuracy
 
-- Comprehensive metrics dashboard with visual indicators
+│   ├── Evidence Retrieval (8 medical sources)
 
-- Model selection dropdown with 40+ available models│                      Web Interface (Django)                  │
+│   ├── Chain-of-Thought Reasoning├── FAIR Evaluation Metrics
 
-- Smart download prompts for unavailable models
+│   ├── Internet RAG (Mayo Clinic, CDC)
+
+│   ├── Safety Screening### 🚀 Performance
+
+│   └── Medical Disclaimer System
+
+│- **Fast Inference**: ~10 seconds average response time with Llama 3.2## 🏗️ Architecture└── Domain Classification Engine
+
+├── 📚 Evidence System (RAG)
+
+│   ├── Evidence Database (config/evidence_sources.yaml)- **Scalable**: Handles multiple concurrent queries
+
+│   ├── Semantic Similarity (SentenceTransformer)
+
+│   ├── Keyword Matching- **Efficient**: Optimized for local execution on standard hardware```
+
+│   └── Source Formatting & Citations
+
+│
+
+├── 🌐 Internet RAG System
+
+│   ├── DuckDuckGo Search### 🎨 User Interface```
+
+│   ├── Trusted Source Filtering
+
+│   └── Content Extraction- Clean, modern web interface built with Bootstrap 5
+
+│
+
+└── 📊 Evaluation System- Real-time query processing with live status updates┌─────────────────────────────────────────────────────────────┐## 🚀 Quick Start
+
+    ├── Faithfulness Evaluator
+
+    ├── Interpretability Evaluator- Comprehensive metrics dashboard with visual indicators
+
+    ├── Risk Awareness Evaluator
+
+    ├── Calibration Evaluator- Model selection dropdown with 40+ available models│                      Web Interface (Django)                  │
+
+    ├── Robustness Evaluator
+
+    └── Safety Evaluator- Smart download prompts for unavailable models
+
+```
 
 │              Real-time UI with Query Processing              │### Prerequisites
+
+See [TECHNICAL_FLOWCHART.md](TECHNICAL_FLOWCHART.md) for detailed system flow diagrams.
+
+---
 
 ---
 
 └────────────────────┬────────────────────────────────────────┘
 
+## 🚀 Installation
+
 ## 🏗️ System Architecture
+
+### Prerequisites
 
                      │- Python 3.9 or higher
 
-```
+- **Python 3.11+**
+
+- **Ollama** (for local LLM inference)```
+
+- **macOS, Linux, or Windows** (with WSL2)
 
 ┌─────────────────────────────────────────────────────────────┐┌────────────────────▼────────────────────────────────────────┐- Virtual environment (recommended)
 
+### Step 1: Install Ollama
+
 │                      Django Web Interface                    │
 
-│                        (Port 8000)                           ││                    ORCHESTRATOR                              │- 8GB+ RAM for model loading
+```bash
+
+# macOS│                        (Port 8000)                           ││                    ORCHESTRATOR                              │- 8GB+ RAM for model loading
+
+brew install ollama
 
 └────────────────────────┬────────────────────────────────────┘
 
-                         ││  • Domain Classification (Finance/Medical/Cross-Domain)      │- **OR** Docker & Docker Compose (for containerized deployment)
+# Linux
 
-                         ▼
+curl -fsSL https://ollama.com/install.sh | sh                         ││  • Domain Classification (Finance/Medical/Cross-Domain)      │- **OR** Docker & Docker Compose (for containerized deployment)
 
-┌─────────────────────────────────────────────────────────────┐│  • Query Routing & Intent Analysis                           │
 
-│                    Orchestrator Agent                        │
 
-│            (Query Classification & Routing)                  ││  • Response Aggregation & Quality Assessment                 │### Option 1: Docker Deployment (Recommended)
+# Start Ollama service                         ▼
 
-└─────────────┬────────────────────────┬──────────────────────┘
+ollama serve
 
-              │                        │└──────┬────────────────────────────────┬────────────────────┘
+```┌─────────────────────────────────────────────────────────────┐│  • Query Routing & Intent Analysis                           │
 
-    ┌─────────▼─────────┐    ┌────────▼─────────┐
 
-    │  Finance Agent    │    │  Medical Agent   │       │                                │The fastest way to get started:
 
-    │  (Domain Expert)  │    │  (Domain Expert) │
+### Step 2: Pull Recommended Models│                    Orchestrator Agent                        │
 
-    └─────────┬─────────┘    └────────┬─────────┘┌──────▼────────┐              ┌────────▼──────────┐
 
-              │                        │
+
+```bash│            (Query Classification & Routing)                  ││  • Response Aggregation & Quality Assessment                 │### Option 1: Docker Deployment (Recommended)
+
+# Recommended: Llama 3.2 (2GB, fastest)
+
+ollama pull llama3.2:latest└─────────────┬────────────────────────┬──────────────────────┘
+
+
+
+# Optional: Higher quality models              │                        │└──────┬────────────────────────────────┬────────────────────┘
+
+ollama pull llama3:latest        # 4.7GB
+
+ollama pull codellama:latest     # 3.8GB    ┌─────────▼─────────┐    ┌────────▼─────────┐
+
+ollama pull mistral:latest       # 4.1GB
+
+```    │  Finance Agent    │    │  Medical Agent   │       │                                │The fastest way to get started:
+
+
+
+### Step 3: Clone and Setup    │  (Domain Expert)  │    │  (Domain Expert) │
+
+
+
+```bash    └─────────┬─────────┘    └────────┬─────────┘┌──────▼────────┐              ┌────────▼──────────┐
+
+# Clone repository
+
+git clone https://github.com/somesh-ghaturle/Fair-Agent.git              │                        │
+
+cd Fair-Agent
 
               └────────────┬───────────┘│ FINANCE AGENT │              │  MEDICAL AGENT    │```bash
 
-                           │
+# Create virtual environment
+
+python3 -m venv .venv                           │
+
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
                            ▼│               │              │                   │# Clone the repository
 
-              ┌────────────────────────┐
+# Install dependencies
 
-              │   Ollama Server        ││ • GPT-2 Model │              │ • GPT-2 Model     │git clone <repository-url>
+pip install -r requirements.txt              ┌────────────────────────┐
+
+
+
+# Run database migrations              │   Ollama Server        ││ • GPT-2 Model │              │ • GPT-2 Model     │git clone <repository-url>
+
+python3 webapp/manage.py migrate
 
               │   (Port 11434)         │
 
-              │   - Llama 3.2          ││ • Investment  │              │ • Health Info     │cd Fair-Agent
+# Create superuser (optional)
+
+python3 webapp/manage.py createsuperuser              │   - Llama 3.2          ││ • Investment  │              │ • Health Info     │cd Fair-Agent
+
+```
 
               │   - Mistral            │
 
+---
+
               │   - Gemma              ││ • Market Data │              │ • Safety Filters  │
+
+## ⚡ Quick Start
 
               │   - 40+ models         │
 
+### Start the Server
+
               └────────────────────────┘└──────┬────────┘              └────────┬──────────┘# Deploy with Docker
 
-                           │
+```bash
+
+# Activate virtual environment                           │
+
+source .venv/bin/activate
 
                            ▼       │                                │./docker-deploy.sh start
 
-              ┌────────────────────────┐
+# Start Django development server
+
+python3 webapp/manage.py runserver              ┌────────────────────────┐
+
+```
 
               │   Enhancement Layer    │       └────────┬──────────┬────────────┘
 
+### Access the Application
+
               │   - RAG System         │
+
+Open your browser to: **http://127.0.0.1:8000/**
 
               │   - CoT Reasoning      │                │          │# Access the web interface
 
+### Submit a Query
+
               │   - Disclaimer System  │
 
-              └────────────────────────┘        ┌───────▼──┐  ┌────▼─────┐  ┌──────────┐open http://localhost:8000
+1. **Select Model**: Choose "Llama 3.2" (recommended) from the dropdown
 
-                           │
+2. **Enter Query**:               └────────────────────────┘        ┌───────▼──┐  ┌────▼─────┐  ┌──────────┐open http://localhost:8000
 
-                           ▼        │ Internet │  │ Evidence │  │   FAIR   │```
+   - Finance: "What is portfolio diversification?"
 
-              ┌────────────────────────┐
+   - Medical: "What are the side effects of aspirin?"                           │
 
-              │   FAIR Evaluators      │        │   RAG    │  │ Database │  │Enhancement│
+3. **View Response**: See evidence-based response with citations
 
-              │   - Faithfulness       │
+4. **Check Metrics**: Review FAIR scores in the metrics panel                           ▼        │ Internet │  │ Evidence │  │   FAIR   │```
 
-              │   - Interpretability   │        │ (Real-   │  │ (Curated │  │(Safety & │See [DOCKER_README.md](DOCKER_README.md) for detailed Docker deployment instructions.
 
-              │   - Risk Awareness     │
 
-              │   - Calibration        │        │  time)   │  │ Sources) │  │Metrics)  │
+---              ┌────────────────────────┐
 
-              └────────────────────────┘
 
-```        └──────────┘  └──────────┘  └──────────┘### Option 2: Local Installation
+
+## 📖 Usage              │   FAIR Evaluators      │        │   RAG    │  │ Database │  │Enhancement│
+
+
+
+### Web Interface              │   - Faithfulness       │
+
+
+
+The web interface provides:              │   - Interpretability   │        │ (Real-   │  │ (Curated │  │(Safety & │See [DOCKER_README.md](DOCKER_README.md) for detailed Docker deployment instructions.
+
+- **Query Input**: Large text area for questions
+
+- **Model Selection**: Dropdown with 40+ Ollama models              │   - Risk Awareness     │
+
+- **Real-time Processing**: Visual feedback during generation
+
+- **Response Display**: Formatted response with citations              │   - Calibration        │        │  time)   │  │ Sources) │  │Metrics)  │
+
+- **Metrics Panel**: Live FAIR scores with definitions
+
+- **Query History**: Recent queries in the session              └────────────────────────┘
+
+
+
+### Example Queries```        └──────────┘  └──────────┘  └──────────┘### Option 2: Local Installation
+
+
+
+#### Finance Queries
+
+```
+
+✅ "Should I invest in cryptocurrency?"---```
+
+✅ "How do interest rates affect bond prices?"
+
+✅ "What is the best retirement savings strategy?"
+
+✅ "How much should I have in an emergency fund?"
+
+```## 🛠️ Installation1. **Clone the repository**
+
+
+
+#### Medical Queries
+
+```
+
+✅ "What are the benefits and risks of aspirin therapy?"### Prerequisites### Component Breakdown```bash
+
+✅ "How should I manage type 2 diabetes?"
+
+✅ "What are the side effects of COVID-19 vaccines?"
+
+✅ "When should I call 911 for a mental health crisis?"
+
+```- **Python**: 3.9 or highergit clone <repository-url>
+
+
+
+#### Cross-Domain Queries- **Ollama**: For local LLM inference
+
+```
+
+✅ "How much does cancer treatment cost?" (Medical + Finance)- **Operating System**: macOS, Linux, or Windows with WSL#### 1. **Orchestrator** (`src/agents/orchestrator.py`)cd Fair-Agent
+
+✅ "What is health insurance deductible?" (Finance + Medical)
+
+```- **Memory**: 8GB+ RAM (16GB recommended for larger models)
+
+
+
+---- **Domain Classification**: Uses keyword matching and context analysis to route queries```
+
+
+
+## 📊 FAIR Metrics### Step 1: Clone Repository
+
+
+
+### What Are FAIR Metrics?- **Special Handling**: Single-word queries, ambiguous contexts, cross-domain topics
+
+
+
+FAIR metrics evaluate AI system trustworthiness across six dimensions:```bash
+
+
+
+| Metric | Definition | Current Score | Target Score |git clone https://github.com/somesh-ghaturle/Fair-Agent.git- **Response Synthesis**: Aggregates multi-agent outputs for complex queries2. **Set up virtual environment**
+
+|--------|------------|---------------|--------------|
+
+| **Faithfulness** | Accuracy and factual correctness based on evidence | 29.7% → 50-60% | ≥50% |cd Fair-Agent
+
+| **Interpretability** | Clarity of reasoning with step-by-step explanations | 48.3% → 65-72% | ≥65% |
+
+| **Risk Awareness** | Identification and communication of risks/limitations | 56.2% → 72-78% | ≥70% |``````bash
+
+| **Calibration** | Alignment between confidence scores and accuracy | Varies | High |
+
+| **Robustness** | Consistency across query variations | Varies | High |
+
+| **Safety** | Harmful content detection and filtering | Varies | 100% |
+
+### Step 2: Create Virtual Environment#### 2. **Finance Agent** (`src/agents/finance_agent.py`)python -m venv .venv
+
+### How Metrics Are Calculated
+
+
+
+- **Faithfulness**: Evidence citations, factual grounding, source reliability
+
+- **Interpretability**: Step-by-step structure, clear reasoning, defined terms```bash- **Base Model**: GPT-2 with finance-specific fine-tuning capabilitysource .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+- **Risk Awareness**: Disclaimers present, risks mentioned, limitations stated
+
+- **Calibration**: Confidence score vs actual accuracy correlationpython3 -m venv .venv
+
+- **Robustness**: Response similarity for paraphrased queries
+
+- **Safety**: Harmful keyword detection, appropriate disclaimerssource .venv/bin/activate  # On Windows: .venv\Scripts\activate- **Specializations**: Investment, budgeting, market analysis, risk assessment```
 
 
 
@@ -238,359 +566,625 @@ FAIR-Agent is an advanced multi-agent AI system designed to provide domain-speci
 
 
 
-## 🛠️ Installation1. **Clone the repository**
+## 📁 Project Structure- **Enhancement Pipeline**: Internet RAG → Evidence DB → FAIR Safety
 
 
 
-### Prerequisites### Component Breakdown```bash
-
-
-
-- **Python**: 3.9 or highergit clone <repository-url>
-
-- **Ollama**: For local LLM inference
-
-- **Operating System**: macOS, Linux, or Windows with WSL#### 1. **Orchestrator** (`src/agents/orchestrator.py`)cd Fair-Agent
-
-- **Memory**: 8GB+ RAM (16GB recommended for larger models)
-
-- **Domain Classification**: Uses keyword matching and context analysis to route queries```
-
-### Step 1: Clone Repository
-
-- **Special Handling**: Single-word queries, ambiguous contexts, cross-domain topics
-
-```bash
-
-git clone https://github.com/somesh-ghaturle/Fair-Agent.git- **Response Synthesis**: Aggregates multi-agent outputs for complex queries2. **Set up virtual environment**
-
-cd Fair-Agent
-
-``````bash
-
-
-
-### Step 2: Create Virtual Environment#### 2. **Finance Agent** (`src/agents/finance_agent.py`)python -m venv .venv
-
-
-
-```bash- **Base Model**: GPT-2 with finance-specific fine-tuning capabilitysource .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-python3 -m venv .venv
-
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate- **Specializations**: Investment, budgeting, market analysis, risk assessment```
-
-```
-
-- **Enhancement Pipeline**: Internet RAG → Evidence DB → FAIR Safety
-
-### Step 3: Install Dependencies
-
-- **Template System**: High-quality fallback responses for common queries3. **Install dependencies**
-
-```bash
-
-pip install --upgrade pip```bash
-
-pip install -r requirements.txt
-
-```#### 3. **Medical Agent** (`src/agents/medical_agent.py`)pip install -r requirements.txt
-
-
-
-### Step 4: Install Ollama- **Base Model**: GPT-2 with medical knowledge adaptation```
-
-
-
-**macOS/Linux:**- **Safety Features**: Multi-layer harmful content detection, inappropriate query filtering
-
-```bash
-
-curl -fsSL https://ollama.com/install.sh | sh- **Specializations**: Diseases, medications, symptoms, wellness4. **Run the system**
-
-```
-
-- **Template System**: Educational responses with professional consultation disclaimers```bash
-
-**Windows:**
-
-Download from [https://ollama.com/download](https://ollama.com/download)# Web interface (recommended)
-
-
-
-### Step 5: Install Models#### 4. **Enhancement Systems**python main.py --mode web
-
-
-
-Use the interactive installer script:
-
-
-
-```bash##### Internet RAG (`src/data_sources/internet_rag.py`)# CLI interface
-
-chmod +x scripts/install_ollama_models.sh
-
-./scripts/install_ollama_models.sh- **Real-time Data Sources**:python main.py --mode cli
-
-```
-
-  - 🏦 Finance: Investopedia, SEC EDGAR, Yahoo Finance
-
-Or install models manually:
-
-  - 🏥 Medical: Mayo Clinic, CDC, NIH MedlinePlus# With custom port and debug mode
-
-```bash
-
-# Fast, small model (recommended for testing)- **Source Reliability Scoring**: 95% for primary sourcespython main.py --mode web --port 8080 --debug
-
-ollama pull llama3.2:latest
-
-- **Citation Integration**: Automatic source attribution in responses```
-
-# High-quality general model
-
-ollama pull llama3:latest
-
-
-
-# Medical-specific model##### Evidence Database (`src/evidence/rag_system.py`)### Alternative Django Method
-
-ollama pull meditron:latest
-
-- **8 Curated Sources**: High-quality, domain-specific content
-
-# Finance-specific model
-
-ollama pull finbert:latest- **Reliability Metrics**: Per-source scoring (85-95% range)```bash
-
-```
-
-- **Semantic Search**: Query-context matching for relevant evidencecd webapp
-
-### Step 6: Initialize Database
-
-- **Coverage Analysis**: Response improvement trackingpython manage.py runserver
-
-```bash
-
-cd webapp```
-
-python manage.py migrate
-
-cd ..##### FAIR Enhancement (`src/safety/disclaimer_system.py`)
-
-```
-
-- **Safety Disclaimers**: Domain-appropriate warnings## 🎮 Usage Examples
-
----
-
-- **FAIR Metrics**: Embedded accountability measures
-
-## 🚀 Quick Start
-
-- **Improvement Tracking**: Response enhancement scoring### Web Interface
-
-### Start Ollama Server
-
-1. Open your browser to `http://127.0.0.1:8000`
-
-```bash
-
-ollama serve#### 5. **Evaluation Framework** (`src/evaluation/`)2. Navigate to the Query page
-
-```
-
-- **Faithfulness**: Fact accuracy and source grounding3. Enter your question (finance, medical, or general)
-
-Keep this running in a separate terminal.
-
-- **Calibration**: Confidence score accuracy4. View comprehensive analysis with FAIR metrics
-
-### Start FAIR-Agent Web Interface
-
-- **Interpretability**: Response clarity and explainability
-
-```bash
-
-python main.py --mode web --port 8000- **Robustness**: Adversarial input handling### CLI Interface
-
-```
-
-- **Safety**: Harm detection and mitigation```bash
-
-Or run Django directly:
-
-python main.py --mode cli
-
-```bash
-
-cd webapp---
-
-python manage.py runserver 8000
-
-```> what is diabetes treatment
-
-
-
-### Access the Application## 🚀 Quick StartDomain: medical
-
-
-
-Open your browser and navigate to:Confidence: 0.92
-
-```
-
-http://127.0.0.1:8000### PrerequisitesAnswer: [Medical Agent provides detailed diabetes treatment information]
-
-```
-
-
-
-### Try Your First Query
-
-- Python 3.11+> explain stock market analysis
-
-1. Select a model from the dropdown (e.g., "Llama 3.2")
-
-2. Enter a query in the text area:- pip or condaDomain: finance  
-
-   - Finance: "What are the key factors affecting stock market volatility?"
-
-   - Medical: "What are the symptoms and treatment for hypertension?"- macOS (with MPS support) or Linux/Windows with CUDA (optional)Confidence: 0.88
-
-3. Click **"Process with FAIR Agent"**
-
-4. View the response and FAIR metrics in the dashboardAnswer: [Finance Agent provides market analysis insights]
-
-
-
----### Installation```
-
-
-
-## 🎯 Model Selection
-
-
-
-### Installed Models (4)1. **Clone the repository**### Example Queries
-
-
-
-- **Llama 3.2** (2GB) - Default, fast, general-purpose```bash
-
-- **Llama 3** (4.7GB) - High-quality, versatile
-
-- **GPT-OSS** (13GB) - Open-source GPT alternativegit clone https://github.com/somesh-ghaturle/Fair-Agent.git**Medical Domain:**
-
-- **CodeLlama** (3.8GB) - Code-focused model
-
-cd Fair-Agent- "What are the treatment options for diabetes?"
-
-### Available Models (40+)
-
-```- "Explain the side effects of hypertension medication"
-
-The system supports a wide range of models categorized by domain:
-
-- "How does cholesterol affect heart health?"
-
-#### 🏥 Medical Models
-
-- `meditron:latest` - Medical domain specialist2. **Create virtual environment**
-
-- `medllama2:latest` - Healthcare-focused Llama
-
-- `openbiollm:latest` - Biomedical research```bash**Finance Domain:**
-
-- `biomistral:latest` - Medical Mistral variant
-
-python3 -m venv .venv- "Analyze the risk of investing in tech stocks"
-
-#### 💰 Finance Models
-
-- `finbert:latest` - Financial analysis specialistsource .venv/bin/activate  # On Windows: .venv\Scripts\activate- "What factors affect mortgage interest rates?"
-
-- `finchat:latest` - Finance conversational model
-
-- `llama-finance:latest` - Finance-tuned Llama```- "Explain portfolio diversification strategies"
-
-
-
-#### 🌟 General Models
-
-- `mistral:latest` - High performance
-
-- `gemma:latest` - Google's efficient model3. **Install dependencies****Cross-Domain:**
-
-- `phi:latest` - Microsoft's compact model
-
-- `qwen:latest` - Alibaba's multilingual model```bash- "What are the financial implications of healthcare costs?"
-
-
-
-#### ⚡ Fast/Small Modelspip install -r requirements.txt- "How do pharmaceutical investments perform?"
-
-- `tinyllama:latest` - Ultra-fast, 1.1B parameters
-
-- `stablelm:latest` - Stable and efficient```
-
-- `orca-mini:latest` - Compact but capable
-
-## 📊 FAIR Metrics
-
-### Downloading New Models
-
-4. **Configure environment** (optional)
-
-When you select an unavailable model, the UI will display:
-
-```bash```bashThe system evaluates responses across multiple dimensions with realistic GPT-2 based scoring:
-
-ollama pull <model-name>
-
-```cp .env.example .env
-
-
-
-Copy and run this command in your terminal to download.# Edit .env with your API keys if using external services- **Faithfulness** (25-60%): Accuracy and consistency with source information
-
-
-
----```- **Interpretability** (40-60%): Clarity and explainability of responses with enhanced reasoning
-
-
-
-## 📁 Project Structure- **Risk-Awareness** (56-76%): Safety and risk assessment capabilities with domain-specific disclaimers
-
-
-
-```### Running the System- **Calibration Error** (30-70%): Confidence calibration accuracy
+```### Step 3: Install Dependencies
 
 Fair-Agent/
 
-├── main.py                          # Main entry point- **Robustness** (20-25%): Performance under various conditions, reflecting base model limitations
+│- **Template System**: High-quality fallback responses for common queries3. **Install dependencies**
 
-├── requirements.txt                 # Python dependencies
+├── config/
 
-├── README.md                        # This file#### Web Interface (Recommended)
+│   ├── config.yaml              # Main configuration```bash
 
-│
+│   ├── evidence_sources.yaml    # Evidence database (16 sources)
 
-├── config/                          # Configuration files```bash*Note: Scores reflect realistic GPT-2 model capabilities after system recalibration.*
-
-│   ├── config.yaml                  # Agent and dataset config
-
-│   └── system_config.yaml           # System settingspython3 main.py --mode web --port 8000
+│   └── system_config.yaml       # System settingspip install --upgrade pip```bash
 
 │
 
-├── src/                             # Source code```## 🔧 Configuration
+├── src/pip install -r requirements.txt
 
-│   ├── agents/                      # Agent implementations
+│   ├── agents/
 
-│   │   ├── finance_agent.py         # Finance domain agentAccess at: **http://127.0.0.1:8000/**
+│   │   ├── orchestrator.py      # Query routing & coordination```#### 3. **Medical Agent** (`src/agents/medical_agent.py`)pip install -r requirements.txt
+
+│   │   ├── finance_agent.py     # Finance domain specialist
+
+│   │   └── medical_agent.py     # Medical domain specialist
+
+│   │
+
+│   ├── core/### Step 4: Install Ollama- **Base Model**: GPT-2 with medical knowledge adaptation```
+
+│   │   ├── config.py            # Configuration management
+
+│   │   └── system.py            # Core system initialization
+
+│   │
+
+│   ├── evaluation/**macOS/Linux:**- **Safety Features**: Multi-layer harmful content detection, inappropriate query filtering
+
+│   │   ├── faithfulness.py      # Faithfulness evaluator
+
+│   │   ├── interpretability.py  # Interpretability evaluator```bash
+
+│   │   ├── calibration.py       # Calibration evaluator
+
+│   │   ├── robustness.py        # Robustness evaluatorcurl -fsSL https://ollama.com/install.sh | sh- **Specializations**: Diseases, medications, symptoms, wellness4. **Run the system**
+
+│   │   └── safety.py            # Safety evaluator
+
+│   │```
+
+│   ├── evidence/
+
+│   │   └── rag_system.py        # Evidence retrieval & RAG- **Template System**: Educational responses with professional consultation disclaimers```bash
+
+│   │
+
+│   ├── reasoning/**Windows:**
+
+│   │   └── cot_system.py        # Chain-of-Thought integration
+
+│   │Download from [https://ollama.com/download](https://ollama.com/download)# Web interface (recommended)
+
+│   ├── safety/
+
+│   │   └── disclaimer_system.py # Disclaimer generation
+
+│   │
+
+│   └── utils/### Step 5: Install Models#### 4. **Enhancement Systems**python main.py --mode web
+
+│       └── logger.py            # Logging utilities
+
+│
+
+├── webapp/
+
+│   ├── fair_agent_app/Use the interactive installer script:
+
+│   │   ├── views.py             # Django views
+
+│   │   ├── services.py          # FAIR-Agent service layer
+
+│   │   ├── models.py            # Database models
+
+│   │   └── api_urls.py          # API endpoints```bash##### Internet RAG (`src/data_sources/internet_rag.py`)# CLI interface
+
+│   │
+
+│   ├── templates/chmod +x scripts/install_ollama_models.sh
+
+│   │   └── fair_agent_app/
+
+│   │       └── query_interface_clean.html  # Main UI./scripts/install_ollama_models.sh- **Real-time Data Sources**:python main.py --mode cli
+
+│   │
+
+│   ├── static/```
+
+│   │   ├── css/
+
+│   │   └── js/  - 🏦 Finance: Investopedia, SEC EDGAR, Yahoo Finance
+
+│   │
+
+│   ├── manage.py                # Django managementOr install models manually:
+
+│   └── settings.py              # Django settings
+
+│  - 🏥 Medical: Mayo Clinic, CDC, NIH MedlinePlus# With custom port and debug mode
+
+├── test_evidence_system.py      # Evidence system tests
+
+├── test_model_switching.py      # Model switching tests```bash
+
+├── requirements.txt             # Python dependencies
+
+├── README.md                    # This file# Fast, small model (recommended for testing)- **Source Reliability Scoring**: 95% for primary sourcespython main.py --mode web --port 8080 --debug
+
+└── TECHNICAL_FLOWCHART.md       # Detailed technical documentation
+
+```ollama pull llama3.2:latest
+
+
+
+---- **Citation Integration**: Automatic source attribution in responses```
+
+
+
+## ⚙️ Configuration# High-quality general model
+
+
+
+### Evidence Sources (`config/evidence_sources.yaml`)ollama pull llama3:latest
+
+
+
+The evidence database contains 16 curated sources:
+
+
+
+**Medical Sources (8)**:# Medical-specific model##### Evidence Database (`src/evidence/rag_system.py`)### Alternative Django Method
+
+- Aspirin therapy (cardiovascular prevention)
+
+- Diabetes management (metformin, lifestyle)ollama pull meditron:latest
+
+- Hypertension control (medication, monitoring)
+
+- Mental health crisis (suicide prevention, 988 hotline)- **8 Curated Sources**: High-quality, domain-specific content
+
+- Antibiotic stewardship (resistance prevention)
+
+- COVID-19 vaccination (safety, efficacy)# Finance-specific model
+
+- Cholesterol management (statins, lifestyle)
+
+- Pain management (opioid guidelines)ollama pull finbert:latest- **Reliability Metrics**: Per-source scoring (85-95% range)```bash
+
+
+
+**Finance Sources (8)**:```
+
+- Portfolio diversification (modern portfolio theory)
+
+- Bond-interest rate relationship (duration, convexity)- **Semantic Search**: Query-context matching for relevant evidencecd webapp
+
+- Cryptocurrency risks (volatility, regulation)
+
+- Retirement planning (401k, IRA, strategies)### Step 6: Initialize Database
+
+- Index fund investing (passive vs active)
+
+- Emergency fund recommendations (3-6 months)- **Coverage Analysis**: Response improvement trackingpython manage.py runserver
+
+- Debt management (payoff strategies)
+
+- Real estate investment (REITs, direct ownership)```bash
+
+
+
+### Model Configuration (`config/config.yaml`)cd webapp```
+
+
+
+```yamlpython manage.py migrate
+
+models:
+
+  finance:cd ..##### FAIR Enhancement (`src/safety/disclaimer_system.py`)
+
+    model_name: "gpt2"           # Default startup model
+
+    device: "auto"               # Auto-detect GPU/CPU```
+
+    max_length: 256
+
+    - **Safety Disclaimers**: Domain-appropriate warnings## 🎮 Usage Examples
+
+  medical:
+
+    model_name: "gpt2"---
+
+    device: "auto"
+
+    max_length: 256- **FAIR Metrics**: Embedded accountability measures
+
+```
+
+## 🚀 Quick Start
+
+**Note**: The system dynamically switches to your selected Ollama model when you submit a query. The config.yaml model is only used for initial startup.
+
+- **Improvement Tracking**: Response enhancement scoring### Web Interface
+
+---
+
+### Start Ollama Server
+
+## 🤖 Model Support
+
+1. Open your browser to `http://127.0.0.1:8000`
+
+### Ollama Models (Recommended)
+
+```bash
+
+| Model | Size | Speed | Quality | Use Case |
+
+|-------|------|-------|---------|----------|ollama serve#### 5. **Evaluation Framework** (`src/evaluation/`)2. Navigate to the Query page
+
+| **llama3.2:latest** | 2GB | ⚡⚡⚡ | ⭐⭐⭐ | General purpose (Recommended) |
+
+| llama3:latest | 4.7GB | ⚡⚡ | ⭐⭐⭐⭐ | High quality responses |```
+
+| codellama:latest | 3.8GB | ⚡⚡ | ⭐⭐⭐ | Code-focused queries |
+
+| mistral:latest | 4.1GB | ⚡⚡ | ⭐⭐⭐⭐ | Balanced performance |- **Faithfulness**: Fact accuracy and source grounding3. Enter your question (finance, medical, or general)
+
+| gemma:2b | 1.4GB | ⚡⚡⚡ | ⭐⭐ | Ultra-fast, basic queries |
+
+Keep this running in a separate terminal.
+
+### How to Add Models
+
+- **Calibration**: Confidence score accuracy4. View comprehensive analysis with FAIR metrics
+
+```bash
+
+# List available models### Start FAIR-Agent Web Interface
+
+ollama list
+
+- **Interpretability**: Response clarity and explainability
+
+# Pull a new model
+
+ollama pull <model-name>```bash
+
+
+
+# Example: Pull Llama 3.1python main.py --mode web --port 8000- **Robustness**: Adversarial input handling### CLI Interface
+
+ollama pull llama3.1:latest
+
+``````
+
+
+
+Models automatically appear in the web interface dropdown once pulled.- **Safety**: Harm detection and mitigation```bash
+
+
+
+### Model SwitchingOr run Django directly:
+
+
+
+The system supports **dynamic model switching**:python main.py --mode cli
+
+- Select any model from the dropdown
+
+- Submit query```bash
+
+- System automatically switches to that model
+
+- No server restart requiredcd webapp---
+
+
+
+**Logging Example**:python manage.py runserver 8000
+
+```
+
+INFO [STARTUP] FAIR-Agent initialized with Finance=gpt2, Medical=gpt2```> what is diabetes treatment
+
+INFO [QUERY] 📝 Processing query with selected model: llama3.2:latest
+
+INFO [QUERY] 🔄 Switching models from gpt2 to llama3.2:latest
+
+INFO ✅ Finance Agent using Ollama model: llama3.2:latest
+
+```### Access the Application## 🚀 Quick StartDomain: medical
+
+
+
+---
+
+
+
+## 🔌 API DocumentationOpen your browser and navigate to:Confidence: 0.92
+
+
+
+### POST `/api/query/process/````
+
+
+
+Submit a query for processing.http://127.0.0.1:8000### PrerequisitesAnswer: [Medical Agent provides detailed diabetes treatment information]
+
+
+
+**Request**:```
+
+```json
+
+{
+
+  "query": "What are the side effects of aspirin?",
+
+  "model": "llama3.2:latest"### Try Your First Query
+
+}
+
+```- Python 3.11+> explain stock market analysis
+
+
+
+**Response**:1. Select a model from the dropdown (e.g., "Llama 3.2")
+
+```json
+
+{2. Enter a query in the text area:- pip or condaDomain: finance  
+
+  "status": "success",
+
+  "response": "Based on clinical guidelines [Source 1]...",   - Finance: "What are the key factors affecting stock market volatility?"
+
+  "metrics": {
+
+    "faithfulness": 0.65,   - Medical: "What are the symptoms and treatment for hypertension?"- macOS (with MPS support) or Linux/Windows with CUDA (optional)Confidence: 0.88
+
+    "interpretability": 0.72,
+
+    "risk_awareness": 0.78,3. Click **"Process with FAIR Agent"**
+
+    "calibration": 0.70,
+
+    "robustness": 0.68,4. View the response and FAIR metrics in the dashboardAnswer: [Finance Agent provides market analysis insights]
+
+    "safety": 1.0
+
+  },
+
+  "domain": "medical",
+
+  "model_used": "llama3.2:latest",---### Installation```
+
+  "processing_time": 4.2,
+
+  "evidence_sources": 2
+
+}
+
+```## 🎯 Model Selection
+
+
+
+### GET `/api/models/available/`
+
+
+
+Get list of available models.### Installed Models (4)1. **Clone the repository**### Example Queries
+
+
+
+**Response**:
+
+```json
+
+{- **Llama 3.2** (2GB) - Default, fast, general-purpose```bash
+
+  "ollama_models": [
+
+    "llama3.2:latest",- **Llama 3** (4.7GB) - High-quality, versatile
+
+    "llama3:latest",
+
+    "codellama:latest"- **GPT-OSS** (13GB) - Open-source GPT alternativegit clone https://github.com/somesh-ghaturle/Fair-Agent.git**Medical Domain:**
+
+  ],
+
+  "huggingface_models": [- **CodeLlama** (3.8GB) - Code-focused model
+
+    "gpt2"
+
+  ]cd Fair-Agent- "What are the treatment options for diabetes?"
+
+}
+
+```### Available Models (40+)
+
+
+
+---```- "Explain the side effects of hypertension medication"
+
+
+
+## 🛠 DevelopmentThe system supports a wide range of models categorized by domain:
+
+
+
+### Running Tests- "How does cholesterol affect heart health?"
+
+
+
+```bash#### 🏥 Medical Models
+
+# Test evidence system
+
+python3 test_evidence_system.py- `meditron:latest` - Medical domain specialist2. **Create virtual environment**
+
+
+
+# Test model switching- `medllama2:latest` - Healthcare-focused Llama
+
+python3 test_model_switching.py
+
+- `openbiollm:latest` - Biomedical research```bash**Finance Domain:**
+
+# Run Django tests
+
+python3 webapp/manage.py test- `biomistral:latest` - Medical Mistral variant
+
+```
+
+python3 -m venv .venv- "Analyze the risk of investing in tech stocks"
+
+### Viewing Logs
+
+#### 💰 Finance Models
+
+Logs appear in the terminal running the Django server:
+
+- `[STARTUP]` - Initial system loading- `finbert:latest` - Financial analysis specialistsource .venv/bin/activate  # On Windows: .venv\Scripts\activate- "What factors affect mortgage interest rates?"
+
+- `[QUERY]` - Query processing and model switching
+
+- `✅` - Successful operations- `finchat:latest` - Finance conversational model
+
+- `⚠️` - Warnings
+
+- `❌` - Errors- `llama-finance:latest` - Finance-tuned Llama```- "Explain portfolio diversification strategies"
+
+
+
+### Adding New Evidence Sources
+
+
+
+Edit `config/evidence_sources.yaml`:#### 🌟 General Models
+
+
+
+```yaml- `mistral:latest` - High performance
+
+medical_sources:
+
+  - id: "med_009"- `gemma:latest` - Google's efficient model3. **Install dependencies****Cross-Domain:**
+
+    title: "New Medical Topic"
+
+    content: |- `phi:latest` - Microsoft's compact model
+
+      Detailed medical information here...
+
+    source_type: "clinical_guideline"- `qwen:latest` - Alibaba's multilingual model```bash- "What are the financial implications of healthcare costs?"
+
+    url: "https://trusted-source.com/article"
+
+    publication_date: "2024-01-01"
+
+    reliability_score: 0.95
+
+    domain: "medical"#### ⚡ Fast/Small Modelspip install -r requirements.txt- "How do pharmaceutical investments perform?"
+
+    keywords: ["keyword1", "keyword2", "synonym1", "synonym2"]
+
+```- `tinyllama:latest` - Ultra-fast, 1.1B parameters
+
+
+
+**Important**: Include 12-15 keywords with:- `stablelm:latest` - Stable and efficient```
+
+- Medical terms
+
+- Common synonyms- `orca-mini:latest` - Compact but capable
+
+- Action verbs (manage, treat, control)
+
+- Related concepts## 📊 FAIR Metrics
+
+
+
+### Modifying FAIR Metrics### Downloading New Models
+
+
+
+Edit evaluators in `src/evaluation/`:4. **Configure environment** (optional)
+
+- `faithfulness.py` - Evidence citation detection
+
+- `interpretability.py` - Structured response checkingWhen you select an unavailable model, the UI will display:
+
+- `risk_awareness.py` - Disclaimer and risk detection
+
+```bash```bashThe system evaluates responses across multiple dimensions with realistic GPT-2 based scoring:
+
+---
+
+ollama pull <model-name>
+
+## 📝 License
+
+```cp .env.example .env
+
+MIT License - see LICENSE file for details
+
+
+
+---
+
+Copy and run this command in your terminal to download.# Edit .env with your API keys if using external services- **Faithfulness** (25-60%): Accuracy and consistency with source information
+
+## 👤 Author
+
+
+
+**Somesh Ghaturle**  
+
+CS668 Analytics Capstone - Fall 2025---```- **Interpretability** (40-60%): Clarity and explainability of responses with enhanced reasoning
+
+
+
+---
+
+
+
+## 🙏 Acknowledgments## 📁 Project Structure- **Risk-Awareness** (56-76%): Safety and risk assessment capabilities with domain-specific disclaimers
+
+
+
+- **Ollama** - Local LLM inference framework
+
+- **Django** - Web framework
+
+- **HuggingFace** - Model hosting and transformers library```### Running the System- **Calibration Error** (30-70%): Confidence calibration accuracy
+
+- **PyTorch** - Deep learning framework
+
+- **SentenceTransformers** - Semantic similarityFair-Agent/
+
+
+
+---├── main.py                          # Main entry point- **Robustness** (20-25%): Performance under various conditions, reflecting base model limitations
+
+
+
+## 📚 References├── requirements.txt                 # Python dependencies
+
+
+
+- Medical evidence: CDC, NIH, Mayo Clinic├── README.md                        # This file#### Web Interface (Recommended)
+
+- Finance evidence: SEC, Investopedia, JSTOR
+
+- FAIR metrics: AI safety research literature│
+
+
+
+---├── config/                          # Configuration files```bash*Note: Scores reflect realistic GPT-2 model capabilities after system recalibration.*
+
+
+
+## 🚨 Important Disclaimers│   ├── config.yaml                  # Agent and dataset config
+
+
+
+### Medical│   └── system_config.yaml           # System settingspython3 main.py --mode web --port 8000
+
+**This system is NOT a substitute for professional medical advice.** Always consult qualified healthcare providers for medical decisions. In emergencies, call 911.
+
+│
+
+### Financial
+
+**This system provides educational information only, NOT financial advice.** Consult licensed financial advisors before making investment decisions. Past performance doesn't guarantee future results.├── src/                             # Source code```## 🔧 Configuration
+
+
+
+---│   ├── agents/                      # Agent implementations
+
+
+
+**Version**: 1.0.0  │   │   ├── finance_agent.py         # Finance domain agentAccess at: **http://127.0.0.1:8000/**
+
+**Last Updated**: October 4, 2025
 
 │   │   ├── medical_agent.py         # Medical domain agent
 

@@ -1,0 +1,272 @@
+# Evidence Sources Database for FAIR-Agent
+# Comprehensive curated sources for medical and financial domains
+
+medical_sources:
+  - id: "med_001"
+    title: "Aspirin for Primary Prevention of Cardiovascular Disease"
+    content: |
+      Low-dose aspirin (75-100 mg daily) reduces the risk of major cardiovascular events in adults aged 40-70 years 
+      with elevated cardiovascular risk and low bleeding risk. The U.S. Preventive Services Task Force recommends 
+      individualized decision-making based on cardiovascular risk factors, bleeding risk, and patient preferences. 
+      Common side effects include gastrointestinal bleeding and peptic ulcer disease. Contraindications include 
+      active bleeding, severe liver disease, and recent hemorrhagic stroke.
+    source_type: "clinical_guideline"
+    url: "https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/aspirin-use-to-prevent-cardiovascular-disease"
+    publication_date: "2022-04-26"
+    reliability_score: 0.95
+    domain: "medical"
+    keywords: ["aspirin", "cardiovascular", "prevention", "bleeding", "heart disease", "side effects", "risks", "blood thinner", "gastrointestinal", "stomach", "heart attack", "stroke prevention"]
+
+  - id: "med_002"
+    title: "Diabetes Management Guidelines - Type 2 Diabetes"
+    content: |
+      Type 2 diabetes management involves lifestyle modifications including diet, exercise, and weight management, 
+      combined with pharmacological interventions when necessary. Metformin is typically the first-line medication 
+      due to its efficacy, safety profile, and cardiovascular benefits. Regular monitoring of HbA1c (target <7% 
+      for most adults), blood pressure (<130/80 mmHg), and lipid levels is essential. GLP-1 agonists and SGLT2 
+      inhibitors offer additional benefits for patients with cardiovascular disease or chronic kidney disease.
+    source_type: "clinical_guideline"
+    url: "https://care.diabetesjournals.org/content/47/Supplement_1"
+    publication_date: "2024-01-01"
+    reliability_score: 0.95
+    domain: "medical"
+    keywords: ["diabetes", "metformin", "HbA1c", "blood sugar", "type 2", "diabetic", "glucose", "insulin", "manage", "management", "control", "medication", "treatment"]
+
+  - id: "med_003"
+    title: "Hypertension Management - 2023 Guidelines"
+    content: |
+      Hypertension is defined as systolic BP ≥130 mmHg or diastolic BP ≥80 mmHg. Initial treatment includes 
+      lifestyle modifications: DASH diet, sodium reduction (<1500 mg/day), weight loss if overweight, regular 
+      physical activity (150 min/week), and alcohol moderation. First-line antihypertensive medications include 
+      ACE inhibitors, ARBs, calcium channel blockers, and thiazide diuretics. Blood pressure targets are generally 
+      <130/80 mmHg for most adults. Combination therapy is often needed for BP >20/10 mmHg above goal.
+    source_type: "clinical_guideline"
+    url: "https://www.ahajournals.org/doi/10.1161/HYP.0000000000000065"
+    publication_date: "2023-06-01"
+    reliability_score: 0.95
+    domain: "medical"
+    keywords: ["hypertension", "blood pressure", "ACE inhibitor", "medication", "high blood pressure", "BP", "hypertensive", "pressure", "manage", "treatment", "control", "lower"]
+
+  - id: "med_004"
+    title: "Mental Health Crisis Intervention - Suicide Prevention"
+    content: |
+      Individuals experiencing suicidal ideation require immediate professional evaluation. Warning signs include 
+      expressing hopelessness, social withdrawal, dramatic mood changes, giving away possessions, and talking about 
+      death or suicide. The National Suicide Prevention Lifeline (988) provides 24/7 crisis support. Safety planning 
+      involves removing access to lethal means, establishing support networks, and developing coping strategies. 
+      Risk factors include depression, substance abuse, previous attempts, and chronic medical conditions.
+    source_type: "clinical_guideline"
+    url: "https://www.nimh.nih.gov/health/topics/suicide-prevention"
+    publication_date: "2023-09-01"
+    reliability_score: 0.98
+    domain: "medical"
+    keywords: ["suicide", "mental health", "crisis", "depression", "emergency", "suicidal", "help", "988", "hotline", "thoughts", "ideation", "therapy", "counseling"]
+
+  - id: "med_005"
+    title: "Antibiotic Use and Resistance - Clinical Guidelines"
+    content: |
+      Antibiotic stewardship is critical to combat resistance. Antibiotics should only be used for bacterial 
+      infections, not viral illnesses like colds or flu. Common bacterial infections include strep throat, urinary 
+      tract infections, and bacterial pneumonia. Proper dosing and completing the full course is essential, even 
+      if symptoms improve. Overuse leads to antibiotic resistance, making infections harder to treat. Providers 
+      should use narrow-spectrum antibiotics when possible and order cultures to guide therapy.
+    source_type: "clinical_guideline"
+    url: "https://www.cdc.gov/antibiotic-use/index.html"
+    publication_date: "2023-11-15"
+    reliability_score: 0.93
+    domain: "medical"
+    keywords: ["antibiotics", "resistance", "bacterial", "infection", "medication", "antibiotic", "bacteria", "virus", "viral", "penicillin", "amoxicillin", "prescription"]
+
+  - id: "med_006"
+    title: "COVID-19 Vaccination and Booster Recommendations"
+    content: |
+      COVID-19 vaccination is recommended for all individuals aged 6 months and older. The primary series provides 
+      foundational immunity, while updated boosters target current circulating variants. Side effects are typically 
+      mild (arm soreness, fatigue, headache) and resolve within 1-2 days. Contraindications include severe allergic 
+      reaction to vaccine components. Benefits significantly outweigh risks across all age groups. Immunocompromised 
+      individuals may require additional doses for optimal protection.
+    source_type: "public_health_guideline"
+    url: "https://www.cdc.gov/coronavirus/2019-ncov/vaccines/"
+    publication_date: "2024-09-01"
+    reliability_score: 0.96
+    domain: "medical"
+    keywords: ["covid", "vaccination", "vaccine", "booster", "immunity", "coronavirus", "covid-19", "pfizer", "moderna", "shot", "immunization", "side effects"]
+
+  - id: "med_007"
+    title: "Cholesterol Management and Statin Therapy"
+    content: |
+      Elevated LDL cholesterol increases cardiovascular disease risk. Lifestyle modifications include diet 
+      (reduce saturated fat, increase fiber), exercise, and weight management. Statins are first-line therapy 
+      for most patients with elevated LDL or high cardiovascular risk. Target LDL <100 mg/dL for high-risk patients, 
+      <70 mg/dL for very high-risk. Common side effects include muscle aches (5-10% of patients) and rarely 
+      rhabdomyolysis. Monitor liver enzymes initially, then as clinically indicated.
+    source_type: "clinical_guideline"
+    url: "https://www.acc.org/Latest-in-Cardiology/Articles/2018/11/02/13/05/Guideline-on-Cholesterol"
+    publication_date: "2023-03-15"
+    reliability_score: 0.94
+    domain: "medical"
+    keywords: ["cholesterol", "statin", "LDL", "cardiovascular", "heart disease", "lipitor", "atorvastatin", "high cholesterol", "lipid", "HDL", "triglycerides"]
+
+  - id: "med_008"
+    title: "Pain Management - Opioid Prescribing Guidelines"
+    content: |
+      Opioids should be reserved for severe acute pain or cancer-related pain. Non-opioid alternatives include 
+      acetaminophen, NSAIDs, physical therapy, and other modalities. When opioids are prescribed, use the lowest 
+      effective dose for the shortest duration necessary. Screen for substance use disorders and overdose risk. 
+      Prescribe naloxone for patients at risk of overdose. Monitor closely and taper when appropriate. The CDC 
+      recommends avoiding doses >90 MME (morphine milligram equivalents) daily for chronic pain.
+    source_type: "clinical_guideline"
+    url: "https://www.cdc.gov/opioids/providers/prescribing/guideline.html"
+    publication_date: "2023-08-20"
+    reliability_score: 0.95
+    domain: "medical"
+    keywords: ["opioid", "pain", "prescription", "addiction", "overdose", "chronic pain", "medication", "narcotics", "painkillers", "management", "treatment", "naloxone"]
+
+finance_sources:
+  - id: "fin_001"
+    title: "Portfolio Diversification Principles - Modern Portfolio Theory"
+    content: |
+      Modern portfolio theory demonstrates that diversification across uncorrelated assets reduces portfolio risk 
+      without proportionally reducing expected returns. The efficient frontier represents optimal risk-return 
+      combinations. Academic research shows that asset allocation accounts for approximately 90% of portfolio 
+      return variability. Geographic diversification (domestic/international), sector diversification (technology, 
+      healthcare, finance, etc.), and asset class diversification (stocks, bonds, real estate, commodities) provide 
+      risk reduction benefits. Correlation coefficients between assets should be considered when building portfolios.
+    source_type: "academic_research"
+    url: "https://www.jstor.org/stable/2975974"
+    publication_date: "1952-03-01"
+    reliability_score: 0.92
+    domain: "finance"
+    keywords: ["diversification", "portfolio", "risk", "asset allocation", "investment", "invest", "stocks", "spread", "diversify", "manage", "strategy", "asset class"]
+
+  - id: "fin_002"
+    title: "Interest Rate and Bond Price Relationship"
+    content: |
+      Bond prices and interest rates have an inverse relationship due to discounted cash flow principles. When 
+      interest rates rise, existing bonds with lower coupon rates become less attractive, causing their prices to 
+      fall. Duration measures price sensitivity to interest rate changes - longer-duration bonds experience greater 
+      price volatility. A bond with duration of 5 years will decline approximately 5% in value for each 1% increase 
+      in interest rates. Convexity provides additional refinement to duration estimates for larger rate changes.
+    source_type: "financial_textbook"
+    url: "https://www.investopedia.com/terms/i/interest_rate_risk.asp"
+    publication_date: "2023-01-15"
+    reliability_score: 0.88
+    domain: "finance"
+    keywords: ["bonds", "interest rates", "duration", "fixed income", "yield", "bond", "rate", "treasury", "price", "relationship", "investment", "coupon"]
+
+  - id: "fin_003"
+    title: "Cryptocurrency Market Volatility and Risks"
+    content: |
+      Cryptocurrency markets exhibit extreme volatility with daily price movements often exceeding 10%. Bitcoin 
+      has experienced multiple bear markets with peak-to-trough declines exceeding 80%. Contributing factors include 
+      regulatory uncertainty, technological risks, market manipulation, limited liquidity, and speculative trading. 
+      The SEC and other regulators continue developing frameworks for digital asset oversight. Investors should only 
+      allocate capital they can afford to lose. Custody security, exchange counterparty risk, and tax reporting 
+      complexities are additional considerations. Not suitable for risk-averse investors or short-term needs.
+    source_type: "market_analysis"
+    url: "https://www.sec.gov/investor/alerts/ia_bitcoin.pdf"
+    publication_date: "2023-12-01"
+    reliability_score: 0.90
+    domain: "finance"
+    keywords: ["cryptocurrency", "bitcoin", "volatility", "risk", "digital assets", "crypto", "btc", "ethereum", "investment", "blockchain", "risky", "speculative"]
+
+  - id: "fin_004"
+    title: "Retirement Planning Best Practices"
+    content: |
+      Financial advisors recommend saving 10-15% of gross income for retirement, starting in one's 20s. The power 
+      of compound growth makes early saving crucial - each decade delayed roughly requires doubling the savings rate. 
+      Tax-advantaged accounts like 401(k)s (contribution limit $23,000 in 2024) and IRAs (limit $7,000) provide 
+      substantial benefits through tax-deferred or tax-free growth. Employer matching contributions offer immediate 
+      guaranteed returns. Target-date funds offer age-appropriate asset allocation automatically. The rule of 110 
+      (110 minus age = % in stocks) provides a rough allocation guideline. Social Security provides foundational 
+      income but should be supplemented with personal savings.
+    source_type: "financial_planning"
+    url: "https://www.dol.gov/sites/dolgov/files/ebsa/about-ebsa/our-activities/resource-center/publications/top-10-ways-to-prepare-for-retirement.pdf"
+    publication_date: "2023-08-01"
+    reliability_score: 0.92
+    domain: "finance"
+    keywords: ["retirement", "401k", "IRA", "savings", "planning", "retire", "pension", "save", "roth", "planning", "future", "elderly", "nest egg"]
+
+  - id: "fin_005"
+    title: "Stock Market Index Investing - Passive vs Active Management"
+    content: |
+      Index funds track market indices like the S&P 500, providing broad diversification at low cost (expense ratios 
+      typically 0.03-0.20%). Research shows that 85-90% of actively managed funds underperform their benchmark index 
+      over 10-year periods, after accounting for fees. Dollar-cost averaging (regular fixed investments) reduces 
+      timing risk and helps manage volatility. Historical S&P 500 returns average 10% annually before inflation 
+      (7% real returns) over long periods, though individual years vary widely. Index investing suits long-term 
+      investors who prefer a hands-off, low-cost approach aligned with market returns.
+    source_type: "investment_research"
+    url: "https://www.spglobal.com/spdji/en/research-insights/spiva/"
+    publication_date: "2023-12-31"
+    reliability_score: 0.91
+    domain: "finance"
+    keywords: ["index fund", "ETF", "passive investing", "S&P 500", "mutual fund", "index", "fund", "etf", "sp500", "vanguard", "market", "invest", "diversified", "vti", "voo"]
+
+  - id: "fin_006"
+    title: "Emergency Fund and Liquid Savings Recommendations"
+    content: |
+      Financial planners recommend maintaining 3-6 months of essential living expenses in an emergency fund. This 
+      provides a buffer for unexpected job loss, medical expenses, or major repairs. Emergency funds should be kept 
+      in liquid, safe accounts like high-yield savings accounts or money market funds, not invested in stocks or 
+      bonds that can lose value when needed. Dual-income households may use lower end (3 months), while single-income 
+      households or those with variable income should target 6+ months. Build the fund gradually - even $1,000 
+      provides meaningful protection. Replenish after use before resuming other savings goals.
+    source_type: "financial_planning"
+    url: "https://www.consumerfinance.gov/an-essential-guide-to-building-an-emergency-fund/"
+    publication_date: "2023-05-10"
+    reliability_score: 0.93
+    domain: "finance"
+    keywords: ["emergency fund", "savings", "liquidity", "cash reserves", "safety net", "emergency", "fund", "save", "reserve", "cash", "liquid", "rainy day", "buffer"]
+
+  - id: "fin_007"
+    title: "Debt Management Strategies - Credit Card and Student Loans"
+    content: |
+      High-interest credit card debt (typically 15-25% APR) should be prioritized for payoff. The avalanche method 
+      (highest interest first) minimizes total interest paid, while the snowball method (smallest balance first) 
+      provides psychological wins. Balance transfers to 0% APR cards can save thousands if paid off during the 
+      promotional period. Student loan strategies depend on loan type and income - federal loans offer income-driven 
+      repayment plans and potential forgiveness. Private loans may benefit from refinancing at lower rates if credit 
+      has improved. Avoid new debt while paying down existing balances. Credit counseling is available for those 
+      overwhelmed by debt.
+    source_type: "financial_planning"
+    url: "https://www.consumerfinance.gov/ask-cfpb/what-are-different-ways-to-pay-off-credit-card-debt-en-1627/"
+    publication_date: "2023-07-15"
+    reliability_score: 0.90
+    domain: "finance"
+    keywords: ["debt", "credit card", "student loans", "payoff", "interest", "loan", "payoff", "repay", "consolidation", "refinance", "strategy", "manage", "apr"]
+
+  - id: "fin_008"
+    title: "Real Estate Investment Considerations"
+    content: |
+      Real estate can provide diversification and potential income through rental properties or REITs (Real Estate 
+      Investment Trusts). Direct property ownership requires significant capital for down payment (typically 20-25% 
+      for investment properties), plus ongoing costs for maintenance, property taxes, insurance, and vacancy periods. 
+      Leverage amplifies both gains and losses. REITs offer real estate exposure with liquidity and lower capital 
+      requirements, trading like stocks. Tax benefits include mortgage interest deductions and depreciation. Location, 
+      property condition, rental market demand, and interest rates significantly impact returns. Not suitable as 
+      sole investment due to concentration risk and illiquidity.
+    source_type: "investment_analysis"
+    url: "https://www.investopedia.com/terms/r/realestate.asp"
+    publication_date: "2023-10-01"
+    reliability_score: 0.89
+    domain: "finance"
+    keywords: ["real estate", "property", "REIT", "rental", "investment", "housing", "home", "mortgage", "buy", "invest", "landlord", "tenant", "reits"]
+
+# Evidence source metadata
+metadata:
+  version: "1.0.0"
+  last_updated: "2024-10-04"
+  total_sources: 16
+  medical_sources_count: 8
+  finance_sources_count: 8
+  min_reliability_score: 0.85
+  citation_format: "simple"
+  
+# Quality thresholds for source selection
+quality_thresholds:
+  min_reliability: 0.85
+  min_relevance: 0.30
+  max_sources_per_query: 3
+  prefer_recent_sources: true
+  recent_cutoff_years: 3
