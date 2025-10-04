@@ -105,32 +105,36 @@ class SafetyDisclaimerManager:
         needed_disclaimers = []
         combined_text = f"{query} {response}".lower()
         
-        # Check for emergency patterns first (highest priority)
+        # Check for emergency patterns ONLY if content actually contains emergency-related terms
+        emergency_found = False
         for pattern in self.trigger_patterns[DisclaimerType.EMERGENCY]:
             if re.search(pattern, combined_text, re.IGNORECASE):
                 needed_disclaimers.append(DisclaimerType.EMERGENCY)
+                emergency_found = True
                 break
         
         # Check domain-specific patterns
         if domain.lower() in ['medical', 'health']:
+            # Add medical disclaimer only if medical content is present
             for pattern in self.trigger_patterns[DisclaimerType.MEDICAL]:
                 if re.search(pattern, combined_text, re.IGNORECASE):
                     needed_disclaimers.append(DisclaimerType.MEDICAL)
                     break
         
         if domain.lower() in ['finance', 'financial', 'investment']:
+            # Add financial disclaimer only if financial content is present
             for pattern in self.trigger_patterns[DisclaimerType.FINANCIAL]:
                 if re.search(pattern, combined_text, re.IGNORECASE):
                     needed_disclaimers.append(DisclaimerType.FINANCIAL)
                     break
         
-        # Always add professional consultation for complex topics
-        complex_indicators = [
-            'should i', 'what should', 'how much', 'when should', 'is it safe',
-            'recommend', 'advice', 'suggest', 'best option', 'treatment plan'
+        # Only add professional consultation for truly complex advisory questions
+        advisory_indicators = [
+            'should i invest', 'what should i buy', 'how much should i', 'when should i sell',
+            'is it safe to', 'recommend for me', 'personal advice', 'my situation'
         ]
         
-        if any(indicator in combined_text for indicator in complex_indicators):
+        if any(indicator in combined_text for indicator in advisory_indicators):
             if DisclaimerType.PROFESSIONAL_CONSULTATION not in needed_disclaimers:
                 needed_disclaimers.append(DisclaimerType.PROFESSIONAL_CONSULTATION)
         

@@ -7,7 +7,7 @@ Handles configuration loading and management for the FAIR-Agent system.
 import yaml
 import logging
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, field
 
 
@@ -16,9 +16,11 @@ class AgentConfig:
     """Configuration for individual agents"""
     model_name: str = "gpt2"
     device: str = "auto"
-    max_length: int = 256
+    max_length: int = 1024
     temperature: float = 0.7
     top_p: float = 0.9
+    alternative_models: list = field(default_factory=list)
+    enable_model_switching: bool = False
 
 
 @dataclass

@@ -119,7 +119,6 @@ wandb>=0.12.0  # Experiment tracking
 tensorboard>=2.7.0
 
 # Database (for caching and storage)
-sqlite3  # Built-in Python
 redis>=3.5.0  # Optional for advanced caching
 
 # Security

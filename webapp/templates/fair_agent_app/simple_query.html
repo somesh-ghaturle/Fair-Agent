@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}FAIR-Agent: Simple Query Interface{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h2><i class="fas fa-search me-2"></i>FAIR-Agent Simple Query</h2>
+                    <p class="mb-0">Test the FAIR-Agent system with simple queries</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Query Form -->
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-terminal me-2"></i>Query Input</h5>
+                </div>
+                <div class="card-body">
+                    <form id="queryForm">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="queryInput" class="form-label">Enter your query:</label>
+                            <textarea class="form-control" id="queryInput" rows="3"
+                                      placeholder="Ask about finance or medicine..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-paper-plane me-2"></i>Submit Query
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div class="row mt-4">
+        <div class="col-md-8 mx-auto">
+            <div class="card" id="resultsCard" style="display: none;">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line me-2"></i>Response</h5>
+                </div>
+                <div class="card-body">
+                    <div id="loadingSpinner" class="text-center" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Processing your query...</p>
+                    </div>
+                    <div id="resultsContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('queryForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const query = document.getElementById('queryInput').value.trim();
+    if (!query) return;
+
+    const submitBtn = document.getElementById('submitBtn');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const resultsCard = document.getElementById('resultsCard');
+    const resultsContent = document.getElementById('resultsContent');
+
+    // Show loading
+    submitBtn.disabled = true;
+    loadingSpinner.style.display = 'block';
+    resultsCard.style.display = 'none';
+
+    // Get CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    // Make request
+    fetch('/api/query/process/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({ query: query })
+    })
+    .then(response => response.json())
+    .then(data => {
+        resultsContent.innerHTML = `
+            <h6>Query: "${query}"</h6>
+            <div class="alert alert-success">
+                <strong>Response:</strong><br>
+                ${data.primary_answer || 'No response generated'}
+            </div>
+            <small class="text-muted">Confidence: ${data.confidence_score || 'N/A'}</small>
+        `;
+        resultsCard.style.display = 'block';
+    })
+    .catch(error => {
+        resultsContent.innerHTML = `
+            <div class="alert alert-danger">
+                <strong>Error:</strong> ${error.message}
+            </div>
+        `;
+        resultsCard.style.display = 'block';
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        loadingSpinner.style.display = 'none';
+    });
+});
+</script>
+{% endblock %}

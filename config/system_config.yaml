@@ -1,21 +1,46 @@
 # FAIR-Agent System Configuration
 # CS668 Analytics Capstone - Fall 2025
 
+# Model Selection Configuration
+model_selection:
+  # Available models: gpt2, gpt2-medium, gpt2-large, llama-7b, llama-7b-chat, flan-t5-base
+  enabled_models:
+    - "gpt2"
+    - "gpt2-medium"
+    - "flan-t5-base"
+  
+  # Default models for each domain
+  default_finance_model: "gpt2"
+  default_medical_model: "gpt2"
+  
+  # Model switching strategy: "performance", "capability", "resource"
+  selection_strategy: "capability"
+  
+  # Auto-load models on startup
+  auto_load_defaults: true
+  
+  # Enable internet-enhanced responses
+  enable_internet_rag: true
+
 # Finance Agent Configuration
 finance_agent:
-  model_name: "gpt2"  # Using GPT-2 for compatibility
+  model_name: "gpt2"  # Primary model
+  alternative_models: ["gpt2-medium", "flan-t5-base"]  # Fallback models
   device: "auto"      # Auto-detect best device (MPS/CUDA/CPU)
-  max_length: 256     # Maximum token length
+  max_length: 512     # Increased for better responses
   temperature: 0.7    # Sampling temperature
   top_p: 0.9         # Nucleus sampling parameter
+  enable_model_switching: true  # Allow dynamic model switching
 
 # Medical Agent Configuration  
 medical_agent:
-  model_name: "gpt2"  # Using GPT-2 for compatibility
+  model_name: "gpt2"  # Primary model
+  alternative_models: ["gpt2-medium", "flan-t5-base"]  # Fallback models
   device: "auto"      # Auto-detect best device (MPS/CUDA/CPU)
-  max_length: 256     # Maximum token length
+  max_length: 512     # Increased for better responses
   temperature: 0.7    # Sampling temperature
   top_p: 0.9         # Nucleus sampling parameter
+  enable_model_switching: true  # Allow dynamic model switching
 
 # System Configuration
 system:

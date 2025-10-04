@@ -109,12 +109,38 @@ class FairAgentService:
         return cls._initialized
     
     @classmethod
-    def process_query(cls, query_text: str) -> Dict[str, Any]:
+    def _reinitialize_agents_with_model(cls, model_name: str):
+        """
+        Reinitialize agents with a new model
+        
+        Args:
+            model_name: The model to use (e.g., 'gpt2', 'llama3.2:latest')
+        """
+        try:
+            from src.agents.orchestrator import Orchestrator
+            
+            finance_config = {'model_name': model_name}
+            medical_config = {'model_name': model_name}
+            
+            cls._orchestrator = Orchestrator(
+                finance_config=finance_config,
+                medical_config=medical_config
+            )
+            
+            logger.info(f"Agents reinitialized with model: {model_name}")
+            
+        except Exception as e:
+            logger.error(f"Failed to reinitialize agents with model {model_name}: {e}")
+            raise
+    
+    @classmethod
+    def process_query(cls, query_text: str, model_name: str = 'gpt2') -> Dict[str, Any]:
         """
         Process a query through the FAIR-Agent system
         
         Args:
             query_text: The user's query
+            model_name: The model to use for generation (e.g., 'gpt2', 'llama3.2:latest')
             
         Returns:
             Dictionary containing response and metrics
@@ -130,6 +156,12 @@ class FairAgentService:
         
         try:
             start_time = datetime.now()
+            
+            # If model is different from current, reinitialize agents
+            current_finance_model = cls._orchestrator.finance_agent.model_name if cls._orchestrator else None
+            if current_finance_model != model_name:
+                logger.info(f"Switching models from {current_finance_model} to {model_name}")
+                cls._reinitialize_agents_with_model(model_name)
             
             # Process query through orchestrator
             result = cls._orchestrator.process_query(query_text)
@@ -179,13 +211,50 @@ class FairAgentService:
             return {'error': 'Evaluators not initialized'}
         
         try:
+            # Temporarily disable FAIR optimization to debug confidence issues
+            optimized_response = response_text
+            optimization_report = ""
+            
+            # Disabled for debugging - uncomment to re-enable
+            # try:
+            #     from src.utils.fair_metrics_optimizer import FairMetricsOptimizer
+            #     optimizer = FairMetricsOptimizer()
+            #     
+            #     # Get initial confidence estimate
+            #     initial_confidence = 0.7  # Default confidence
+            #     if 'confidence' in response_text.lower():
+            #         # Try to extract confidence if mentioned in response
+            #         import re
+            #         conf_match = re.search(r'confidence[:\s]*(\d+)%', response_text.lower())
+            #         if conf_match:
+            #             initial_confidence = float(conf_match.group(1)) / 100.0
+            #     
+            #     # Optimize response for better FAIR scores
+            #     optimized_response, optimized_confidence, improvements = optimizer.optimize_response_for_fair_metrics(
+            #         response=response_text,
+            #         query=query_text,
+            #         domain=domain,
+            #         current_confidence=initial_confidence
+            #     )
+            #     
+            #     optimization_report = optimizer.get_optimization_report(improvements)
+            #     logger.info(f"Applied FAIR optimization: {optimization_report}")
+            #     
+            # except ImportError as e:
+            #     logger.info("FAIR optimizer not available, using original response")
+            # except Exception as e:
+            #     logger.warning(f"FAIR optimization failed: {e}")
+            
             metrics = {}
             detailed_metrics = {}
+            
+            # Use original response for evaluation during debugging
+            evaluation_response = response_text
             
             # Faithfulness evaluation
             if 'faithfulness' in cls._evaluators:
                 try:
-                    faith_score = cls._evaluators['faithfulness'].evaluate_response(response_text, query_text)
+                    faith_score = cls._evaluators['faithfulness'].evaluate_response(evaluation_response, query_text)
                     # Use actual evaluation scores without artificial minimums
                     overall_score = getattr(faith_score, 'overall_score', 0.0)
                     metrics['faithfulness'] = {
@@ -210,7 +279,7 @@ class FairAgentService:
             if 'safety' in cls._evaluators:
                 try:
                     safety_score = cls._evaluators['safety'].evaluate_safety(
-                        response_text, query_text, domain
+                        evaluation_response, query_text, domain
                     )
                     # Use actual safety evaluation scores
                     overall_safety = getattr(safety_score, 'overall_safety', 0.0)
@@ -302,6 +371,11 @@ class FairAgentService:
             
             # Add detailed metrics
             metrics.update(detailed_metrics)
+            
+            # Add optimization info if applied
+            if optimization_report:
+                metrics['optimization_applied'] = optimization_report
+                metrics['optimized_response'] = optimized_response != response_text
             
             return metrics
             

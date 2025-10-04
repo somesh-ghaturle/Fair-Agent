@@ -145,6 +145,10 @@ class Orchestrator:
             'asthma', 'arthritis', 'allergies', 'pneumonia', 'flu', 'covid'
         ]
         
+        # Special case: single word "medicine" should strongly indicate medical domain
+        if query_lower.strip() == 'medicine':
+            return QueryDomain.MEDICAL
+        
         # Count keyword matches
         finance_score = sum(1 for keyword in finance_keywords if keyword in query_lower)
         medical_score = sum(1 for keyword in medical_keywords if keyword in query_lower)
@@ -163,17 +167,11 @@ class Orchestrator:
         
         # Weak domain classification with single clear matches
         elif finance_score >= weak_threshold and finance_score > medical_score:
-            # Check if it's a clear finance term that should be routed
-            if any(term in query_lower for term in ['investment', 'stock', 'portfolio', 'financial', 'finance', 'market']):
-                return QueryDomain.FINANCE
-            else:
-                return self._heuristic_classification(query)
+            # Always route clear finance terms directly
+            return QueryDomain.FINANCE
         elif medical_score >= weak_threshold and medical_score > finance_score:
-            # Check if it's a clear medical term that should be routed
-            if any(term in query_lower for term in ['diabetes', 'diabetic', 'cancer', 'disease', 'medical', 'health', 'treatment', 'symptom']):
-                return QueryDomain.MEDICAL
-            else:
-                return self._heuristic_classification(query)
+            # Always route clear medical terms directly  
+            return QueryDomain.MEDICAL
         
         # Use heuristics for any remaining weak signals
         elif finance_score > 0 or medical_score > 0:

@@ -1,14 +1,23 @@
 """
 Django views for FAIR-Agent Web Application
 
-This module contains the view functions and classes that handle HTTP requests
+This module contains the view functions and classes that             fetch('http://localhost:8000/api/query/process/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{csrf_token}'
+                },
+                body: JSON.stringify(data)
+            })TTP requests
 and render responses for the FAIR-Agent web interface.
 """
 
 import json
 import uuid
 import logging
+import numpy as np
 from datetime import datetime
+from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -23,13 +32,241 @@ from .models import (
     SystemPerformance, SafetyAlert, UserFeedback
 )
 from .services import FairAgentService, QueryProcessor
+from .formatters import ResponseFormatter
 
 logger = logging.getLogger(__name__)
+
+
+class NumpyJSONEncoder(DjangoJSONEncoder):
+    """Custom JSON encoder to handle numpy types"""
+    def default(self, obj):
+        if isinstance(obj, (np.floating, np.float32, np.float64)):
+            return float(obj)
+        elif isinstance(obj, (np.integer, np.int32, np.int64)):
+            return int(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif hasattr(obj, 'item'):  # Handle other numpy scalars
+            return obj.item()
+        return super().default(obj)
+
+
+def convert_numpy_types(obj):
+    """Convert numpy types to JSON-serializable Python types"""
+    import numpy as np
+    
+    if isinstance(obj, (np.floating, np.float32, np.float64)):
+        return float(obj)
+    elif isinstance(obj, (np.integer, np.int32, np.int64)):
+        return int(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, dict):
+        return {key: convert_numpy_types(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_numpy_types(item) for item in obj]
+    elif hasattr(obj, 'item'):  # Handle other numpy scalars
+        return obj.item()
+    else:
+        return obj
 
 
 class HomeView(TemplateView):
     """Main landing page for FAIR-Agent web interface"""
     template_name = 'fair_agent_app/home.html'
+
+
+@csrf_exempt
+def test_api(request):
+    """Simple test API that returns immediately"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            return JsonResponse({
+                'status': 'success',
+                'message': 'API is working!',
+                'received_query': data.get('query', 'No query'),
+                'timestamp': datetime.now().isoformat()
+            })
+        except Exception as e:
+            return JsonResponse({
+                'error': str(e),
+                'status': 'error'
+            }, status=500)
+    else:
+        return JsonResponse({'error': 'Only POST allowed'}, status=405)
+
+
+def test_ui(request):
+    """Simple test interface to debug UI issues"""
+    from django.middleware.csrf import get_token
+    csrf_token = get_token(request)
+    
+    return HttpResponse(f'''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FAIR-Agent Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>FAIR-Agent Simple Test</h1>
+        
+        <form id="testForm">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}">
+            <div class="mb-3">
+                <input type="text" id="queryInput" class="form-control" placeholder="Enter your query" value="What is diversification?">
+            </div>
+            <button type="submit" class="btn btn-primary">Test Simple API</button>
+            <button type="button" id="testFullApi" class="btn btn-secondary ms-2">Test Full API</button>
+        </form>
+        
+        <div id="result" class="mt-3"></div>
+        <div id="debug" class="mt-3 p-3 bg-light" style="max-height: 300px; overflow-y: auto;">
+            <strong>Debug Log:</strong><br>
+        </div>
+    </div>
+
+    <script>
+        function debug(msg) {{
+            document.getElementById('debug').innerHTML += '<div>' + new Date().toLocaleTimeString() + ': ' + msg + '</div>';
+        }}
+        
+        debug('Page loaded');
+        debug('CSRF Token: {csrf_token}');
+        
+        document.getElementById('testForm').addEventListener('submit', function(e) {{
+            e.preventDefault();
+            debug('Form submitted');
+            
+            const query = document.getElementById('queryInput').value;
+            debug('Query: ' + query);
+            
+            const data = {{
+                query: query
+            }};
+            
+            debug('Sending request to Simple Test API...');
+            debug('Request URL: /test-api/');
+            debug('Request method: POST');
+            debug('Request headers: Content-Type: application/json, X-CSRFToken: {csrf_token}');
+            debug('Request body: ' + JSON.stringify(data));
+            
+            fetch('/test-api/', {{
+                method: 'POST',
+                headers: {{
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{csrf_token}'
+                }},
+                body: JSON.stringify(data)
+            }})
+            .then(response => {{
+                debug('Response received!');
+                debug('Response status: ' + response.status);
+                debug('Response headers: ' + JSON.stringify(Object.fromEntries(response.headers.entries())));
+                if (!response.ok) {{
+                    return response.text().then(text => {{
+                        debug('Error response body: ' + text);
+                        throw new Error('HTTP ' + response.status + ': ' + text);
+                    }});
+                }}
+                return response.json();
+            }})
+            .then(data => {{
+                debug('Success! Data received');
+                debug('Full response: ' + JSON.stringify(data));
+                debug('Answer length: ' + (data.answer ? data.answer.length : 'NO ANSWER'));
+                debug('Confidence: ' + data.confidence);
+                debug('Domain: ' + data.domain);
+                
+                document.getElementById('result').innerHTML = `
+                    <div class="alert alert-success">
+                        <h5>Response Received!</h5>
+                        <p><strong>Query:</strong> ${{query}}</p>
+                        <p><strong>Domain:</strong> ${{data.domain}}</p>
+                        <p><strong>Confidence:</strong> ${{data.confidence}}</p>
+                        <p><strong>Answer:</strong> ${{data.answer ? data.answer.substring(0, 500) + '...' : 'No answer'}}</p>
+                        ${{data.fair_metrics ? `
+                        <p><strong>FAIR Metrics:</strong></p>
+                        <ul>
+                            <li>Faithfulness: ${{Math.round(data.fair_metrics.faithfulness * 100)}}%</li>
+                            <li>Interpretability: ${{Math.round(data.fair_metrics.interpretability * 100)}}%</li>
+                            <li>Risk Awareness: ${{Math.round(data.fair_metrics.risk_awareness * 100)}}%</li>
+                        </ul>
+                        ` : '<p>No FAIR metrics available</p>'}}
+                    </div>
+                `;
+            }})
+            .catch(error => {{
+                debug('ERROR occurred');
+                debug('Error message: ' + error.message);
+                debug('Error stack: ' + error.stack);
+                document.getElementById('result').innerHTML = `
+                    <div class="alert alert-danger">
+                        <strong>Error:</strong> ${{error.message}}
+                    </div>
+                `;
+            }});
+        }});
+        
+        // Full API test
+        document.getElementById('testFullApi').addEventListener('click', function() {{
+            debug('Testing Full API...');
+            
+            const query = document.getElementById('queryInput').value;
+            const data = {{ query: query }};
+            
+            debug('Sending request to Full API...');
+            debug('Request URL: /api/query/process/');
+            
+            fetch('/api/query/process/', {{
+                method: 'POST',
+                headers: {{
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{csrf_token}'
+                }},
+                body: JSON.stringify(data)
+            }})
+            .then(response => {{
+                debug('Full API Response received!');
+                debug('Response status: ' + response.status);
+                if (!response.ok) {{
+                    return response.text().then(text => {{
+                        debug('Error response body: ' + text);
+                        throw new Error('HTTP ' + response.status + ': ' + text);
+                    }});
+                }}
+                return response.json();
+            }})
+            .then(data => {{
+                debug('Full API Success! Data received');
+                debug('Full response: ' + JSON.stringify(data));
+                
+                document.getElementById('result').innerHTML = `
+                    <div class="alert alert-success">
+                        <h5>Full API Response Received!</h5>
+                        <p><strong>Query:</strong> ${{query}}</p>
+                        <p><strong>Domain:</strong> ${{data.domain}}</p>
+                        <p><strong>Confidence:</strong> ${{data.confidence}}</p>
+                        <p><strong>Answer:</strong> ${{data.answer ? data.answer.substring(0, 500) + '...' : 'No answer'}}</p>
+                    </div>
+                `;
+            }})
+            .catch(error => {{
+                debug('Full API ERROR occurred');
+                debug('Error message: ' + error.message);
+                document.getElementById('result').innerHTML = `
+                    <div class="alert alert-danger">
+                        <strong>Full API Error:</strong> ${{error.message}}
+                    </div>
+                `;
+            }});
+        }});
+    </script>
+</body>
+</html>
+    ''')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -54,9 +291,14 @@ class HomeView(TemplateView):
         return context
 
 
+class SimpleQueryView(TemplateView):
+    """Simple query interface for debugging"""
+    template_name = 'fair_agent_app/simple_query.html'
+
+
 class QueryInterfaceView(TemplateView):
     """Interactive query interface"""
-    template_name = 'fair_agent_app/query_interface.html'
+    template_name = 'fair_agent_app/query_interface_clean.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -87,12 +329,16 @@ def process_query_api(request):
     try:
         data = json.loads(request.body)
         query_text = data.get('query', '').strip()
+        selected_model = data.get('model', 'gpt2')  # Get selected model, default to gpt2
         
         if not query_text:
             return JsonResponse({
                 'error': 'Query text is required',
                 'status': 'error'
             }, status=400)
+        
+        # Log selected model
+        logger.info(f"Processing query with model: {selected_model}")
         
         # Validate query length
         max_length = getattr(settings, 'FAIR_AGENT_SETTINGS', {}).get('MAX_QUERY_LENGTH', 1000)
@@ -126,7 +372,7 @@ def process_query_api(request):
         
         # Process query
         try:
-            result = FairAgentService.process_query(query_text)
+            result = FairAgentService.process_query(query_text, model_name=selected_model)
             
             if result.get('status') == 'failed':
                 query_record.status = 'failed'
@@ -187,11 +433,21 @@ def process_query_api(request):
             interpretability_score = query_record.interpretability_score or metrics.get('interpretability', {}).get('overall_score', 0.40)
             risk_awareness_score = query_record.risk_awareness_score or metrics.get('safety', {}).get('overall_score', 0.60)
             
+            # Convert all numpy types to JSON-serializable types
+            metrics = convert_numpy_types(metrics)
+            result = convert_numpy_types(result)
+            
+            # Format the response for better display
+            raw_answer = result.get('primary_answer', '')
+            formatted_answer = ResponseFormatter.format_response_html(raw_answer)
+            
             response_data = {
                 'query_id': query_record.id,
-                'answer': result.get('primary_answer', ''),
+                'answer': raw_answer,
+                'formatted_answer': formatted_answer,
                 'confidence': result.get('confidence_score', 0.6),
                 'domain': domain,
+                'model_used': selected_model,  # Add selected model info
                 'safety_score': result.get('safety_score', 0.65),
                 'processing_time': result.get('processing_time'),
                 'status': 'success',
@@ -219,7 +475,10 @@ def process_query_api(request):
                 }
             }
             
-            return JsonResponse(response_data)
+            # Ensure all numpy types are converted before JSON serialization
+            response_data = convert_numpy_types(response_data)
+            
+            return JsonResponse(response_data, encoder=NumpyJSONEncoder)
             
         except Exception as e:
             logger.error(f"Error processing query: {e}")
