@@ -49,7 +49,18 @@ logs/
 webapp/logs/*.log
 
 # Database
+*.sqlite3
 *.sqlite3-journal
+db.sqlite3
+
+# Dataset files (large files that should not be in git)
+*.arrow
+*.parquet
+*.hdf5
+*.h5
+*.feather
+data/datasets/*/data-*.arrow
+data/datasets/*/data-*.parquet
 
 # Temporary files
 *.tmp
