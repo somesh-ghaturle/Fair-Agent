@@ -29,4 +29,9 @@ urlpatterns = [
     
     # Additional endpoints for frontend
     path('recent-activity/', views.recent_activity_api, name='recent_activity'),
+    
+    # Dataset management APIs
+    path('datasets/list/', views.list_datasets_api, name='list_datasets'),
+    path('datasets/info/<str:domain>/<str:dataset_name>/', views.dataset_info_api, name='dataset_info'),
+    path('datasets/stats/', views.dataset_stats_api, name='dataset_stats'),
 ]

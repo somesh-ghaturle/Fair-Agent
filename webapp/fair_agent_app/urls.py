@@ -12,6 +12,7 @@ urlpatterns = [
     path('', views.HomeView.as_view(), name='home'),
     path('query/', views.QueryInterfaceView.as_view(), name='query_interface'),
     path('simple/', views.SimpleQueryView.as_view(), name='simple_query'),
+    path('datasets/', views.DatasetsView.as_view(), name='datasets'),
     
     # Test interface
     path('test/', views.test_ui, name='test_ui'),

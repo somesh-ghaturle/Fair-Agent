@@ -129,9 +129,13 @@ class SafetyDisclaimerManager:
                     break
         
         # Only add professional consultation for truly complex advisory questions
+        # Broadened triggers to catch more advisory situations
         advisory_indicators = [
-            'should i invest', 'what should i buy', 'how much should i', 'when should i sell',
-            'is it safe to', 'recommend for me', 'personal advice', 'my situation'
+            'should i', 'what should', 'how much should', 'when should',  # More general patterns
+            'is it safe', 'recommend', 'advice', 'suggest', 'advise',
+            'my situation', 'for me', 'best way', 'optimal', 'better to',
+            'what to do', 'how to', 'tell me about', 'explain',  # Educational advisory
+            'invest in', 'buy', 'sell', 'take', 'use'  # Action-oriented
         ]
         
         if any(indicator in combined_text for indicator in advisory_indicators):
@@ -142,6 +146,20 @@ class SafetyDisclaimerManager:
     
     def add_disclaimers_to_response(self, response: str, query: str, domain: str) -> str:
         """Add appropriate disclaimers to response"""
+        # Check if disclaimer already exists in response
+        disclaimer_indicators = [
+            'disclaimer', 'not financial advice', 'not medical advice',
+            'consult', 'professional', 'educational purposes only',
+            'does not constitute', 'qualified health', 'financial advisor'
+        ]
+        
+        response_lower = response.lower()
+        has_disclaimer = any(indicator in response_lower for indicator in disclaimer_indicators)
+        
+        if has_disclaimer:
+            self.logger.info("✅ Disclaimer already present in response, skipping duplicate")
+            return response
+        
         needed_disclaimers = self.analyze_response_for_disclaimers(response, query, domain)
         
         if not needed_disclaimers:

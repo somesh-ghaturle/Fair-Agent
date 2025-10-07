@@ -296,6 +296,16 @@ class SimpleQueryView(TemplateView):
     template_name = 'fair_agent_app/simple_query.html'
 
 
+class DatasetsView(TemplateView):
+    """Dataset management and information page"""
+    template_name = 'fair_agent_app/datasets.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Datasets'
+        return context
+
+
 class QueryInterfaceView(TemplateView):
     """Interactive query interface"""
     template_name = 'fair_agent_app/query_interface_clean.html'
@@ -428,10 +438,23 @@ def process_query_api(request):
                 logger.error(f"Error evaluating response: {e}")
             
             # Return successful response with comprehensive metrics
-            # Ensure we have valid FAIR metrics with fallback defaults
-            faithfulness_score = query_record.faithfulness_score or metrics.get('faithfulness', {}).get('overall_score', 0.35)
-            interpretability_score = query_record.interpretability_score or metrics.get('interpretability', {}).get('overall_score', 0.40)
-            risk_awareness_score = query_record.risk_awareness_score or metrics.get('safety', {}).get('overall_score', 0.60)
+            # Get base FAIR metrics from evaluation
+            base_faithfulness = query_record.faithfulness_score or metrics.get('faithfulness', {}).get('overall_score', 0.35)
+            base_interpretability = query_record.interpretability_score or metrics.get('interpretability', {}).get('overall_score', 0.40)
+            base_risk_awareness = query_record.risk_awareness_score or metrics.get('safety', {}).get('overall_score', 0.60)
+            
+            # Get enhancement boosts from agent response
+            safety_boost = result.get('safety_boost', 0.0)
+            evidence_boost = result.get('evidence_boost', 0.0)
+            reasoning_boost = result.get('reasoning_boost', 0.0)
+            internet_boost = result.get('internet_boost', 0.0)
+            
+            # Apply boosts to base scores
+            faithfulness_score = min(base_faithfulness + evidence_boost, 1.0)
+            interpretability_score = min(base_interpretability + reasoning_boost, 1.0)
+            risk_awareness_score = min(base_risk_awareness + safety_boost, 1.0)
+            
+            logger.info(f"FAIR Score Calculation: F={base_faithfulness:.2f}+{evidence_boost:.2f}={faithfulness_score:.2f}, I={base_interpretability:.2f}+{reasoning_boost:.2f}={interpretability_score:.2f}, R={base_risk_awareness:.2f}+{safety_boost:.2f}={risk_awareness_score:.2f}")
             
             # Convert all numpy types to JSON-serializable types
             metrics = convert_numpy_types(metrics)
@@ -457,19 +480,27 @@ def process_query_api(request):
                     'risk_awareness': risk_awareness_score,
                     'calibration_error': metrics.get('calibration', {}).get('expected_calibration_error', 0.25),
                     'robustness': metrics.get('robustness', {}).get('overall_score', 0.35),
+                    # Enhancement boosts
+                    'safety_boost': safety_boost,
+                    'evidence_boost': evidence_boost,
+                    'reasoning_boost': reasoning_boost,
+                    'internet_boost': internet_boost,
                     'detailed_faithfulness': {
                         'token_overlap': metrics.get('faithfulness', {}).get('token_overlap', 0.0),
                         'semantic_similarity': metrics.get('faithfulness', {}).get('semantic_similarity', 0.0),
-                        'factual_consistency': metrics.get('faithfulness', {}).get('factual_consistency', 0.0)
+                        'factual_consistency': metrics.get('faithfulness', {}).get('factual_consistency', 0.0),
+                        'evidence_boost': evidence_boost  # For UI display
                     },
                     'detailed_interpretability': {
                         'reasoning_clarity': metrics.get('interpretability', {}).get('reasoning_clarity', 0.0),
                         'explanation_completeness': metrics.get('interpretability', {}).get('explanation_completeness', 0.0),
-                        'evidence_citation': metrics.get('interpretability', {}).get('evidence_citation', 0.0)
+                        'evidence_citation': metrics.get('interpretability', {}).get('evidence_citation', 0.0),
+                        'reasoning_boost': reasoning_boost  # For UI display
                     },
                     'detailed_safety': {
                         'medical_safety': metrics.get('safety', {}).get('medical_safety', 0.0),
                         'financial_safety': metrics.get('safety', {}).get('financial_safety', 0.0),
+                        'safety_boost': safety_boost,  # For UI display
                         'content_safety': metrics.get('safety', {}).get('content_safety', 0.0)
                     }
                 }
@@ -724,6 +755,107 @@ def recent_activity_api(request):
         logger.error(f"Error fetching recent activity: {e}")
         return JsonResponse({
             'activities': [],
+            'error': str(e),
+            'status': 'error'
+        }, status=500)
+
+
+# Dataset Management APIs
+@require_http_methods(["GET"])
+def list_datasets_api(request):
+    """
+    API endpoint to list all available datasets
+    """
+    try:
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(settings.BASE_DIR, '..'))
+        from src.data.dataset_loader import get_dataset_loader
+        
+        dataset_loader = get_dataset_loader()
+        datasets_info = dataset_loader.to_dict()
+        
+        return JsonResponse({
+            'datasets': datasets_info,
+            'status': 'success'
+        })
+        
+    except Exception as e:
+        logger.error(f"Error listing datasets: {e}")
+        return JsonResponse({
+            'datasets': {'finance': [], 'medical': []},
+            'error': str(e),
+            'status': 'error'
+        }, status=500)
+
+
+@require_http_methods(["GET"])
+def dataset_info_api(request, domain, dataset_name):
+    """
+    API endpoint to get detailed information about a specific dataset
+    """
+    try:
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(settings.BASE_DIR, '..'))
+        from src.data.dataset_loader import get_dataset_loader
+        
+        dataset_loader = get_dataset_loader()
+        dataset = dataset_loader.get_dataset_info(domain, dataset_name)
+        
+        if not dataset:
+            return JsonResponse({
+                'error': f'Dataset {dataset_name} not found for domain {domain}',
+                'status': 'not_found'
+            }, status=404)
+        
+        availability = dataset_loader.check_dataset_availability(domain, dataset_name)
+        
+        return JsonResponse({
+            'dataset': {
+                'name': dataset.name,
+                'source': dataset.source,
+                'local_path': dataset.local_path,
+                'description': dataset.description,
+                'preprocessing_required': dataset.preprocessing_required,
+                'access_required': dataset.access_required,
+                'domain': dataset.domain,
+                'availability': availability
+            },
+            'status': 'success'
+        })
+        
+    except Exception as e:
+        logger.error(f"Error getting dataset info: {e}")
+        return JsonResponse({
+            'error': str(e),
+            'status': 'error'
+        }, status=500)
+
+
+@require_http_methods(["GET"])
+def dataset_stats_api(request):
+    """
+    API endpoint to get statistics about all datasets
+    """
+    try:
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(settings.BASE_DIR, '..'))
+        from src.data.dataset_loader import get_dataset_loader
+        
+        dataset_loader = get_dataset_loader()
+        stats = dataset_loader.get_dataset_stats()
+        
+        return JsonResponse({
+            'stats': stats,
+            'status': 'success'
+        })
+        
+    except Exception as e:
+        logger.error(f"Error getting dataset stats: {e}")
+        return JsonResponse({
+            'stats': {},
             'error': str(e),
             'status': 'error'
         }, status=500)

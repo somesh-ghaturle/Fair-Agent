@@ -19,30 +19,30 @@ datasets:
   finance:
     - name: "finqa"
       source: "ibm-research/finqa"
-      local_path: "./datasets/finance/finqa"
-      preprocessing_required: true
-    - name: "tatqa"
+      local_path: "./data/datasets/finqa"
+      preprocessing_required: false
+    - name: "tat-qa"
       source: "NExTplusplus/tat-qa"
-      local_path: "./datasets/finance/tatqa"
-      preprocessing_required: true
+      local_path: "./data/datasets/tatqa"
+      preprocessing_required: false
     - name: "convfinqa"
       source: "ibm-research/convfinqa"
-      local_path: "./datasets/finance/convfinqa"
-      preprocessing_required: true
+      local_path: "./data/datasets/convfinqa"
+      preprocessing_required: false
       
   medical:
     - name: "mimiciv"
       source: "physionet/mimiciv"
-      local_path: "./datasets/medical/mimiciv"
-      preprocessing_required: true
-      access_required: true
+      local_path: "./data/datasets/mimiciv"
+      preprocessing_required: false
+      access_required: false
     - name: "pubmedqa"
       source: "pubmedqa/pubmedqa"
-      local_path: "./datasets/medical/pubmedqa"
-      preprocessing_required: true
+      local_path: "./data/datasets/pubmedqa"
+      preprocessing_required: false
     - name: "medmcqa"
       source: "medmcqa/medmcqa"
-      local_path: "./datasets/medical/medmcqa"
+      local_path: "./data/datasets/medmcqa"
       preprocessing_required: false
 
 # Orchestrator Configuration

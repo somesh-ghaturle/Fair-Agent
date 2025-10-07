@@ -97,8 +97,8 @@ class FairAgentService:
         """Get default configuration if config file is not available"""
         return {
             'models': {
-                'finance': {'model_name': 'gpt2'},
-                'medical': {'model_name': 'gpt2'}
+                'finance': {'model_name': 'gpt2'},  # Fallback, Ollama auto-selected in UI
+                'medical': {'model_name': 'gpt2'}   # Fallback, Ollama auto-selected in UI
             },
             'evaluation': {
                 'metrics': ['faithfulness', 'calibration', 'robustness', 'safety', 'interpretability']
@@ -181,6 +181,24 @@ class FairAgentService:
                 'status': 'completed',
                 'timestamp': end_time.isoformat()
             }
+            
+            # Extract enhancement boosts from agent-specific response
+            if result.finance_response:
+                response_data['safety_boost'] = getattr(result.finance_response, 'safety_boost', 0.0)
+                response_data['evidence_boost'] = getattr(result.finance_response, 'evidence_boost', 0.0)
+                response_data['reasoning_boost'] = getattr(result.finance_response, 'reasoning_boost', 0.0)
+                response_data['internet_boost'] = getattr(result.finance_response, 'internet_boost', 0.0)
+            elif result.medical_response:
+                response_data['safety_boost'] = getattr(result.medical_response, 'safety_boost', 0.0)
+                response_data['evidence_boost'] = getattr(result.medical_response, 'evidence_boost', 0.0)
+                response_data['reasoning_boost'] = getattr(result.medical_response, 'reasoning_boost', 0.0)
+                response_data['internet_boost'] = getattr(result.medical_response, 'internet_boost', 0.0)
+            else:
+                # Fallback if no specific response
+                response_data['safety_boost'] = 0.0
+                response_data['evidence_boost'] = 0.0
+                response_data['reasoning_boost'] = 0.0
+                response_data['internet_boost'] = 0.0
             
             # Add FAIR metrics if available
             if hasattr(result, 'fair_metrics'):

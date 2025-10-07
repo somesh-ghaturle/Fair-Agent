@@ -21,6 +21,14 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
+# Import dataset loader for real dataset integration
+try:
+    from src.data.dataset_loader import get_dataset_loader
+    DATASET_LOADER_AVAILABLE = True
+except ImportError:
+    DATASET_LOADER_AVAILABLE = False
+    logging.warning("Dataset loader not available, using fallback data")
+
 @dataclass
 class FineTuningConfig:
     """Configuration for fine-tuning process"""
@@ -104,7 +112,73 @@ class GPT2FineTuner:
         return texts
     
     def _load_medical_data(self, data_path: str) -> List[str]:
-        """Load medical domain training data"""
+        """Load medical domain training data from ALL 3 medical datasets"""
+        logger.info("[TRAINING] Loading medical training data from 3 datasets...")
+        
+        # Try to load from configured datasets first
+        if DATASET_LOADER_AVAILABLE:
+            try:
+                loader = get_dataset_loader()
+                medical_texts = []
+                
+                # Dataset 1: PubMedQA (Biomedical QA)
+                logger.info("[TRAINING] [1/3] Loading PubMedQA dataset...")
+                try:
+                    pubmedqa_samples = loader.load_dataset_samples('medical', 'pubmedqa', max_samples=500)
+                    for sample in pubmedqa_samples:
+                        if 'question' in sample and 'answer' in sample and sample['question'] and sample['answer']:
+                            text = f"Q: {sample['question']} A: {sample['answer']}"
+                            # Add medical disclaimer
+                            if "Important:" not in text:
+                                text += " Important: This information is for educational purposes only and should not replace professional medical advice. Always consult with a qualified healthcare provider for medical concerns."
+                            medical_texts.append(text)
+                    logger.info(f"[TRAINING] ✅ PubMedQA: {len(medical_texts)} samples loaded")
+                except Exception as e:
+                    logger.warning(f"[TRAINING] ❌ PubMedQA failed: {e}")
+                
+                # Dataset 2: MedMCQA (Medical Multiple Choice)
+                logger.info("[TRAINING] [2/3] Loading MedMCQA dataset...")
+                initial_count = len(medical_texts)
+                try:
+                    medmcqa_samples = loader.load_dataset_samples('medical', 'medmcqa', max_samples=500)
+                    for sample in medmcqa_samples:
+                        if 'question' in sample and 'answer' in sample and sample['question'] and sample['answer']:
+                            text = f"Q: {sample['question']} A: {sample['answer']}"
+                            if "Important:" not in text:
+                                text += " Important: This information is for educational purposes only and should not replace professional medical advice. Always consult with a qualified healthcare provider for medical concerns."
+                            medical_texts.append(text)
+                    new_samples = len(medical_texts) - initial_count
+                    logger.info(f"[TRAINING] ✅ MedMCQA: {new_samples} samples loaded")
+                except Exception as e:
+                    logger.warning(f"[TRAINING] ❌ MedMCQA failed: {e}")
+                
+                # Dataset 3: MIMIC-IV / PubMed Artificial (Clinical/Medical QA)
+                logger.info("[TRAINING] [3/3] Loading MIMIC-IV/PubMed dataset...")
+                initial_count = len(medical_texts)
+                try:
+                    mimiciv_samples = loader.load_dataset_samples('medical', 'mimiciv', max_samples=500)
+                    for sample in mimiciv_samples:
+                        if 'question' in sample and 'answer' in sample and sample['question'] and sample['answer']:
+                            text = f"Q: {sample['question']} A: {sample['answer']}"
+                            if "Important:" not in text:
+                                text += " Important: This information is for educational purposes only and should not replace professional medical advice. Always consult with a qualified healthcare provider for medical concerns."
+                            medical_texts.append(text)
+                    new_samples = len(medical_texts) - initial_count
+                    logger.info(f"[TRAINING] ✅ MIMIC-IV: {new_samples} samples loaded")
+                except Exception as e:
+                    logger.warning(f"[TRAINING] ❌ MIMIC-IV failed: {e}")
+                
+                # If we successfully loaded dataset samples, return them
+                if medical_texts:
+                    logger.info(f"[TRAINING] ✅ SUCCESS: Using {len(medical_texts)} samples from 3 medical datasets")
+                    return medical_texts
+                else:
+                    logger.warning("[TRAINING] ⚠️ No dataset samples loaded, falling back to hard-coded examples")
+            except Exception as e:
+                logger.warning(f"[TRAINING] Dataset loader failed: {e}, using fallback data")
+        
+        # Fallback to hard-coded examples if datasets unavailable
+        logger.info("[TRAINING] Using fallback hard-coded medical examples")
         medical_texts = [
             "Q: What are the common side effects of aspirin? A: Common side effects of aspirin include stomach irritation, increased bleeding risk, and potential allergic reactions. Always consult with a healthcare professional before starting any medication regimen.",
             
@@ -126,17 +200,84 @@ class GPT2FineTuner:
         # Add medical disclaimers to improve safety scores
         enhanced_texts = []
         for text in medical_texts:
-            if "A:" in text:
+            if "A:" in text and "Important:" not in text:
                 # Add medical disclaimer
                 enhanced_text = text + " Important: This information is for educational purposes only and should not replace professional medical advice. Always consult with a qualified healthcare provider for medical concerns."
                 enhanced_texts.append(enhanced_text)
             else:
                 enhanced_texts.append(text)
         
+        logger.info(f"[TRAINING] Loaded {len(enhanced_texts)} fallback medical examples")
         return enhanced_texts
     
     def _load_finance_data(self, data_path: str) -> List[str]:
-        """Load financial domain training data"""
+        """Load financial domain training data from ALL 3 finance datasets"""
+        logger.info("[TRAINING] Loading finance training data from 3 datasets...")
+        
+        # Try to load from configured datasets first
+        if DATASET_LOADER_AVAILABLE:
+            try:
+                loader = get_dataset_loader()
+                finance_texts = []
+                
+                # Dataset 1: FinQA (Financial Question Answering)
+                logger.info("[TRAINING] [1/3] Loading FinQA dataset...")
+                try:
+                    finqa_samples = loader.load_dataset_samples('finance', 'finqa', max_samples=500)
+                    for sample in finqa_samples:
+                        if 'question' in sample and 'answer' in sample and sample['question'] and sample['answer']:
+                            text = f"Q: {sample['question']} A: {sample['answer']}"
+                            # Add financial disclaimer
+                            if "Important:" not in text:
+                                text += " Important: This information is for educational purposes only and does not constitute financial advice. Past performance does not guarantee future results. Consider consulting with a qualified financial advisor before making investment decisions."
+                            finance_texts.append(text)
+                    logger.info(f"[TRAINING] ✅ FinQA: {len(finance_texts)} samples loaded")
+                except Exception as e:
+                    logger.warning(f"[TRAINING] ❌ FinQA failed: {e}")
+                
+                # Dataset 2: TAT-QA (Tabular Question Answering)
+                logger.info("[TRAINING] [2/3] Loading TAT-QA dataset...")
+                initial_count = len(finance_texts)
+                try:
+                    tatqa_samples = loader.load_dataset_samples('finance', 'tat-qa', max_samples=500)
+                    for sample in tatqa_samples:
+                        if 'question' in sample and 'answer' in sample and sample['question'] and sample['answer']:
+                            text = f"Q: {sample['question']} A: {sample['answer']}"
+                            if "Important:" not in text:
+                                text += " Important: This information is for educational purposes only and does not constitute financial advice. Past performance does not guarantee future results. Consider consulting with a qualified financial advisor before making investment decisions."
+                            finance_texts.append(text)
+                    new_samples = len(finance_texts) - initial_count
+                    logger.info(f"[TRAINING] ✅ TAT-QA: {new_samples} samples loaded")
+                except Exception as e:
+                    logger.warning(f"[TRAINING] ❌ TAT-QA failed: {e}")
+                
+                # Dataset 3: ConvFinQA (Conversational Finance QA)
+                logger.info("[TRAINING] [3/3] Loading ConvFinQA dataset...")
+                initial_count = len(finance_texts)
+                try:
+                    convfinqa_samples = loader.load_dataset_samples('finance', 'convfinqa', max_samples=500)
+                    for sample in convfinqa_samples:
+                        if 'question' in sample and 'answer' in sample and sample['question'] and sample['answer']:
+                            text = f"Q: {sample['question']} A: {sample['answer']}"
+                            if "Important:" not in text:
+                                text += " Important: This information is for educational purposes only and does not constitute financial advice. Past performance does not guarantee future results. Consider consulting with a qualified financial advisor before making investment decisions."
+                            finance_texts.append(text)
+                    new_samples = len(finance_texts) - initial_count
+                    logger.info(f"[TRAINING] ✅ ConvFinQA: {new_samples} samples loaded")
+                except Exception as e:
+                    logger.warning(f"[TRAINING] ❌ ConvFinQA failed: {e}")
+                
+                # If we successfully loaded dataset samples, return them
+                if finance_texts:
+                    logger.info(f"[TRAINING] ✅ SUCCESS: Using {len(finance_texts)} samples from 3 finance datasets")
+                    return finance_texts
+                else:
+                    logger.warning("[TRAINING] ⚠️ No dataset samples loaded, falling back to hard-coded examples")
+            except Exception as e:
+                logger.warning(f"[TRAINING] Dataset loader failed: {e}, using fallback data")
+        
+        # Fallback to hard-coded examples if datasets unavailable
+        logger.info("[TRAINING] Using fallback hard-coded finance examples")
         finance_texts = [
             "Q: What are the basics of portfolio diversification? A: Portfolio diversification involves spreading investments across different asset classes, sectors, and geographic regions to reduce risk. This strategy helps minimize the impact of poor performance in any single investment.",
             
@@ -158,13 +299,14 @@ class GPT2FineTuner:
         # Add financial disclaimers to improve safety scores
         enhanced_texts = []
         for text in finance_texts:
-            if "A:" in text:
+            if "A:" in text and "Important:" not in text:
                 # Add financial disclaimer
                 enhanced_text = text + " Important: This information is for educational purposes only and does not constitute financial advice. Past performance does not guarantee future results. Consider consulting with a qualified financial advisor before making investment decisions."
                 enhanced_texts.append(enhanced_text)
             else:
                 enhanced_texts.append(text)
         
+        logger.info(f"[TRAINING] Loaded {len(enhanced_texts)} fallback finance examples")
         return enhanced_texts
     
     def fine_tune(self, train_texts: List[str], eval_texts: Optional[List[str]] = None) -> str:

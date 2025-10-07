@@ -15,7 +15,7 @@ medical_sources:
     publication_date: "2022-04-26"
     reliability_score: 0.95
     domain: "medical"
-    keywords: ["aspirin", "cardiovascular", "prevention", "bleeding", "heart disease", "side effects", "risks", "blood thinner", "gastrointestinal", "stomach", "heart attack", "stroke prevention"]
+    keywords: ["aspirin", "cardiovascular", "prevention", "bleeding", "heart disease", "side effects", "risks", "blood thinner", "gastrointestinal", "stomach", "heart attack", "stroke prevention", "heart", "cardiac", "cardio", "platelet", "antiplatelet", "coagulation", "clotting", "pain relief", "fever", "inflammation", "anti-inflammatory", "NSAID", "drug", "medicine", "medication", "pill", "tablet", "dose", "dosage", "daily", "CVD", "coronary", "artery", "vascular", "circulatory"]
 
   - id: "med_002"
     title: "Diabetes Management Guidelines - Type 2 Diabetes"
@@ -30,7 +30,7 @@ medical_sources:
     publication_date: "2024-01-01"
     reliability_score: 0.95
     domain: "medical"
-    keywords: ["diabetes", "metformin", "HbA1c", "blood sugar", "type 2", "diabetic", "glucose", "insulin", "manage", "management", "control", "medication", "treatment"]
+    keywords: ["diabetes", "metformin", "HbA1c", "blood sugar", "type 2", "diabetic", "glucose", "insulin", "manage", "management", "control", "medication", "treatment", "sugar", "blood glucose", "hyperglycemia", "glycemic", "A1C", "hemoglobin", "pancreas", "GLP-1", "SGLT2", "medication", "drug", "pill", "diet", "carbohydrate", "carbs", "food", "eating", "meal", "exercise", "weight", "obesity", "overweight", "complications", "neuropathy", "retinopathy", "kidney", "renal"]
 
   - id: "med_003"
     title: "Hypertension Management - 2023 Guidelines"
@@ -45,7 +45,7 @@ medical_sources:
     publication_date: "2023-06-01"
     reliability_score: 0.95
     domain: "medical"
-    keywords: ["hypertension", "blood pressure", "ACE inhibitor", "medication", "high blood pressure", "BP", "hypertensive", "pressure", "manage", "treatment", "control", "lower"]
+    keywords: ["hypertension", "blood pressure", "ACE inhibitor", "medication", "high blood pressure", "BP", "hypertensive", "pressure", "manage", "treatment", "control", "lower", "ARB", "angiotensin", "calcium channel blocker", "diuretic", "thiazide", "systolic", "diastolic", "DASH diet", "sodium", "salt", "heart", "cardiovascular", "reading", "monitor", "measure", "drug", "medicine", "pill", "antihypertensive", "lifestyle", "diet", "exercise", "weight loss", "stress", "reduce"]
 
   - id: "med_004"
     title: "Mental Health Crisis Intervention - Suicide Prevention"
@@ -60,7 +60,7 @@ medical_sources:
     publication_date: "2023-09-01"
     reliability_score: 0.98
     domain: "medical"
-    keywords: ["suicide", "mental health", "crisis", "depression", "emergency", "suicidal", "help", "988", "hotline", "thoughts", "ideation", "therapy", "counseling"]
+    keywords: ["suicide", "mental health", "crisis", "depression", "emergency", "suicidal", "help", "988", "hotline", "thoughts", "ideation", "therapy", "counseling", "psychological", "psychiatry", "anxiety", "sadness", "hopeless", "despair", "self-harm", "harm", "death", "dying", "support", "emotional", "mood", "bipolar", "disorder", "psychiatric", "psychologist", "therapist", "treatment", "intervention"]
 
   - id: "med_005"
     title: "Antibiotic Use and Resistance - Clinical Guidelines"
@@ -75,7 +75,7 @@ medical_sources:
     publication_date: "2023-11-15"
     reliability_score: 0.93
     domain: "medical"
-    keywords: ["antibiotics", "resistance", "bacterial", "infection", "medication", "antibiotic", "bacteria", "virus", "viral", "penicillin", "amoxicillin", "prescription"]
+    keywords: ["antibiotics", "resistance", "bacterial", "infection", "medication", "antibiotic", "bacteria", "virus", "viral", "penicillin", "amoxicillin", "prescription", "drug", "medicine", "antibiotic resistance", "antimicrobial", "pathogen", "microbe", "germ", "illness", "sick", "disease", "treatment", "cure", "UTI", "pneumonia", "strep", "throat", "respiratory", "sinusitis", "bronchitis"]
 
   - id: "med_006"
     title: "COVID-19 Vaccination and Booster Recommendations"
@@ -90,7 +90,7 @@ medical_sources:
     publication_date: "2024-09-01"
     reliability_score: 0.96
     domain: "medical"
-    keywords: ["covid", "vaccination", "vaccine", "booster", "immunity", "coronavirus", "covid-19", "pfizer", "moderna", "shot", "immunization", "side effects"]
+    keywords: ["covid", "vaccination", "vaccine", "booster", "immunity", "coronavirus", "covid-19", "pfizer", "moderna", "shot", "immunization", "side effects", "pandemic", "virus", "viral", "disease", "infection", "contagious", "spread", "transmission", "protection", "antibody", "immune", "dose", "mrna", "variant", "omicron", "delta", "respiratory", "lung", "symptom", "fever", "cough"]
 
   - id: "med_007"
     title: "Cholesterol Management and Statin Therapy"
@@ -105,7 +105,7 @@ medical_sources:
     publication_date: "2023-03-15"
     reliability_score: 0.94
     domain: "medical"
-    keywords: ["cholesterol", "statin", "LDL", "cardiovascular", "heart disease", "lipitor", "atorvastatin", "high cholesterol", "lipid", "HDL", "triglycerides"]
+    keywords: ["cholesterol", "statin", "LDL", "cardiovascular", "heart disease", "lipitor", "atorvastatin", "high cholesterol", "lipid", "HDL", "triglycerides", "fat", "blood lipid", "plaque", "atherosclerosis", "artery", "clog", "blockage", "medication", "drug", "simvastatin", "rosuvastatin", "pravastatin", "diet", "food", "exercise", "lifestyle", "health", "cardiac", "cardio", "heart", "stroke"]
 
   - id: "med_008"
     title: "Pain Management - Opioid Prescribing Guidelines"
@@ -120,7 +120,7 @@ medical_sources:
     publication_date: "2023-08-20"
     reliability_score: 0.95
     domain: "medical"
-    keywords: ["opioid", "pain", "prescription", "addiction", "overdose", "chronic pain", "medication", "narcotics", "painkillers", "management", "treatment", "naloxone"]
+    keywords: ["opioid", "pain", "prescription", "addiction", "overdose", "chronic pain", "medication", "narcotics", "painkillers", "management", "treatment", "naloxone", "morphine", "oxycodone", "hydrocodone", "codeine", "fentanyl", "drug", "medicine", "pill", "abuse", "dependence", "withdrawal", "painkiller", "hurt", "ache", "aching", "sore", "injury", "back pain", "arthritis"]
 
 finance_sources:
   - id: "fin_001"
@@ -137,7 +137,7 @@ finance_sources:
     publication_date: "1952-03-01"
     reliability_score: 0.92
     domain: "finance"
-    keywords: ["diversification", "portfolio", "risk", "asset allocation", "investment", "invest", "stocks", "spread", "diversify", "manage", "strategy", "asset class"]
+    keywords: ["diversification", "portfolio", "risk", "asset allocation", "investment", "invest", "stocks", "spread", "diversify", "manage", "strategy", "asset class", "money", "wealth", "savings", "financial", "finance", "market", "equity", "equities", "bond", "bonds", "mutual fund", "ETF", "index fund", "retirement", "401k", "IRA", "stock market", "investing", "investor", "assets", "allocation", "balance", "mix"]
 
   - id: "fin_002"
     title: "Interest Rate and Bond Price Relationship"
@@ -152,7 +152,7 @@ finance_sources:
     publication_date: "2023-01-15"
     reliability_score: 0.88
     domain: "finance"
-    keywords: ["bonds", "interest rates", "duration", "fixed income", "yield", "bond", "rate", "treasury", "price", "relationship", "investment", "coupon"]
+    keywords: ["bonds", "interest rates", "duration", "fixed income", "yield", "bond", "rate", "treasury", "price", "relationship", "investment", "coupon", "interest", "government bond", "corporate bond", "municipal", "fixed", "income", "debt", "lending", "borrow", "maturity", "return", "portfolio", "safe", "conservative", "Fed", "Federal Reserve", "monetary policy"]
 
   - id: "fin_003"
     title: "Cryptocurrency Market Volatility and Risks"
@@ -168,7 +168,7 @@ finance_sources:
     publication_date: "2023-12-01"
     reliability_score: 0.90
     domain: "finance"
-    keywords: ["cryptocurrency", "bitcoin", "volatility", "risk", "digital assets", "crypto", "btc", "ethereum", "investment", "blockchain", "risky", "speculative"]
+    keywords: ["cryptocurrency", "bitcoin", "volatility", "risk", "digital assets", "crypto", "btc", "ethereum", "investment", "blockchain", "risky", "speculative", "virtual currency", "digital currency", "altcoin", "token", "NFT", "decentralized", "mining", "wallet", "exchange", "coinbase", "binance", "trading", "volatile", "speculation", "bubble", "crash"]
 
   - id: "fin_004"
     title: "Retirement Planning Best Practices"
@@ -185,7 +185,7 @@ finance_sources:
     publication_date: "2023-08-01"
     reliability_score: 0.92
     domain: "finance"
-    keywords: ["retirement", "401k", "IRA", "savings", "planning", "retire", "pension", "save", "roth", "planning", "future", "elderly", "nest egg"]
+    keywords: ["retirement", "401k", "IRA", "savings", "planning", "retire", "pension", "save", "roth", "planning", "future", "elderly", "nest egg", "saving", "401(k)", "403b", "TSP", "social security", "compound", "compound interest", "compounding", "growth", "long term", "age", "older", "senior", "wealth", "money", "financial planning", "advisor"]
 
   - id: "fin_005"
     title: "Stock Market Index Investing - Passive vs Active Management"
@@ -201,7 +201,7 @@ finance_sources:
     publication_date: "2023-12-31"
     reliability_score: 0.91
     domain: "finance"
-    keywords: ["index fund", "ETF", "passive investing", "S&P 500", "mutual fund", "index", "fund", "etf", "sp500", "vanguard", "market", "invest", "diversified", "vti", "voo"]
+    keywords: ["index fund", "ETF", "passive investing", "S&P 500", "mutual fund", "index", "fund", "etf", "sp500", "vanguard", "market", "invest", "diversified", "vti", "voo", "stock market", "stocks", "investing", "portfolio", "buy and hold", "dow jones", "nasdaq", "total market", "low cost", "expense ratio", "fees", "fidelity", "schwab", "investment"]
 
   - id: "fin_006"
     title: "Emergency Fund and Liquid Savings Recommendations"
@@ -217,7 +217,7 @@ finance_sources:
     publication_date: "2023-05-10"
     reliability_score: 0.93
     domain: "finance"
-    keywords: ["emergency fund", "savings", "liquidity", "cash reserves", "safety net", "emergency", "fund", "save", "reserve", "cash", "liquid", "rainy day", "buffer"]
+    keywords: ["emergency fund", "savings", "liquidity", "cash reserves", "safety net", "emergency", "fund", "save", "reserve", "cash", "liquid", "rainy day", "buffer", "saving", "money", "account", "bank", "savings account", "high yield", "accessible", "safe", "protection", "financial security", "cushion", "backup"]
 
   - id: "fin_007"
     title: "Debt Management Strategies - Credit Card and Student Loans"
@@ -234,7 +234,7 @@ finance_sources:
     publication_date: "2023-07-15"
     reliability_score: 0.90
     domain: "finance"
-    keywords: ["debt", "credit card", "student loans", "payoff", "interest", "loan", "payoff", "repay", "consolidation", "refinance", "strategy", "manage", "apr"]
+    keywords: ["debt", "credit card", "student loans", "payoff", "interest", "loan", "payoff", "repay", "consolidation", "refinance", "strategy", "manage", "apr", "payment", "balance", "credit", "owing", "owe", "monthly payment", "minimum payment", "principal", "financial burden", "creditor", "lender", "pay off", "pay down", "eliminate debt"]
 
   - id: "fin_008"
     title: "Real Estate Investment Considerations"
@@ -251,7 +251,7 @@ finance_sources:
     publication_date: "2023-10-01"
     reliability_score: 0.89
     domain: "finance"
-    keywords: ["real estate", "property", "REIT", "rental", "investment", "housing", "home", "mortgage", "buy", "invest", "landlord", "tenant", "reits"]
+    keywords: ["real estate", "property", "REIT", "rental", "investment", "housing", "home", "mortgage", "buy", "invest", "landlord", "tenant", "reits", "house", "apartment", "building", "commercial", "residential", "buying", "purchase", "own", "ownership", "equity", "appreciation", "value", "market", "location", "rent", "income", "cash flow"]
 
 # Evidence source metadata
 metadata:
