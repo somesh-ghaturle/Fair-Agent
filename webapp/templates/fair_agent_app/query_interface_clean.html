@@ -26,7 +26,12 @@
                         <div class="col-md-2">
                             <div class="h5 mb-1" id="summary-faithfulness">--</div>
                             <small class="text-muted d-block fw-bold">Faithfulness</small>
-                            <small class="text-muted" style="font-size: 0.7rem;">Accuracy of response to evidence</small>
+                            <small class="text-muted" style="font-size: 0.7rem;">Accuracy to evidence (target ≥20%)</small>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="h5 mb-1" id="summary-hallucination">--</div>
+                            <small class="text-muted d-block fw-bold">Hallucination Reduction</small>
+                            <small class="text-muted" style="font-size: 0.7rem;">Evidence grounding (target ≥30%)</small>
                         </div>
                         <div class="col-md-2">
                             <div class="h5 mb-1" id="summary-interpretability">--</div>
@@ -38,15 +43,15 @@
                             <small class="text-muted d-block fw-bold">Risk Awareness</small>
                             <small class="text-muted" style="font-size: 0.7rem;">Identification of uncertainties and limitations</small>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-1">
                             <div class="h5 mb-1" id="summary-calibration">--</div>
-                            <small class="text-muted d-block fw-bold">Calibration</small>
-                            <small class="text-muted" style="font-size: 0.7rem;">Alignment of confidence with accuracy</small>
+                            <small class="text-muted d-block fw-bold">Calibration Error</small>
+                            <small class="text-muted" style="font-size: 0.7rem;">Lower is better (target &lt;10%)</small>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-1">
                             <div class="h5 mb-1" id="summary-response-time">--</div>
                             <small class="text-muted d-block fw-bold">Response Time</small>
-                            <small class="text-muted" style="font-size: 0.7rem;">Processing duration in seconds</small>
+                            <small class="text-muted" style="font-size: 0.7rem;">Processing duration</small>
                         </div>
                         <div class="col-md-2">
                             <div class="h5 mb-1" id="summary-overall">--</div>
@@ -403,14 +408,24 @@ Would you like to copy the download command?
 
 function updateLiveMetrics(data) {
     if (data.fair_metrics) {
+        // Debug: Log the received data
+        console.log('📊 FAIR Metrics Received:', data.fair_metrics);
+        console.log('🧠 Hallucination Reduction Raw Value:', data.fair_metrics.hallucination_reduction);
+        console.log('📏 Calibration Error Raw Value:', data.fair_metrics.calibration_error);
+        
         // Calculate metrics
         const faithfulness = Math.round(data.fair_metrics.faithfulness * 100);
+        const hallucinationReduction = Math.round((data.fair_metrics.hallucination_reduction || 0) * 100);
         const interpretability = Math.round(data.fair_metrics.interpretability * 100);
         const riskAwareness = Math.round(data.fair_metrics.risk_awareness * 100);
         const calibrationError = Math.round(data.fair_metrics.calibration_error * 100);
         
+        console.log('🧠 Hallucination Reduction Percentage:', hallucinationReduction + '%');
+        console.log('📏 Calibration Error Percentage:', calibrationError + '%');
+        
         // Update top summary bar metrics only
         document.getElementById('summary-faithfulness').textContent = faithfulness + '%';
+        document.getElementById('summary-hallucination').textContent = hallucinationReduction + '%';
         document.getElementById('summary-interpretability').textContent = interpretability + '%';
         document.getElementById('summary-risk').textContent = riskAwareness + '%';
         document.getElementById('summary-calibration').textContent = calibrationError + '%';
@@ -419,20 +434,45 @@ function updateLiveMetrics(data) {
             document.getElementById('summary-response-time').textContent = data.processing_time.toFixed(2) + 's';
         }
         
-        // Calculate overall FAIR score
-        const overallFair = Math.round((faithfulness + interpretability + riskAwareness) / 3);
+        // Calculate overall FAIR score (now includes hallucination reduction)
+        const overallFair = Math.round((faithfulness + hallucinationReduction + interpretability + riskAwareness) / 4);
         document.getElementById('summary-overall').textContent = overallFair + '%';
         
-        // Color code the summary values
+        // Color code functions based on target thresholds
+        // Standard metrics: Higher is better
         const colorCode = (value, element) => {
             if (value >= 70) element.className = 'h5 mb-1 text-success';
             else if (value >= 50) element.className = 'h5 mb-1 text-warning';
             else element.className = 'h5 mb-1 text-danger';
         };
         
-        colorCode(faithfulness, document.getElementById('summary-faithfulness'));
+        // Faithfulness: Target ≥20% improvement (green ≥20%, yellow 10-19%, red <10%)
+        const colorCodeFaithfulness = (value, element) => {
+            if (value >= 20) element.className = 'h5 mb-1 text-success';
+            else if (value >= 10) element.className = 'h5 mb-1 text-warning';
+            else element.className = 'h5 mb-1 text-danger';
+        };
+        
+        // Hallucination Reduction: Target ≥30% (green ≥30%, yellow 20-29%, red <20%)
+        const colorCodeHallucination = (value, element) => {
+            if (value >= 30) element.className = 'h5 mb-1 text-success';
+            else if (value >= 20) element.className = 'h5 mb-1 text-warning';
+            else element.className = 'h5 mb-1 text-danger';
+        };
+        
+        // Calibration Error: Target <10% (INVERSE: lower is better)
+        const colorCodeCalibration = (value, element) => {
+            if (value < 10) element.className = 'h5 mb-1 text-success';  // Green if <10%
+            else if (value < 20) element.className = 'h5 mb-1 text-warning';  // Yellow if 10-19%
+            else element.className = 'h5 mb-1 text-danger';  // Red if ≥20%
+        };
+        
+        // Apply color coding with specific thresholds
+        colorCodeFaithfulness(faithfulness, document.getElementById('summary-faithfulness'));
+        colorCodeHallucination(hallucinationReduction, document.getElementById('summary-hallucination'));
         colorCode(interpretability, document.getElementById('summary-interpretability'));
         colorCode(riskAwareness, document.getElementById('summary-risk'));
+        colorCodeCalibration(calibrationError, document.getElementById('summary-calibration'));
         colorCode(overallFair, document.getElementById('summary-overall'));
         
         // Update response time in System Status (if exists)
@@ -441,7 +481,7 @@ function updateLiveMetrics(data) {
             liveResponseTime.textContent = data.processing_time.toFixed(2) + 's';
         }
         
-        log(`Metrics updated: F:${faithfulness}% I:${interpretability}% R:${riskAwareness}% C:${calibrationError}% Overall:${overallFair}%`, 'info');
+        log(`Metrics updated: F:${faithfulness}% H:${hallucinationReduction}% I:${interpretability}% R:${riskAwareness}% C:${calibrationError}% Overall:${overallFair}%`, 'info');
     }
 }
 

@@ -183,18 +183,30 @@ class FairAgentService:
             }
             
             # Extract enhancement boosts from agent-specific response
+            # Debug: Check what we actually have
+            logger.info(f"[SERVICES] DEBUG - result type: {type(result)}")
+            logger.info(f"[SERVICES] DEBUG - has finance_response: {hasattr(result, 'finance_response')}, value: {result.finance_response if hasattr(result, 'finance_response') else 'N/A'}")
+            logger.info(f"[SERVICES] DEBUG - has medical_response: {hasattr(result, 'medical_response')}, value: {result.medical_response if hasattr(result, 'medical_response') else 'N/A'}")
+            
             if result.finance_response:
+                logger.info(f"[SERVICES] DEBUG - finance_response type: {type(result.finance_response)}")
+                logger.info(f"[SERVICES] DEBUG - finance_response has safety_boost: {hasattr(result.finance_response, 'safety_boost')}")
                 response_data['safety_boost'] = getattr(result.finance_response, 'safety_boost', 0.0)
                 response_data['evidence_boost'] = getattr(result.finance_response, 'evidence_boost', 0.0)
                 response_data['reasoning_boost'] = getattr(result.finance_response, 'reasoning_boost', 0.0)
                 response_data['internet_boost'] = getattr(result.finance_response, 'internet_boost', 0.0)
+                logger.info(f"[SERVICES] ✅ Extracted Finance boosts: S={response_data['safety_boost']:.2f}, E={response_data['evidence_boost']:.2f}, R={response_data['reasoning_boost']:.2f}, I={response_data['internet_boost']:.2f}")
             elif result.medical_response:
+                logger.info(f"[SERVICES] DEBUG - medical_response type: {type(result.medical_response)}")
+                logger.info(f"[SERVICES] DEBUG - medical_response has safety_boost: {hasattr(result.medical_response, 'safety_boost')}")
                 response_data['safety_boost'] = getattr(result.medical_response, 'safety_boost', 0.0)
                 response_data['evidence_boost'] = getattr(result.medical_response, 'evidence_boost', 0.0)
                 response_data['reasoning_boost'] = getattr(result.medical_response, 'reasoning_boost', 0.0)
                 response_data['internet_boost'] = getattr(result.medical_response, 'internet_boost', 0.0)
+                logger.info(f"[SERVICES] ✅ Extracted Medical boosts: S={response_data['safety_boost']:.2f}, E={response_data['evidence_boost']:.2f}, R={response_data['reasoning_boost']:.2f}, I={response_data['internet_boost']:.2f}")
             else:
-                # Fallback if no specific response
+                # Fallback if no specific response - log warning
+                logger.warning(f"[SERVICES] ⚠️ No agent response found! result.finance_response={result.finance_response}, result.medical_response={result.medical_response}")
                 response_data['safety_boost'] = 0.0
                 response_data['evidence_boost'] = 0.0
                 response_data['reasoning_boost'] = 0.0

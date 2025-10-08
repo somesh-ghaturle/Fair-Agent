@@ -7,6 +7,8 @@ and cross-domain reasoning tasks.
 """
 
 import logging
+import sys
+import os
 from typing import Dict, List, Optional, Union, Any
 from enum import Enum
 from dataclasses import dataclass
@@ -14,6 +16,10 @@ import re
 
 from .finance_agent import FinanceAgent, FinanceResponse
 from .medical_agent import MedicalAgent, MedicalResponse
+
+# Add enhancement modules to path for general query handling
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'safety'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'reasoning'))
 
 class QueryDomain(Enum):
     """Enumeration of supported query domains"""
@@ -263,15 +269,109 @@ class Orchestrator:
     
     def _handle_unknown_query(self, query: str, context: Optional[Dict]) -> OrchestratedResponse:
         """Handle queries that don't clearly fit any domain"""
-        # For general queries, provide a general response without forcing domain-specific analysis
-        general_response = self._generate_general_response(query)
+        self.logger.info("[ORCHESTRATOR] Query classified as UNKNOWN - generating general response with FAIR enhancements")
         
-        return OrchestratedResponse(
-            primary_answer=general_response,
-            domain=QueryDomain.UNKNOWN,
-            confidence_score=0.7,  # Moderate confidence for general responses
-            routing_explanation="Query identified as general topic, providing general knowledge response"
-        )
+        try:
+            # Generate a general, non-domain-specific response
+            general_response = self._generate_general_response(query)
+            
+            # Apply FAIR enhancements to the general response
+            # Import enhancement systems
+            from disclaimer_system import ResponseEnhancer
+            from cot_system import ChainOfThoughtIntegrator
+            
+            # Apply safety enhancements
+            enhancer = ResponseEnhancer()
+            enhanced_response, safety_improvement = enhancer.enhance_response(
+                general_response,
+                query=query,
+                domain="general"
+            )
+            # Safely extract safety boost value (could be dict or float)
+            if isinstance(safety_improvement, dict):
+                safety_boost = safety_improvement.get('safety_improvement', 0.0)
+            elif safety_improvement:
+                safety_boost = float(safety_improvement)
+            else:
+                safety_boost = 0.0
+            
+            # Apply reasoning enhancements
+            reasoning_system = ChainOfThoughtIntegrator()
+            reasoning_enhanced_response, reasoning_improvements = reasoning_system.enhance_response_with_reasoning(
+                enhanced_response,
+                query,
+                "general"
+            )
+            
+            # Safely extract reasoning boost values
+            interp_improvement = reasoning_improvements.get('interpretability_improvement', 0.0) if isinstance(reasoning_improvements, dict) else 0.0
+            logic_improvement = reasoning_improvements.get('logical_flow_improvement', 0.0) if isinstance(reasoning_improvements, dict) else 0.0
+            reasoning_boost = float(interp_improvement) + float(logic_improvement)
+            
+            # CALIBRATION IMPROVEMENT: For general queries with no evidence, use conservative confidence
+            # Base confidence should be lower and not boosted heavily without supporting evidence
+            base_confidence = 0.35  # Start at 35% for general queries (no domain-specific evidence)
+            
+            # Scale boosts based on safety enhancements (proxy for quality)
+            quality_factor = min(safety_boost / 0.2, 1.0) if safety_boost > 0 else 0.5
+            scaled_reasoning = reasoning_boost * (0.5 + 0.5 * quality_factor)
+            
+            # Cap at 70% for general queries (lower than domain-specific queries)
+            final_confidence = min(base_confidence + safety_boost + scaled_reasoning, 0.70)
+            
+            self.logger.info(f"[ORCHESTRATOR] General query confidence: base={base_confidence:.2f}, safety={safety_boost:.2f}, "
+                           f"scaled_reasoning={scaled_reasoning:.2f}, final={final_confidence:.2f}")
+            
+            # Create a finance response object with boost values for general queries
+            # This allows the UI to display FAIR metrics even for general questions
+            general_finance_response = FinanceResponse(
+                answer=reasoning_enhanced_response,
+                confidence_score=final_confidence,  # Use calculated confidence instead of fixed 0.75
+                reasoning_steps=[
+                    "Identified as general knowledge query",
+                    "Generated domain-neutral response",
+                    "Applied FAIR safety and reasoning enhancements",
+                    "Provided educational information without domain bias"
+                ],
+                risk_assessment="General informational query - no specific risks identified",
+                numerical_outputs={},
+                safety_boost=safety_boost,
+                evidence_boost=0.0,  # No domain-specific evidence for general queries
+                reasoning_boost=reasoning_boost,
+                internet_boost=0.0
+            )
+            
+            self.logger.info("[ORCHESTRATOR] General response enhanced with safety (+" + str(safety_boost) + ") and reasoning (+" + str(reasoning_boost) + ")")
+            
+            return OrchestratedResponse(
+                primary_answer=reasoning_enhanced_response,
+                domain=QueryDomain.UNKNOWN,
+                confidence_score=final_confidence,  # Use calculated confidence
+                finance_response=general_finance_response,  # Populate to provide boost values to UI
+                routing_explanation="General knowledge query - provided educational response with FAIR enhancements but without domain-specific bias"
+            )
+        except Exception as e:
+            self.logger.error(f"[ORCHESTRATOR] Error in general query handling: {str(e)}")
+            # Fallback: return simple general response without enhancements
+            simple_response = self._generate_general_response(query)
+            simple_finance_response = FinanceResponse(
+                answer=simple_response,
+                confidence_score=0.6,
+                reasoning_steps=["Generated general response"],
+                risk_assessment="General query",
+                numerical_outputs={},
+                safety_boost=0.0,
+                evidence_boost=0.0,
+                reasoning_boost=0.0,
+                internet_boost=0.0
+            )
+            return OrchestratedResponse(
+                primary_answer=simple_response,
+                domain=QueryDomain.UNKNOWN,
+                confidence_score=0.6,
+                finance_response=simple_finance_response,
+                routing_explanation="General knowledge query - basic response provided"
+            )
     
     def _generate_general_response(self, query: str) -> str:
         """Generate a general response for non-domain-specific queries"""

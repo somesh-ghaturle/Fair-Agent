@@ -609,8 +609,26 @@ Finance helps individuals, businesses, and governments make informed decisions a
         # Extract numerical outputs from response
         numerical_outputs = self._extract_numbers(text)
         
-        # Calculate enhanced confidence score with comprehensive enhancement boosts
-        confidence_score = 0.8 if return_confidence else 0.0
+        # Calculate BASE confidence score conservatively based on response quality
+        # Start with lower confidence and let evidence/enhancements boost it
+        if return_confidence:
+            # Base confidence starts low and should be boosted by evidence
+            base_quality_score = 0.3  # Start at 30% - conservative baseline
+            
+            # Adjust based on response length and quality
+            if len(text) > 500:
+                base_quality_score += 0.1  # +10% for comprehensive response
+            if len(text) > 1000:
+                base_quality_score += 0.05  # +5% for detailed response
+            
+            # Penalize very short responses
+            if len(text) < 200:
+                base_quality_score -= 0.1
+            
+            confidence_score = max(0.2, min(0.5, base_quality_score))  # Cap base at 20-50%
+            self.logger.info(f"Base confidence (pre-enhancement): {confidence_score:.2f} (will be boosted by evidence)")
+        else:
+            confidence_score = 0.0
         
         # Basic risk assessment
         risk_assessment = self._assess_financial_risk(generated_text)
@@ -655,13 +673,36 @@ Finance helps individuals, businesses, and governments make informed decisions a
         internet_boost = internet_source_count * 0.05  # +5% per internet source, max 15%
         internet_boost = min(internet_boost, 0.15)
         
-        # Calculate combined confidence score
+        # Calculate combined confidence score with CALIBRATION-AWARE adjustments
         base_confidence = confidence_score
         safety_boost = safety_improvements.get('overall_safety_improvement', 0.0)
-        evidence_boost = evidence_improvements.get('faithfulness_improvement', 0.0)
+        
+        # Combine local evidence and internet evidence into one evidence_boost
+        # Internet sources ARE evidence - they provide verified information
+        local_evidence_boost = evidence_improvements.get('faithfulness_improvement', 0.0)
+        evidence_boost = local_evidence_boost + internet_boost  # Combine both evidence sources
+        evidence_boost = min(evidence_boost, 0.35)  # Cap at 35% total evidence boost
+        
         reasoning_boost = reasoning_improvements.get('interpretability_improvement', 0.0)
         
-        enhanced_confidence = min(base_confidence + safety_boost + evidence_boost + reasoning_boost + internet_boost, 1.0)
+        # Internet boost is now included in evidence_boost, so set to 0 to avoid double-counting
+        internet_boost_for_display = internet_boost  # Keep for logging
+        
+        # CALIBRATION IMPROVEMENT: Scale boosts based on actual evidence quality
+        # If we have low evidence, reduce the confidence boosts proportionally
+        evidence_quality_factor = min(evidence_boost / 0.15, 1.0) if evidence_boost > 0 else 0.5
+        
+        # Apply scaled boosts - safety and reasoning should be reduced if evidence is weak
+        scaled_safety_boost = safety_boost * (0.3 + 0.7 * evidence_quality_factor)  # 30-100% of safety boost
+        scaled_reasoning_boost = reasoning_boost * (0.4 + 0.6 * evidence_quality_factor)  # 40-100% of reasoning boost
+        
+        # CALIBRATION IMPROVEMENT: Cap final confidence at 85% instead of 100%
+        # Rarely justified to be 100% confident - leaves room for uncertainty
+        enhanced_confidence = min(base_confidence + scaled_safety_boost + evidence_boost + scaled_reasoning_boost, 0.85)
+        
+        self.logger.info(f"Confidence calculation: base={base_confidence:.2f}, evidence_quality={evidence_quality_factor:.2f}, "
+                        f"scaled_safety={scaled_safety_boost:.2f}, evidence={evidence_boost:.2f}, scaled_reasoning={scaled_reasoning_boost:.2f}, "
+                        f"final={enhanced_confidence:.2f}")
         
         # Use the existing enhanced answer without additional FAIR templates (for debugging)
         fair_enhanced_answer = final_enhanced_answer
@@ -698,7 +739,7 @@ Finance helps individuals, businesses, and governments make informed decisions a
         # except ImportError:
         #     fair_enhanced_answer = final_enhanced_answer
         
-        self.logger.info(f"Finance response enhanced with all systems: safety (+{safety_boost:.2f}), evidence (+{evidence_boost:.2f}), reasoning (+{reasoning_boost:.2f}), internet (+{internet_boost:.2f})")
+        self.logger.info(f"Finance response enhanced with all systems: safety (+{safety_boost:.2f}), evidence (+{evidence_boost:.2f} [local: {local_evidence_boost:.2f}, internet: {internet_boost_for_display:.2f}]), reasoning (+{reasoning_boost:.2f})")
         
         return FinanceResponse(
             answer=fair_enhanced_answer,
@@ -707,9 +748,9 @@ Finance helps individuals, businesses, and governments make informed decisions a
             risk_assessment=risk_assessment,
             numerical_outputs=numerical_outputs,
             safety_boost=safety_boost,
-            evidence_boost=evidence_boost,
+            evidence_boost=evidence_boost,  # Now includes both local and internet evidence
             reasoning_boost=reasoning_boost,
-            internet_boost=internet_boost
+            internet_boost=internet_boost_for_display  # Keep for backward compatibility but included in evidence_boost
         )
     
     def _extract_numbers(self, text: str) -> Dict[str, float]:

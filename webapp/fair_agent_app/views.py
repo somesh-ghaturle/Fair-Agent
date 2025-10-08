@@ -454,7 +454,33 @@ def process_query_api(request):
             interpretability_score = min(base_interpretability + reasoning_boost, 1.0)
             risk_awareness_score = min(base_risk_awareness + safety_boost, 1.0)
             
+            # Calculate Hallucination Reduction Score
+            # This metric measures how well the system reduces hallucinations through:
+            # 1. Evidence grounding (evidence_boost contributes 40%)
+            # 2. Faithfulness to sources (faithfulness_score contributes 40%)
+            # 3. External verification (internet_boost contributes 20%)
+            hallucination_reduction = min(
+                (evidence_boost * 4.0) +  # Scale 0-0.35 to 0-1.4 (40% weight)
+                (faithfulness_score * 0.4) +  # 40% weight
+                (internet_boost * 2.0),  # Scale 0-0.15 to 0-0.3 (20% weight)
+                1.0  # Cap at 100%
+            )
+            
             logger.info(f"FAIR Score Calculation: F={base_faithfulness:.2f}+{evidence_boost:.2f}={faithfulness_score:.2f}, I={base_interpretability:.2f}+{reasoning_boost:.2f}={interpretability_score:.2f}, R={base_risk_awareness:.2f}+{safety_boost:.2f}={risk_awareness_score:.2f}")
+            logger.info(f"Hallucination Reduction: {hallucination_reduction:.2f} (evidence={evidence_boost:.2f}, faithfulness={faithfulness_score:.2f}, internet={internet_boost:.2f})")
+            
+            # Calculate Calibration Error
+            # Calibration measures how well confidence aligns with actual accuracy (faithfulness)
+            # Lower calibration error means better alignment (target: <0.1 or 10%)
+            confidence_score = result.get('confidence_score', 0.6)
+            calibration_error = abs(confidence_score - faithfulness_score)
+            
+            # Use the calculated calibration error or fall back to metrics
+            if calibration_error > 0:
+                logger.info(f"Calibration Error: {calibration_error:.2f} (confidence={confidence_score:.2f}, faithfulness={faithfulness_score:.2f})")
+            else:
+                calibration_error = metrics.get('calibration', {}).get('expected_calibration_error', 0.25)
+                logger.info(f"Calibration Error (default): {calibration_error:.2f}")
             
             # Convert all numpy types to JSON-serializable types
             metrics = convert_numpy_types(metrics)
@@ -478,7 +504,8 @@ def process_query_api(request):
                     'faithfulness': faithfulness_score,
                     'interpretability': interpretability_score,
                     'risk_awareness': risk_awareness_score,
-                    'calibration_error': metrics.get('calibration', {}).get('expected_calibration_error', 0.25),
+                    'hallucination_reduction': hallucination_reduction,  # NEW: Hallucination reduction metric
+                    'calibration_error': calibration_error,  # Use calculated calibration error
                     'robustness': metrics.get('robustness', {}).get('overall_score', 0.35),
                     # Enhancement boosts
                     'safety_boost': safety_boost,

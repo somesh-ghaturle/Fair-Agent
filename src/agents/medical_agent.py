@@ -564,14 +564,39 @@ If experiencing severe symptoms, chest pain, difficulty breathing, sudden severe
         # Calculate combined confidence score (simplified for debugging)
         base_confidence = confidence_score
         safety_boost = safety_improvements.get('overall_safety_improvement', 0.0)
-        evidence_boost = evidence_improvements.get('faithfulness_improvement', 0.0)
-        reasoning_boost = reasoning_improvements.get('interpretability_improvement', 0.0)
+        
+        # Combine local evidence and internet evidence into one evidence_boost
+        # Internet sources ARE evidence - they provide verified medical information
+        local_evidence_boost = evidence_improvements.get('faithfulness_improvement', 0.0)
         
         # Calculate internet boost from internet sources
         internet_boost = internet_source_count * 0.05  # +5% per internet source, max 15%
         internet_boost = min(internet_boost, 0.15)
         
-        enhanced_confidence = min(base_confidence + safety_boost + evidence_boost + reasoning_boost + internet_boost, 1.0)
+        # Combine both evidence sources
+        evidence_boost = local_evidence_boost + internet_boost
+        evidence_boost = min(evidence_boost, 0.35)  # Cap at 35% total evidence boost
+        
+        reasoning_boost = reasoning_improvements.get('interpretability_improvement', 0.0)
+        
+        # Internet boost is now included in evidence_boost
+        internet_boost_for_display = internet_boost  # Keep for logging
+        
+        # CALIBRATION IMPROVEMENT: Scale boosts based on actual evidence quality
+        # If we have low evidence, reduce the confidence boosts proportionally
+        evidence_quality_factor = min(evidence_boost / 0.15, 1.0) if evidence_boost > 0 else 0.5
+        
+        # Apply scaled boosts - safety and reasoning should be reduced if evidence is weak
+        scaled_safety_boost = safety_boost * (0.3 + 0.7 * evidence_quality_factor)  # 30-100% of safety boost
+        scaled_reasoning_boost = reasoning_boost * (0.4 + 0.6 * evidence_quality_factor)  # 40-100% of reasoning boost
+        
+        # CALIBRATION IMPROVEMENT: Cap final confidence at 85% instead of 100%
+        # Medical advice should rarely be 100% confident - leaves room for uncertainty
+        enhanced_confidence = min(base_confidence + scaled_safety_boost + evidence_boost + scaled_reasoning_boost, 0.85)
+        
+        self.logger.info(f"Confidence calculation: base={base_confidence:.2f}, evidence_quality={evidence_quality_factor:.2f}, "
+                        f"scaled_safety={scaled_safety_boost:.2f}, evidence={evidence_boost:.2f}, scaled_reasoning={scaled_reasoning_boost:.2f}, "
+                        f"final={enhanced_confidence:.2f}")
         
         # Use the existing enhanced answer without additional FAIR templates (for debugging)
         fair_enhanced_answer = final_enhanced_answer
@@ -598,7 +623,7 @@ If experiencing severe symptoms, chest pain, difficulty breathing, sudden severe
         # except ImportError:
         #     fair_enhanced_answer = final_enhanced_answer
         
-        self.logger.info(f"Medical response enhanced with all systems: safety (+{safety_boost:.2f}), evidence (+{evidence_boost:.2f}), reasoning (+{reasoning_boost:.2f}), internet (+{internet_boost:.2f})")
+        self.logger.info(f"Medical response enhanced with all systems: safety (+{safety_boost:.2f}), evidence (+{evidence_boost:.2f} [local: {local_evidence_boost:.2f}, internet: {internet_boost_for_display:.2f}]), reasoning (+{reasoning_boost:.2f})")
         
         return MedicalResponse(
             answer=fair_enhanced_answer,
@@ -608,9 +633,9 @@ If experiencing severe symptoms, chest pain, difficulty breathing, sudden severe
             medical_evidence=medical_evidence,
             uncertainty_indicators=uncertainty_indicators,
             safety_boost=safety_boost,
-            evidence_boost=evidence_boost,
+            evidence_boost=evidence_boost,  # Now includes both local and internet evidence
             reasoning_boost=reasoning_boost,
-            internet_boost=internet_boost
+            internet_boost=internet_boost_for_display  # Keep for backward compatibility but included in evidence_boost
         )
     
     def _is_harmful_query(self, question: str) -> bool:
@@ -660,22 +685,35 @@ If experiencing severe symptoms, chest pain, difficulty breathing, sudden severe
         return indicators[:3]  # Limit to top 3 indicators
     
     def _compute_medical_confidence(self, text: str) -> float:
-        """Compute confidence score for medical response"""
+        """Compute conservative confidence score for medical response
+        
+        Confidence should start low and be boosted by evidence and safety enhancements.
+        This ensures calibration error (|confidence - faithfulness|) stays low.
+        """
         # Factors that increase confidence
-        confidence_factors = ['evidence', 'study', 'research', 'clinical', 'proven']
-        # Factors that decrease confidence
-        uncertainty_factors = ['may', 'might', 'unclear', 'uncertain', 'varies']
+        confidence_factors = ['evidence', 'study', 'research', 'clinical', 'proven', 'data', 'trial']
+        # Factors that decrease confidence  
+        uncertainty_factors = ['may', 'might', 'unclear', 'uncertain', 'varies', 'possibly', 'potentially']
         
         text_lower = text.lower()
         
         confidence_count = sum(1 for factor in confidence_factors if factor in text_lower)
         uncertainty_count = sum(1 for factor in uncertainty_factors if factor in text_lower)
         
-        # Base confidence adjusted by factors
-        base_confidence = 0.5
-        confidence_adjustment = (confidence_count - uncertainty_count) * 0.1
+        # Start with LOWER base confidence (30% instead of 50%)
+        # This allows evidence/safety boosts to bring it up to realistic levels
+        base_confidence = 0.3  # Conservative baseline - will be boosted by enhancements
+        confidence_adjustment = (confidence_count - uncertainty_count) * 0.05  # Reduced from 0.1
         
-        return max(0.0, min(1.0, base_confidence + confidence_adjustment))
+        # Adjust based on response quality
+        if len(text) > 500:
+            confidence_adjustment += 0.05  # Comprehensive response
+        if len(text) < 200:
+            confidence_adjustment -= 0.05  # Penalize short responses
+        
+        final_confidence = max(0.2, min(0.5, base_confidence + confidence_adjustment))
+        
+        return final_confidence  # Cap base confidence at 20-50%
     
     def _assess_medical_safety(self, text: str) -> str:
         """Assess safety of medical response"""

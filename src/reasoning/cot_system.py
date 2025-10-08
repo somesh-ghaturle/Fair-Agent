@@ -403,7 +403,7 @@ class ChainOfThoughtGenerator:
             step_type = self._determine_step_type(i, len(templates), template)
             
             # Generate thought content
-            thought_content = self._generate_step_content(template, part, query, domain)
+            thought_content = self._generate_step_content(template, part, query, domain, i)
             
             # Assess confidence and quality
             confidence = self._assess_step_confidence(thought_content, domain)
@@ -473,7 +473,8 @@ class ChainOfThoughtGenerator:
         template: str, 
         response_part: str, 
         query: str, 
-        domain: str
+        domain: str,
+        step_number: int = 1
     ) -> str:
         """Generate content for a reasoning step"""
         
@@ -505,15 +506,12 @@ class ChainOfThoughtGenerator:
                 6: "Remember that good financial habits and understanding these fundamentals can significantly improve your long-term financial well-being."
             }
             
-            step_num = int(template.split()[1].rstrip(':')) if 'Step' in template else 1
-            if step_num in step_templates:
-                return step_templates[step_num]
+            if step_number in step_templates:
+                return step_templates[step_number]
         
-        # For other cases, combine template with meaningful content or use template only
-        if response_part and len(response_part) > 20 and not any(phrase in response_part.lower() for phrase in ['however this does not mean', 'there may be some questions']):
-            step_content = f"{filled_template} {response_part}"
-        else:
-            step_content = filled_template
+        # For other cases, use template only for concise reasoning steps
+        # Avoid duplicating the full response content in reasoning steps
+        step_content = filled_template
         
         return step_content
     
@@ -566,24 +564,8 @@ class ChainOfThoughtGenerator:
     def _generate_step_evidence(self, response_part: str, domain: str) -> Optional[str]:
         """Generate evidence for a reasoning step"""
         
-        if not response_part or len(response_part) < 30:
-            return None
-        
-        # Extract factual claims as evidence
-        sentences = response_part.split('.')
-        factual_sentences = []
-        
-        for sentence in sentences:
-            sentence = sentence.strip()
-            if len(sentence) > 20:  # Substantial content
-                # Look for factual indicators
-                if any(indicator in sentence.lower() for indicator in 
-                       ['study', 'research', 'evidence', 'data', 'statistics', 'rate', 'percent']):
-                    factual_sentences.append(sentence)
-        
-        if factual_sentences:
-            return '. '.join(factual_sentences) + '.'
-        
+        # Return None to avoid duplicating response content as "evidence"
+        # The main response already contains all necessary information
         return None
 
 class ChainOfThoughtIntegrator:
@@ -628,24 +610,13 @@ class ChainOfThoughtIntegrator:
         # Start with the main answer
         formatted_response = chain.final_conclusion
         
-        # Add reasoning process
+        # Add reasoning process with concise steps
         formatted_response += "\n\n**My Reasoning Process:**\n"
         
         for step in chain.thought_steps:
-            # Clean up step content - remove template markers and repetition
+            # Use clean, concise step descriptions without verbose evidence duplication
             step_content = step.thought
-            if step_content.startswith("Let me") or step_content.startswith("First,") or step_content.startswith("Next,"):
-                # Use the content as is for clear step descriptions
-                formatted_response += f"\n**Step {step.step_number}:** {step_content}\n"
-            else:
-                # Add connecting language for better flow
-                formatted_response += f"\n**Step {step.step_number}:** {step_content}\n"
-            
-            if step.evidence and step.evidence.strip():
-                formatted_response += f"*Supporting information: {step.evidence}*\n"
-        
-        # Add final analysis section
-        formatted_response += f"\n**Final Analysis:** This comprehensive explanation covers the key aspects of your question about finance."
+            formatted_response += f"\n**Step {step.step_number}:** {step_content}"
         
         # Add confidence and transparency information
         formatted_response += f"\n\n**Reasoning Confidence:** {chain.overall_confidence:.1%}"
