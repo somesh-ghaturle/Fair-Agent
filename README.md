@@ -33,15 +33,14 @@
 
 ### What Makes FAIR-Agent Special?
 
-- 🏦 **Finance Agent** - Investment analysis, portfolio strategies, market insights
-- 🏥 **Medical Agent** - Health information, medical concepts, treatment options
-- 🎭 **Orchestrator** - Intelligent query routing and domain classification
-- 📚 **Evidence System** - Curated knowledge base with 16 high-reliability sources
-- 🌐 **Internet RAG** - Real-time enhancement from trusted sources
-- 🛡️ **Safety First** - Multi-layer disclaimers and content filtering
-- 📊 **FAIR Metrics** - Real-time evaluation of Faithfulness, Interpretability, Risk Awareness
-- 🚀 **Modern UI** - Responsive Django web interface
-- 🔒 **Privacy-First** - Local LLM inference via Ollama
+- 🤖 **Multi-Agent Architecture** - Specialized agents for Finance and Medical domains
+- 🧠 **Intelligent Orchestration** - Automatic domain classification and query routing
+- 📚 **Evidence-Grounded** - 16 curated sources + real-time internet RAG enhancement
+- 🛡️ **Safety-First Design** - Comprehensive disclaimers and risk awareness
+- 📊 **Real-Time FAIR Metrics** - Transparent evaluation of response quality
+- 🔒 **Privacy-Focused** - Local LLM inference via Ollama (no data sent to cloud)
+- 🎨 **Modern Web Interface** - Responsive Django UI with live metrics visualization
+- � **Flexible Model Support** - Multiple LLMs (Llama3.2, Mistral, Phi3) with dynamic switching
 
 ---
 
