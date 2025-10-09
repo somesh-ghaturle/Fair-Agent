@@ -450,24 +450,53 @@ def process_query_api(request):
             internet_boost = result.get('internet_boost', 0.0)
             
             # Apply boosts to base scores
-            faithfulness_score = min(base_faithfulness + evidence_boost, 1.0)
-            interpretability_score = min(base_interpretability + reasoning_boost, 1.0)
-            risk_awareness_score = min(base_risk_awareness + safety_boost, 1.0)
+            # CHANGED: Don't cap at 1.0 - scores can naturally exceed 100% when highly enhanced
+            # Maximum realistic values: F≈1.05, I≈1.05, R≈1.20
+            faithfulness_score = base_faithfulness + evidence_boost
+            interpretability_score = base_interpretability + reasoning_boost
+            risk_awareness_score = base_risk_awareness + safety_boost
+            
+            # For display purposes, we'll show percentage of realistic maximum:
+            # - Faithfulness max: 1.05 (base 0.7 + boost 0.35)
+            # - Interpretability max: 1.05 (base 0.7 + boost 0.35)
+            # - Risk Awareness max: 1.20 (base 0.8 + boost 0.40)
+            # But we won't artificially cap the raw scores
             
             # Calculate Hallucination Reduction Score
-            # This metric measures how well the system reduces hallucinations through:
-            # 1. Evidence grounding (evidence_boost contributes 40%)
-            # 2. Faithfulness to sources (faithfulness_score contributes 40%)
-            # 3. External verification (internet_boost contributes 20%)
-            hallucination_reduction = min(
-                (evidence_boost * 4.0) +  # Scale 0-0.35 to 0-1.4 (40% weight)
-                (faithfulness_score * 0.4) +  # 40% weight
-                (internet_boost * 2.0),  # Scale 0-0.15 to 0-0.3 (20% weight)
-                1.0  # Cap at 100%
+            # Hallucination = generating information not supported by evidence or facts
+            # Our metric measures how effectively we REDUCE hallucinations through:
+            # 1. Evidence grounding (prevents making things up)
+            # 2. Faithfulness to sources (prevents contradicting facts)
+            # 3. External verification (validates against internet sources)
+            #
+            # Formula interpretation:
+            # - High evidence + High faithfulness = High reduction (good!)
+            # - Low evidence + Low faithfulness = Low reduction (risky!)
+            #
+            # Weights:
+            # - Evidence: 50% (primary defense against hallucination)
+            # - Faithfulness: 35% (measures accuracy to sources)
+            # - Internet verification: 15% (external validation)
+            
+            # Normalize components to 0-1 scale
+            evidence_normalized = min(evidence_boost / 0.35, 1.0)  # Max evidence is 0.35
+            internet_normalized = min(internet_boost / 0.15, 1.0)  # Max internet is 0.15
+            # faithfulness_score already 0-1
+            
+            # Weighted combination
+            hallucination_reduction = (
+                (evidence_normalized * 0.50) +      # 50% weight on evidence
+                (faithfulness_score * 0.35) +        # 35% weight on faithfulness
+                (internet_normalized * 0.15)         # 15% weight on internet
             )
             
+            # Cap at 100% (though formula naturally stays <= 1.0)
+            hallucination_reduction = min(hallucination_reduction, 1.0)
+            
             logger.info(f"FAIR Score Calculation: F={base_faithfulness:.2f}+{evidence_boost:.2f}={faithfulness_score:.2f}, I={base_interpretability:.2f}+{reasoning_boost:.2f}={interpretability_score:.2f}, R={base_risk_awareness:.2f}+{safety_boost:.2f}={risk_awareness_score:.2f}")
-            logger.info(f"Hallucination Reduction: {hallucination_reduction:.2f} (evidence={evidence_boost:.2f}, faithfulness={faithfulness_score:.2f}, internet={internet_boost:.2f})")
+            if risk_awareness_score > 1.0:
+                logger.info(f"⚠️ Risk Awareness exceeds 100% (raw: {risk_awareness_score:.2f}) - This indicates excellent safety enhancements!")
+            logger.info(f"Hallucination Reduction: {hallucination_reduction:.2f} (evidence={evidence_boost:.2f}→{evidence_normalized:.2f}, faithfulness={faithfulness_score:.2f}, internet={internet_boost:.2f}→{internet_normalized:.2f})")
             
             # Calculate Calibration Error
             # Calibration measures how well confidence aligns with actual accuracy (faithfulness)

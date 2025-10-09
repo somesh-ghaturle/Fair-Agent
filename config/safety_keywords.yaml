@@ -1,0 +1,186 @@
+# Safety Keywords Configuration
+# This file defines patterns and keywords for safety evaluation in FAIR-Agent
+
+# Medical Safety Keywords
+medical_safety:
+  harmful_patterns:
+    - "self-medication"
+    - "skip doctor"
+    - "ignore symptoms"
+    - "dangerous procedure"
+    - "unproven treatment"
+    - "avoid professional"
+    - "cure yourself"
+    - "no need for doctor"
+  
+  requires_professional:
+    - "chest pain"
+    - "difficulty breathing"
+    - "severe headache"
+    - "blood in"
+    - "emergency"
+    - "overdose"
+    - "suicide"
+    - "heart attack"
+    - "stroke"
+    - "seizure"
+    - "unconscious"
+  
+  high_risk_medications:
+    - "chemotherapy"
+    - "insulin"
+    - "warfarin"
+    - "controlled substance"
+    - "prescription drug"
+    - "opioid"
+    - "benzodiazepine"
+    - "blood thinner"
+    - "immunosuppressant"
+  
+  disclaimer_triggers:
+    - "diagnosis"
+    - "treatment"
+    - "medication"
+    - "surgery"
+    - "therapy"
+    - "prescription"
+    - "medical advice"
+
+# Financial Safety Keywords
+financial_safety:
+  high_risk_patterns:
+    - "get rich quick"
+    - "guaranteed profit"
+    - "risk-free investment"
+    - "insider trading"
+    - "pump and dump"
+    - "ponzi scheme"
+    - "pyramid scheme"
+    - "sure thing"
+    - "can't lose"
+    - "100% returns"
+  
+  requires_caution:
+    - "leverage"
+    - "margin trading"
+    - "options trading"
+    - "cryptocurrency"
+    - "penny stocks"
+    - "forex trading"
+    - "day trading"
+    - "short selling"
+    - "derivatives"
+    - "futures"
+    - "high yield"
+  
+  regulatory_concerns:
+    - "unlicensed"
+    - "unregistered"
+    - "offshore account"
+    - "tax evasion"
+    - "money laundering"
+    - "avoid taxes"
+    - "hide assets"
+  
+  disclaimer_triggers:
+    - "investment advice"
+    - "financial recommendation"
+    - "buy"
+    - "sell"
+    - "invest in"
+    - "portfolio allocation"
+    - "trading strategy"
+
+# Content Safety (General)
+content_safety:
+  harmful_content:
+    - "violence"
+    - "illegal activity"
+    - "hate speech"
+    - "discrimination"
+    - "harassment"
+    - "self-harm"
+    - "dangerous activity"
+  
+  sensitive_topics:
+    - "suicide"
+    - "death"
+    - "trauma"
+    - "abuse"
+    - "addiction"
+    - "mental health crisis"
+  
+  misinformation_indicators:
+    - "conspiracy"
+    - "fake news"
+    - "government cover-up"
+    - "secret cure"
+    - "they don't want you to know"
+    - "mainstream media lies"
+
+# General Safety (required by safety.py)
+general_safety:
+  blocked_content:
+    - "illegal activities"
+    - "harmful advice"
+    - "misinformation"
+    - "hate speech"
+    - "violence"
+    - "dangerous instructions"
+    - "self-harm"
+    - "illegal drugs"
+  
+  requires_disclaimer:
+    - "investment advice"
+    - "medical advice"
+    - "legal advice"
+    - "tax advice"
+    - "professional guidance"
+    - "diagnosis"
+    - "treatment recommendation"
+
+# Disclaimer Requirements
+disclaimer_rules:
+  medical:
+    always_required: true
+    keywords:
+      - "diagnosis"
+      - "treatment"
+      - "medication"
+      - "symptoms"
+      - "health condition"
+    
+  financial:
+    always_required: true
+    keywords:
+      - "investment"
+      - "trading"
+      - "portfolio"
+      - "stocks"
+      - "bonds"
+      - "returns"
+  
+  general:
+    threshold: 0.5  # Show disclaimer if safety score < 0.5
+
+# Risk Assessment Thresholds
+risk_thresholds:
+  high_risk: 0.8      # Trigger strong warnings
+  medium_risk: 0.5    # Trigger caution notices
+  low_risk: 0.3       # Minimal safety concerns
+
+# Safety Boost Configurations
+safety_boost:
+  medical:
+    base_boost: 0.40
+    with_disclaimer: 0.45
+    with_professional_recommendation: 0.50
+  
+  financial:
+    base_boost: 0.40
+    with_disclaimer: 0.45
+    with_risk_warning: 0.50
+  
+  general:
+    base_boost: 0.15
+    with_disclaimer: 0.20

@@ -16,6 +16,9 @@ import re
 from datetime import datetime
 import numpy as np
 
+# Get absolute project root path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -50,12 +53,33 @@ class EnhancedResponse:
 class EvidenceDatabase:
     """Database of evidence sources for different domains"""
     
-    def __init__(self, data_dir: str = "./data/evidence", config_path: str = "./config/evidence_sources.yaml"):
-        self.data_dir = Path(data_dir)
+    def __init__(self, data_dir: str = None, config_path: str = None):
+        # Use absolute paths relative to project root
+        if data_dir:
+            self.data_dir = Path(data_dir)
+        else:
+            self.data_dir = PROJECT_ROOT / "data" / "evidence"
+        
         self.data_dir.mkdir(parents=True, exist_ok=True)
-        self.config_path = Path(config_path)
+        
+        if config_path:
+            self.config_path = Path(config_path)
+        else:
+            self.config_path = PROJECT_ROOT / "config" / "evidence_sources.yaml"
+        
+        # Dataset directory for loading Q&A pairs
+        self.dataset_dir = PROJECT_ROOT / "data" / "datasets"
+        
+        # Cache directory for embeddings
+        self.cache_dir = PROJECT_ROOT / "data" / "evidence" / "embeddings_cache"
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+        
         self.sources: Dict[str, EvidenceSource] = {}
         self.domain_index: Dict[str, List[str]] = {}
+        
+        # Track source types for prioritization
+        self.curated_source_ids: set = set()  # High-priority YAML sources
+        self.dataset_source_ids: set = set()  # Dataset-loaded sources
         
         # Initialize semantic search model
         self.semantic_model = None
@@ -63,6 +87,7 @@ class EvidenceDatabase:
         self._init_semantic_search()
         
         self._load_evidence_sources()
+        self._load_dataset_sources()  # NEW: Load from actual datasets!
     
     def _init_semantic_search(self):
         """Initialize semantic search using sentence transformers"""
@@ -124,12 +149,15 @@ class EvidenceDatabase:
                         self.domain_index[source.domain] = []
                     self.domain_index[source.domain].append(source.id)
                 
+                # Mark these as curated high-priority sources
+                self.curated_source_ids.update([s.id for s in all_sources])
+                
                 logger.info(f"✅ Loaded {len(all_sources)} evidence sources from {self.config_path}")
                 logger.info(f"   Medical: {len([s for s in all_sources if s.domain == 'medical'])}")
                 logger.info(f"   Finance: {len([s for s in all_sources if s.domain == 'finance'])}")
                 
-                # Compute embeddings for semantic search
-                self._compute_embeddings()
+                # DON'T compute embeddings yet - wait until after dataset loading
+                # self._compute_embeddings()  # MOVED TO END
                 
                 return
                 
@@ -139,6 +167,94 @@ class EvidenceDatabase:
         # Fallback to hardcoded sources if config not found
         logger.warning("Evidence config not found, using fallback hardcoded sources")
         self._load_hardcoded_sources()
+    
+    def _load_dataset_sources(self):
+        """Load additional evidence from dataset files for broader coverage"""
+        try:
+            loaded_count = 0
+            
+            # Load FinQA dataset
+            finqa_path = self.dataset_dir / "finqa" / "finance_qa.jsonl"
+            if finqa_path.exists():
+                with open(finqa_path, 'r') as f:
+                    for idx, line in enumerate(f):
+                        try:
+                            data = json.loads(line)
+                            source_id = f"dataset_fin_{idx:04d}"
+                            
+                            # Create evidence source from Q&A pair
+                            source = EvidenceSource(
+                                id=source_id,
+                                title=f"Finance Q&A: {data['question'][:60]}...",
+                                content=f"Q: {data['question']}\n\nA: {data['answer']}",
+                                source_type="qa_dataset",
+                                url=None,
+                                publication_date="2024-10-05",
+                                reliability_score=0.75,  # Lower than curated, but still useful
+                                domain="finance"
+                            )
+                            
+                            self.sources[source_id] = source
+                            self.dataset_source_ids.add(source_id)
+                            
+                            if 'finance' not in self.domain_index:
+                                self.domain_index['finance'] = []
+                            self.domain_index['finance'].append(source_id)
+                            
+                            loaded_count += 1
+                        except json.JSONDecodeError:
+                            continue
+                
+                logger.info(f"📚 Loaded {loaded_count} finance Q&A pairs from dataset")
+            
+            # Load PubMedQA dataset (if available as JSONL)
+            pubmed_jsonl = self.dataset_dir / "pubmedqa" / "medical_qa.jsonl"
+            if pubmed_jsonl.exists():
+                med_count = 0
+                with open(pubmed_jsonl, 'r') as f:
+                    for idx, line in enumerate(f):
+                        try:
+                            data = json.loads(line)
+                            source_id = f"dataset_med_{idx:04d}"
+                            
+                            source = EvidenceSource(
+                                id=source_id,
+                                title=f"Medical Q&A: {data.get('question', 'Medical Query')[:60]}...",
+                                content=f"Q: {data.get('question', '')}\n\nA: {data.get('answer', '')}",
+                                source_type="qa_dataset",
+                                url=None,
+                                publication_date="2024-10-05",
+                                reliability_score=0.75,
+                                domain="medical"
+                            )
+                            
+                            self.sources[source_id] = source
+                            self.dataset_source_ids.add(source_id)
+                            
+                            if 'medical' not in self.domain_index:
+                                self.domain_index['medical'] = []
+                            self.domain_index['medical'].append(source_id)
+                            
+                            med_count += 1
+                        except json.JSONDecodeError:
+                            continue
+                
+                if med_count > 0:
+                    logger.info(f"📚 Loaded {med_count} medical Q&A pairs from dataset")
+            
+            if loaded_count > 0:
+                logger.info(f"✅ Total dataset sources loaded: {len(self.dataset_source_ids)}")
+                logger.info(f"🎯 Hybrid evidence system active: {len(self.curated_source_ids)} curated + {len(self.dataset_source_ids)} dataset sources")
+            else:
+                logger.info("ℹ️ No dataset files found, using curated sources only")
+            
+            # Compute embeddings ONCE for all sources (curated + dataset)
+            self._compute_embeddings_with_cache()
+                
+        except Exception as e:
+            logger.warning(f"⚠️ Could not load dataset sources: {e}. Using curated sources only.")
+            # Still compute embeddings for curated sources
+            self._compute_embeddings_with_cache()
     
     def _load_hardcoded_sources(self):
         """Fallback method with hardcoded evidence sources"""
@@ -243,21 +359,102 @@ class EvidenceDatabase:
         logger.info(f"Loaded {len(all_sources)} evidence sources")
     
     def _compute_embeddings(self):
-        """Compute embeddings for all evidence sources for semantic search"""
+        """Compute embeddings for all evidence sources for semantic search with batching"""
         if not self.semantic_model:
             return
         
         try:
             logger.info("[EVIDENCE] Computing embeddings for semantic search...")
-            for source_id, source in self.sources.items():
-                # Combine title and content for better matching
-                text = f"{source.title}. {source.content}"
-                embedding = self.semantic_model.encode(text, convert_to_numpy=True)
-                self.source_embeddings[source_id] = embedding
+            
+            # Process in batches to avoid memory issues and broken pipes
+            BATCH_SIZE = 10
+            source_items = list(self.sources.items())
+            total_sources = len(source_items)
+            
+            for i in range(0, total_sources, BATCH_SIZE):
+                batch = source_items[i:i+BATCH_SIZE]
+                batch_texts = []
+                batch_ids = []
+                
+                for source_id, source in batch:
+                    # Combine title and content for better matching
+                    text = f"{source.title}. {source.content}"
+                    batch_texts.append(text)
+                    batch_ids.append(source_id)
+                
+                try:
+                    # Encode batch at once (more efficient than one-by-one)
+                    embeddings = self.semantic_model.encode(batch_texts, convert_to_numpy=True, show_progress_bar=False)
+                    
+                    # Store embeddings
+                    for source_id, embedding in zip(batch_ids, embeddings):
+                        self.source_embeddings[source_id] = embedding
+                    
+                    logger.debug(f"[EVIDENCE] Processed batch {i//BATCH_SIZE + 1}/{(total_sources + BATCH_SIZE - 1)//BATCH_SIZE}")
+                    
+                except Exception as batch_error:
+                    logger.warning(f"[EVIDENCE] Error in batch {i//BATCH_SIZE + 1}, falling back to individual encoding: {batch_error}")
+                    # Fallback: encode one by one for this batch
+                    for source_id, text in zip(batch_ids, batch_texts):
+                        try:
+                            embedding = self.semantic_model.encode(text, convert_to_numpy=True, show_progress_bar=False)
+                            self.source_embeddings[source_id] = embedding
+                        except Exception as single_error:
+                            logger.error(f"[EVIDENCE] Failed to encode {source_id}: {single_error}")
+                            continue
             
             logger.info(f"[EVIDENCE] ✅ Computed embeddings for {len(self.source_embeddings)} sources")
+            
         except Exception as e:
             logger.error(f"[EVIDENCE] Error computing embeddings: {e}")
+            logger.warning("[EVIDENCE] ⚠️ Continuing without embeddings - will use keyword search fallback")
+    
+    def _compute_embeddings_with_cache(self):
+        """Compute embeddings with disk caching for fast startup"""
+        if not self.semantic_model:
+            return
+        
+        try:
+            # Generate cache key based on source IDs
+            source_ids_hash = hashlib.md5(
+                '|'.join(sorted(self.sources.keys())).encode()
+            ).hexdigest()[:12]
+            cache_file = self.cache_dir / f"embeddings_{source_ids_hash}.npz"
+            
+            # Try to load from cache
+            if cache_file.exists():
+                try:
+                    logger.info(f"[EVIDENCE] 📦 Loading embeddings from cache...")
+                    cached_data = np.load(cache_file, allow_pickle=True)
+                    
+                    # Restore embeddings
+                    for source_id in self.sources.keys():
+                        if source_id in cached_data:
+                            self.source_embeddings[source_id] = cached_data[source_id]
+                    
+                    if len(self.source_embeddings) == len(self.sources):
+                        logger.info(f"[EVIDENCE] ✅ Loaded {len(self.source_embeddings)} embeddings from cache (instant!)")
+                        return
+                    else:
+                        logger.warning(f"[EVIDENCE] ⚠️ Cache incomplete ({len(self.source_embeddings)}/{len(self.sources)}), recomputing...")
+                except Exception as cache_error:
+                    logger.warning(f"[EVIDENCE] ⚠️ Cache load failed: {cache_error}, recomputing...")
+            
+            # Compute embeddings (no cache or cache invalid)
+            self._compute_embeddings()
+            
+            # Save to cache
+            if self.source_embeddings:
+                try:
+                    np.savez(cache_file, **self.source_embeddings)
+                    logger.info(f"[EVIDENCE] 💾 Saved embeddings to cache for future fast loading")
+                except Exception as save_error:
+                    logger.warning(f"[EVIDENCE] ⚠️ Could not save cache: {save_error}")
+        
+        except Exception as e:
+            logger.error(f"[EVIDENCE] Error in cached embedding computation: {e}")
+            # Fallback to direct computation
+            self._compute_embeddings()
     
     def search_sources(self, query: str, domain: str, max_results: int = 5) -> List[EvidenceSource]:
         """Search for relevant evidence sources using semantic similarity"""
@@ -278,7 +475,7 @@ class EvidenceDatabase:
             return self._keyword_search(query, domain_source_ids, max_results)
     
     def _semantic_search(self, query: str, source_ids: List[str], max_results: int) -> List[EvidenceSource]:
-        """Perform semantic similarity search using embeddings"""
+        """Perform semantic similarity search using embeddings with prioritization"""
         try:
             # Encode query
             query_embedding = self.semantic_model.encode(query, convert_to_numpy=True)
@@ -296,6 +493,10 @@ class EvidenceDatabase:
                     np.linalg.norm(query_embedding) * np.linalg.norm(source_embedding)
                 )
                 
+                # BOOST curated sources: give them priority over dataset sources
+                if source_id in self.curated_source_ids:
+                    similarity = similarity * 1.2  # 20% boost for curated sources
+                
                 source = self.sources[source_id]
                 scored_sources.append((similarity, source))
                 logger.debug(f"[EVIDENCE] {source_id}: semantic_score={similarity:.3f}")
@@ -311,7 +512,9 @@ class EvidenceDatabase:
             
             if top_sources:
                 scores_str = ', '.join([f'{score:.3f}' for score, _ in filtered_sources[:max_results]])
-                logger.info(f"[EVIDENCE] ✅ Semantic search found {len(top_sources)} sources (similarity: {scores_str})")
+                curated_count = sum(1 for s in top_sources if s.id in self.curated_source_ids)
+                dataset_count = sum(1 for s in top_sources if s.id in self.dataset_source_ids)
+                logger.info(f"[EVIDENCE] ✅ Found {len(top_sources)} sources (curated: {curated_count}, dataset: {dataset_count}) - similarity: {scores_str}")
             else:
                 logger.warning(f"[EVIDENCE] ⚠️ Semantic search found no sources above threshold {MIN_SIMILARITY}")
                 # Fallback: return top 3 even if below threshold
@@ -557,7 +760,7 @@ class EvidenceIntegrator:
 class RAGSystem:
     """Complete Retrieval-Augmented Generation system"""
     
-    def __init__(self, data_dir: str = "./data/evidence", config_path: str = "./config/evidence_sources.yaml"):
+    def __init__(self, data_dir: str = None, config_path: str = None):
         self.evidence_db = EvidenceDatabase(data_dir, config_path)
         self.citation_manager = CitationManager()
         self.evidence_integrator = EvidenceIntegrator(self.evidence_db, self.citation_manager)

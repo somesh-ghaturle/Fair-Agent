@@ -5,14 +5,14 @@
 # Model Configuration
 models:
   finance:
-    model_name: "gpt2"
+    model_name: "llama3.2:latest"
     device: "auto"
-    max_length: 256
+    max_length: 512
     
   medical:
-    model_name: "gpt2"
+    model_name: "llama3.2:latest"
     device: "auto"
-    max_length: 256
+    max_length: 512
 
 # Dataset Configuration
 datasets:

@@ -253,13 +253,340 @@ finance_sources:
     domain: "finance"
     keywords: ["real estate", "property", "REIT", "rental", "investment", "housing", "home", "mortgage", "buy", "invest", "landlord", "tenant", "reits", "house", "apartment", "building", "commercial", "residential", "buying", "purchase", "own", "ownership", "equity", "appreciation", "value", "market", "location", "rent", "income", "cash flow"]
 
+  - id: "fin_009"
+    title: "What is Finance - Core Concepts and Principles"
+    content: |
+      Finance is the study and system of money management, including the creation, movement, and use of capital and funds. 
+      It encompasses three main areas: (1) Personal Finance - managing individual money including budgeting, saving, investing, 
+      insurance, mortgages, banking, and retirement planning; (2) Corporate Finance - how businesses manage capital structure, 
+      funding sources, investment decisions, and shareholder returns through dividends and stock buybacks; (3) Public Finance - 
+      government revenue collection through taxation, spending allocation, budget management, and economic policy. Key principles 
+      include time value of money (money today is worth more than future money due to earning potential), risk-return tradeoff 
+      (higher expected returns require accepting greater risk), diversification (spreading investments reduces risk), and 
+      opportunity cost (choosing one option means forgoing alternatives). Finance also includes financial markets where 
+      securities trade, financial institutions like banks that facilitate capital flow, and regulatory frameworks ensuring 
+      market integrity.
+    source_type: "financial_textbook"
+    url: "https://www.investopedia.com/terms/f/finance.asp"
+    publication_date: "2024-01-15"
+    reliability_score: 0.93
+    domain: "finance"
+    keywords: ["finance", "what is finance", "financial", "money management", "capital", "investment", "economics", "banking", "personal finance", "corporate finance", "financial planning", "wealth", "money", "funds", "financial system", "financial markets", "time value", "risk", "return", "budgeting", "saving", "investing", "definition", "meaning", "concept", "fundamentals", "basics", "introduction"]
+
+  - id: "fin_010"
+    title: "Risk Management in Investment Portfolios"
+    content: |
+      Effective risk management balances potential returns with acceptable loss levels. Standard deviation measures 
+      portfolio volatility - higher values indicate greater price swings. Beta measures correlation with market movements 
+      (beta >1 means more volatile than market). Sharpe ratio evaluates risk-adjusted returns (higher is better). 
+      Diversification across asset classes, sectors, and geographies reduces unsystematic risk. Hedging strategies 
+      include options, inverse ETFs, and bonds as ballast. Risk tolerance depends on time horizon, financial goals, 
+      and emotional capacity for volatility. Regular rebalancing maintains target allocation and controls risk creep.
+    source_type: "investment_analysis"
+    url: "https://www.finra.org/investors/investing/investment-risk"
+    publication_date: "2023-11-10"
+    reliability_score: 0.91
+    domain: "finance"
+    keywords: ["risk management", "portfolio risk", "volatility", "risk", "manage risk", "diversification", "hedge", "hedging", "beta", "sharpe ratio", "standard deviation", "risk tolerance", "investment risk", "market risk", "downside", "loss", "protect", "protection", "safety", "conservative", "aggressive", "balance", "allocation"]
+
+  - id: "fin_011"
+    title: "Tax-Advantaged Investment Accounts"
+    content: |
+      Tax-advantaged accounts offer significant benefits through tax deferral or exemption. Traditional 401(k)/IRA 
+      contributions are tax-deductible but withdrawals are taxed as ordinary income. Roth 401(k)/IRA contributions 
+      use after-tax dollars but qualified withdrawals are tax-free. Health Savings Accounts (HSAs) offer triple tax 
+      benefits - deductible contributions, tax-free growth, and tax-free medical withdrawals. 529 plans provide 
+      tax-free growth for education expenses. Taxable brokerage accounts offer flexibility without restrictions but 
+      lack tax advantages. Capital gains rates (0%, 15%, 20%) typically lower than ordinary income rates. Tax-loss 
+      harvesting can offset gains. Asset location strategy places tax-inefficient investments in tax-advantaged accounts.
+    source_type: "tax_planning"
+    url: "https://www.irs.gov/retirement-plans"
+    publication_date: "2024-01-01"
+    reliability_score: 0.94
+    domain: "finance"
+    keywords: ["tax", "tax advantaged", "401k", "IRA", "roth", "hsa", "529", "tax deduction", "tax free", "tax deferred", "retirement account", "tax benefit", "contribution", "withdrawal", "tax planning", "capital gains", "ordinary income", "deductible", "exempt", "advantage", "tax loss harvesting"]
+
+  - id: "fin_012"
+    title: "Understanding Credit Scores and Reports"
+    content: |
+      Credit scores (FICO, VantageScore) range from 300-850 and significantly impact borrowing costs. Scores above 
+      740 typically qualify for best rates. Five factors affect scores: payment history (35%), credit utilization (30%), 
+      credit history length (15%), credit mix (10%), and new credit inquiries (10%). Maintaining utilization under 30% 
+      and paying bills on time are most impactful. Hard inquiries temporarily lower scores 5-10 points. Authorized 
+      user status and credit builder loans can help build credit. Annual credit reports are free at AnnualCreditReport.com. 
+      Dispute errors promptly. Credit freezes prevent identity theft. Good credit saves thousands in interest over a lifetime.
+    source_type: "financial_literacy"
+    url: "https://www.myfico.com/credit-education/credit-scores"
+    publication_date: "2023-09-20"
+    reliability_score: 0.92
+    domain: "finance"
+    keywords: ["credit score", "credit report", "FICO", "credit", "score", "rating", "credit history", "payment history", "utilization", "credit card", "loan", "borrowing", "creditworthiness", "good credit", "bad credit", "improve credit", "build credit", "credit monitoring", "identity theft", "credit freeze", "annual report", "dispute"]
+
+  - id: "fin_013"
+    title: "Dollar Cost Averaging vs Lump Sum Investing"
+    content: |
+      Dollar cost averaging (DCA) involves investing fixed amounts periodically, buying more shares when prices are 
+      low and fewer when high. This reduces timing risk and emotional decision-making. Research shows lump sum 
+      investing typically outperforms DCA about 66% of the time over long periods, as markets trend upward. However, 
+      DCA provides psychological comfort and suits investors receiving regular income. For large windfalls (inheritance, 
+      bonus), a hybrid approach investing 50% immediately and averaging the rest over 6-12 months balances performance 
+      and risk management. Time in market generally beats timing the market for long-term investors.
+    source_type: "investment_research"
+    url: "https://www.vanguard.com/pdf/ISGDCA.pdf"
+    publication_date: "2023-07-01"
+    reliability_score: 0.90
+    domain: "finance"
+    keywords: ["dollar cost averaging", "DCA", "lump sum", "investing strategy", "timing", "market timing", "periodic investing", "regular investment", "systematic", "investment strategy", "when to invest", "how to invest", "strategy", "approach", "method", "technique", "windfall", "inheritance", "bonus"]
+
+  - id: "fin_014"
+    title: "ESG Investing - Environmental, Social, Governance Factors"
+    content: |
+      ESG investing integrates environmental (climate impact, resource use), social (labor practices, diversity, 
+      community relations), and governance (board composition, executive compensation, shareholder rights) factors 
+      into investment decisions. ESG funds screen companies based on sustainability criteria, with some excluding 
+      controversial sectors (tobacco, weapons, fossil fuels). Research on ESG performance versus traditional investing 
+      is mixed - some studies show comparable or better returns, others show underperformance. ESG appeals to values-based 
+      investors and younger demographics. Greenwashing concerns require scrutiny of fund methodology. Higher expense 
+      ratios common in ESG funds. Impact investing targets measurable social/environmental outcomes alongside returns.
+    source_type: "investment_analysis"
+    url: "https://www.msci.com/what-is-esg"
+    publication_date: "2023-10-15"
+    reliability_score: 0.88
+    domain: "finance"
+    keywords: ["ESG", "sustainable investing", "environmental", "social", "governance", "ethical investing", "green investing", "socially responsible", "SRI", "impact investing", "sustainability", "climate", "values based", "responsible", "ethical", "clean energy", "renewable", "carbon", "diversity"]
+
+  - id: "fin_015"
+    title: "Insurance Planning - Life, Health, Disability, Property"
+    content: |
+      Insurance protects against catastrophic financial risks. Term life insurance is most cost-effective for income 
+      replacement, providing death benefit for specific period (10, 20, 30 years). Whole life/universal life combine 
+      insurance with cash value but have higher premiums. Health insurance is essential to avoid medical bankruptcy - 
+      understand deductibles, co-pays, out-of-pocket maximums, and network coverage. Disability insurance replaces 
+      income if unable to work due to illness or injury - group policies through employers are most affordable. 
+      Homeowners/renters insurance protects property and provides liability coverage. Auto insurance is legally required 
+      in most states. Umbrella policies provide additional liability protection beyond standard policy limits.
+    source_type: "financial_planning"
+    url: "https://www.naic.org/documents/consumer_guide_insurance.pdf"
+    publication_date: "2023-06-01"
+    reliability_score: 0.91
+    domain: "finance"
+    keywords: ["insurance", "life insurance", "health insurance", "disability", "property insurance", "protection", "coverage", "policy", "premium", "term life", "whole life", "universal life", "homeowners", "renters", "auto insurance", "liability", "umbrella", "risk", "financial protection", "death benefit", "beneficiary", "claim"]
+
+  - id: "fin_016"
+    title: "Understanding Compound Interest and Growth"
+    content: |
+      Compound interest is interest earned on both principal and previously accumulated interest, creating exponential 
+      growth over time. The Rule of 72 provides quick estimate: divide 72 by annual return rate to find years needed 
+      to double money (e.g., 8% return = 9 years to double). $10,000 invested at 7% annual return grows to $20,000 
+      in 10 years, $40,000 in 20 years, $80,000 in 30 years, demonstrating power of compounding. Starting early has 
+      dramatic impact - investing $5,000 annually from age 25-35 (total $50K) typically outperforms investing same 
+      annual amount from 35-65 (total $150K) due to additional growth time. Inflation erodes purchasing power - real 
+      returns (nominal return minus inflation) matter for wealth building.
+    source_type: "financial_education"
+    url: "https://www.investor.gov/introduction-investing/investing-basics/investment-products/bonds-or-fixed-income-products-0"
+    publication_date: "2023-04-10"
+    reliability_score: 0.93
+    domain: "finance"
+    keywords: ["compound interest", "compounding", "interest", "growth", "exponential", "rule of 72", "double", "time value", "investment growth", "returns", "accumulation", "wealth building", "principal", "earn", "earning", "savings growth", "long term", "investing early", "start young", "retirement", "nest egg"]
+
+  - id: "fin_017"
+    title: "Financial Independence and FIRE Movement"
+    content: |
+      Financial Independence Retire Early (FIRE) movement emphasizes aggressive saving (typically 50-70% of income) 
+      to achieve financial independence decades before traditional retirement age. The 4% rule suggests withdrawing 
+      4% of portfolio annually in retirement, adjusting for inflation. To retire on $40K annual spending requires 
+      $1M portfolio ($40K / 0.04). Variations include Lean FIRE (minimal spending), Fat FIRE (higher lifestyle), 
+      Coast FIRE (savings sufficient for traditional retirement age), and Barista FIRE (part-time work covers expenses). 
+      Success requires high income, frugal lifestyle, or both. Geographic arbitrage (lower cost areas), tax optimization, 
+      and side income support sustainability. Not suitable for everyone - requires significant life trade-offs.
+    source_type: "financial_philosophy"
+    url: "https://www.reddit.com/r/financialindependence/wiki/faq/"
+    publication_date: "2023-12-01"
+    reliability_score: 0.85
+    domain: "finance"
+    keywords: ["FIRE", "financial independence", "early retirement", "retire early", "FI", "passive income", "4% rule", "savings rate", "frugal", "minimalist", "lean fire", "fat fire", "coast fire", "freedom", "independence", "quit job", "financial freedom", "wealth", "money", "lifestyle"]
+
+  - id: "fin_018"
+    title: "Understanding Stock Market Valuation Metrics"
+    content: |
+      Price-to-Earnings (P/E) ratio compares stock price to earnings per share, with S&P 500 historical average around 
+      15-16. Higher P/E suggests growth expectations or overvaluation; lower suggests value opportunity or concerns. 
+      Price-to-Book (P/B) compares market value to book value (assets minus liabilities). Price-to-Sales (P/S) useful 
+      for companies without positive earnings. PEG ratio (P/E divided by growth rate) accounts for growth expectations. 
+      Dividend yield provides income component (dividends / price). Forward P/E uses projected future earnings. Valuation 
+      alone insufficient for investment decisions - consider growth prospects, competitive position, management quality, 
+      and sector dynamics. Compare valuations to historical norms and peers.
+    source_type: "investment_analysis"
+    url: "https://www.sec.gov/investor/pubs/assetallocation.htm"
+    publication_date: "2023-09-15"
+    reliability_score: 0.90
+    domain: "finance"
+    keywords: ["valuation", "P/E ratio", "price to earnings", "stock valuation", "metrics", "analysis", "fundamental analysis", "earnings", "PEG", "price to book", "dividend yield", "investment analysis", "stock picking", "value", "growth", "expensive", "cheap", "overvalued", "undervalued", "fair value", "intrinsic value"]
+
+  - id: "fin_019"
+    title: "529 College Savings Plans"
+    content: |
+      529 plans offer tax-advantaged college savings with contributions growing tax-free when used for qualified 
+      education expenses (tuition, fees, books, room and board). Contributions may be state tax-deductible depending 
+      on state. Investment options typically include age-based portfolios that automatically shift from stocks to 
+      bonds as beneficiary approaches college age. Annual contribution limit $18,000 per beneficiary ($36,000 married 
+      filing jointly) without gift tax. Superfunding allows $90,000 lump sum ($180,000 married) treating as 5 years 
+      of gifts. Can change beneficiaries to family members. Non-qualified withdrawals incur 10% penalty plus taxes 
+      on earnings. Recently expanded to cover K-12 tuition ($10K annually) and apprenticeship programs.
+    source_type: "education_planning"
+    url: "https://www.sec.gov/reportspubs/investor-publications/investorpubsintro529htm.html"
+    publication_date: "2023-07-20"
+    reliability_score: 0.92
+    domain: "finance"
+    keywords: ["529", "college savings", "education", "tuition", "college planning", "education planning", "savings plan", "tax advantage", "student", "university", "school", "children", "kids", "grandchildren", "family", "learning", "qualified expenses", "financial aid", "scholarship", "student loans", "higher education"]
+
+  - id: "fin_020"
+    title: "Understanding Inflation and Purchasing Power"
+    content: |
+      Inflation erodes purchasing power over time - $100 today buys less than $100 in future years. Federal Reserve 
+      targets 2% annual inflation. Historical average inflation (1926-2023) approximately 3%. At 3% inflation, prices 
+      double every 24 years (Rule of 72: 72/3 = 24). This means $1M today equals approximately $500K purchasing power 
+      in 24 years. Investment returns must exceed inflation to build real wealth - 5% nominal return with 3% inflation 
+      equals 2% real return. TIPS (Treasury Inflation-Protected Securities) adjust principal based on CPI. High inflation 
+      periods favor real assets (real estate, commodities) over bonds. Cash and fixed-rate bonds most vulnerable to 
+      inflation risk. Wages often lag inflation, reducing real income during high-inflation periods.
+    source_type: "economic_education"
+    url: "https://www.bls.gov/cpi/"
+    publication_date: "2024-01-15"
+    reliability_score: 0.94
+    domain: "finance"
+    keywords: ["inflation", "purchasing power", "CPI", "consumer price index", "deflation", "price increases", "cost of living", "real returns", "nominal returns", "TIPS", "inflation protection", "Federal Reserve", "monetary policy", "currency", "money value", "economic", "economy", "prices", "rising costs", "erosion"]
+
+  - id: "fin_021"
+    title: "Behavioral Finance - Common Investor Biases"
+    content: |
+      Behavioral finance studies psychological factors affecting investment decisions. Loss aversion causes investors 
+      to feel losses more intensely than equivalent gains, leading to holding losers too long. Recency bias overweights 
+      recent events (buying high after rallies, selling low after declines). Confirmation bias seeks information 
+      supporting existing beliefs. Herding follows crowd behavior (buying hot stocks, avoiding unloved sectors). 
+      Overconfidence leads to excessive trading and concentration. Mental accounting treats money differently based 
+      on source or account. Anchoring fixates on irrelevant reference points (past highs for stocks). Successful 
+      investors recognize these biases and use systematic approaches (dollar-cost averaging, automatic rebalancing, 
+      diversification) to counteract emotional decision-making.
+    source_type: "investment_psychology"
+    url: "https://www.apa.org/science/about/psa/2018/01/behavioral-economics"
+    publication_date: "2023-08-10"
+    reliability_score: 0.88
+    domain: "finance"
+    keywords: ["behavioral finance", "investor psychology", "bias", "emotions", "decision making", "loss aversion", "fear", "greed", "psychology", "behavioral economics", "mental", "cognitive", "irrational", "mistakes", "errors", "discipline", "emotional investing", "panic", "euphoria", "herd mentality", "overconfidence"]
+
+  - id: "med_009"
+    title: "Preventive Care and Screening Guidelines"
+    content: |
+      Preventive care reduces disease burden through early detection and risk reduction. Annual wellness visits include 
+      vital signs, basic labs, and age-appropriate screenings. Recommended screenings: colonoscopy starting age 45-50 
+      for colorectal cancer; mammography age 40-50 (varies by organization) for breast cancer; Pap smear/HPV testing 
+      for cervical cancer; blood pressure checks; cholesterol screening; diabetes screening if overweight with additional 
+      risk factors; lung cancer screening (low-dose CT) for high-risk smokers age 50-80; osteoporosis screening for 
+      women 65+ and high-risk individuals. Vaccinations: annual flu shot; Tdap booster every 10 years; shingles vaccine 
+      age 50+; pneumonia vaccines age 65+; COVID-19 vaccines updated annually. Most preventive services covered 100% 
+      by insurance under ACA.
+    source_type: "public_health_guideline"
+    url: "https://www.uspreventiveservicestaskforce.org/uspstf/recommendation-topics/uspstf-a-and-b-recommendations"
+    publication_date: "2024-01-10"
+    reliability_score: 0.96
+    domain: "medical"
+    keywords: ["preventive care", "screening", "checkup", "physical exam", "wellness visit", "prevention", "early detection", "mammogram", "colonoscopy", "pap smear", "vaccination", "flu shot", "vaccine", "immunization", "health screening", "cancer screening", "blood test", "routine care", "annual exam", "physical", "check up"]
+
+  - id: "med_010"
+    title: "Exercise and Physical Activity Recommendations"
+    content: |
+      CDC recommends adults get 150 minutes moderate-intensity aerobic activity or 75 minutes vigorous activity weekly, 
+      plus muscle-strengthening activities 2+ days per week. Benefits include reduced risk of cardiovascular disease, 
+      type 2 diabetes, certain cancers, improved mental health, better sleep, and weight management. Moderate intensity 
+      includes brisk walking, water aerobics, cycling on level ground; vigorous includes jogging, swimming laps, cycling 
+      uphill. Muscle-strengthening includes weights, resistance bands, bodyweight exercises, yoga. Start slowly and 
+      gradually increase for deconditioned individuals. Any activity better than none - even 10-minute intervals provide 
+      benefits. Older adults should include balance training to prevent falls. Consult healthcare provider before starting 
+      new exercise program if chronic conditions present.
+    source_type: "public_health_guideline"
+    url: "https://www.cdc.gov/physicalactivity/basics/adults/index.htm"
+    publication_date: "2023-10-05"
+    reliability_score: 0.95
+    domain: "medical"
+    keywords: ["exercise", "physical activity", "fitness", "workout", "cardio", "aerobic", "strength training", "activity", "active", "movement", "health", "healthy", "wellness", "walking", "running", "jogging", "gym", "sport", "cycling", "swimming", "yoga", "weight", "muscle", "endurance", "stamina"]
+
+  - id: "med_011"
+    title: "Nutrition and Healthy Eating Guidelines"
+    content: |
+      USDA Dietary Guidelines emphasize variety, nutrient density, and appropriate calorie levels. Key recommendations: 
+      fill half plate with fruits/vegetables; choose whole grains over refined grains; include lean protein sources 
+      (poultry, fish, beans, nuts); select low-fat or fat-free dairy; limit saturated fat (<10% calories), added sugars 
+      (<10% calories), and sodium (<2,300mg daily). Mediterranean and DASH diets associated with better cardiovascular 
+      outcomes. Adequate fiber (25-30g daily) supports digestive and heart health. Hydration important - water preferred 
+      over sugary beverages. Portion control key for weight management. Individual needs vary based on age, sex, activity 
+      level, and health conditions. Registered dietitians provide personalized nutrition counseling.
+    source_type: "public_health_guideline"
+    url: "https://www.dietaryguidelines.gov/"
+    publication_date: "2023-12-01"
+    reliability_score: 0.94
+    domain: "medical"
+    keywords: ["nutrition", "diet", "healthy eating", "food", "eating", "meal", "nutrition", "nutrients", "calories", "protein", "carbs", "fat", "fiber", "vitamins", "minerals", "fruits", "vegetables", "whole grains", "mediterranean diet", "DASH", "weight loss", "healthy diet", "balanced diet", "meal plan", "dietitian", "nutritionist"]
+
+  - id: "med_012"
+    title: "Sleep Hygiene and Insomnia Management"
+    content: |
+      Adults need 7-9 hours sleep nightly for optimal health. Poor sleep linked to obesity, diabetes, cardiovascular 
+      disease, depression, and impaired cognitive function. Sleep hygiene practices: maintain consistent sleep schedule 
+      (same bedtime/wake time daily including weekends); create dark, quiet, cool bedroom environment (60-67°F optimal); 
+      avoid screens 1-2 hours before bed (blue light disrupts circadian rhythm); limit caffeine after 2pm and alcohol 
+      before bed; exercise regularly but not close to bedtime; avoid large meals late in evening; reserve bedroom for 
+      sleep and intimacy only. Cognitive behavioral therapy for insomnia (CBT-I) is first-line treatment for chronic 
+      insomnia. Sleep aids should be used sparingly and under medical supervision due to side effects and dependence risk.
+    source_type: "clinical_guideline"
+    url: "https://www.cdc.gov/sleep/about_sleep/sleep_hygiene.html"
+    publication_date: "2023-09-25"
+    reliability_score: 0.93
+    domain: "medical"
+    keywords: ["sleep", "insomnia", "sleep hygiene", "rest", "sleeping", "sleep problems", "sleep disorders", "bedtime", "tired", "fatigue", "exhausted", "sleep quality", "sleep deprivation", "sleep schedule", "circadian rhythm", "melatonin", "sleep aid", "bedroom", "nap", "drowsy", "sleepy", "restless", "awakening"]
+
+  - id: "med_013"
+    title: "Stress Management and Mental Health"
+    content: |
+      Chronic stress impacts physical and mental health, contributing to hypertension, cardiovascular disease, weakened 
+      immunity, digestive issues, anxiety, and depression. Stress management techniques: mindfulness meditation reduces 
+      cortisol and improves emotional regulation; regular exercise provides natural stress relief and mood improvement; 
+      adequate sleep essential for stress resilience; social connections and support networks buffer stress effects; 
+      time management and prioritization reduce overwhelm; progressive muscle relaxation and deep breathing activate 
+      relaxation response; hobbies and enjoyable activities provide balance; professional counseling for persistent 
+      stress or mental health concerns. Cognitive behavioral therapy teaches coping skills and thought pattern 
+      modification. Work-life balance and boundary setting prevent burnout.
+    source_type: "mental_health_resource"
+    url: "https://www.nimh.nih.gov/health/topics/caring-for-your-mental-health"
+    publication_date: "2023-11-20"
+    reliability_score: 0.92
+    domain: "medical"
+    keywords: ["stress", "stress management", "mental health", "anxiety", "worried", "overwhelmed", "tension", "pressure", "coping", "relaxation", "mindfulness", "meditation", "therapy", "counseling", "mental wellness", "emotional health", "burnout", "work stress", "life stress", "calm", "peace", "balance", "wellbeing", "mood"]
+
+  - id: "med_014"
+    title: "Smoking Cessation and Tobacco Use"
+    content: |
+      Smoking is leading preventable cause of death, responsible for cancer (lung, throat, mouth, bladder, pancreas), 
+      cardiovascular disease, COPD, and stroke. Benefits of quitting: within 20 minutes heart rate drops; 12 hours 
+      carbon monoxide normalizes; 2 weeks-3 months circulation and lung function improve; 1 year heart disease risk 
+      halved; 5 years stroke risk equals non-smoker; 10 years lung cancer risk halved. Nicotine replacement therapy 
+      (patches, gum, lozenges) doubles quit success rates. Prescription medications (varenicline, bupropion) also 
+      effective. Behavioral counseling increases success. Quitlines (1-800-QUIT-NOW) provide free support. Most 
+      require multiple quit attempts. Vaping not FDA-approved cessation tool and carries own health risks.
+    source_type: "public_health_guideline"
+    url: "https://www.cdc.gov/tobacco/quit_smoking/index.htm"
+    publication_date: "2023-10-15"
+    reliability_score: 0.96
+    domain: "medical"
+    keywords: ["smoking", "tobacco", "quit smoking", "smoking cessation", "cigarettes", "nicotine", "lung cancer", "COPD", "vaping", "e-cigarettes", "addiction", "quitting", "stop smoking", "smoke", "smoker", "tobacco use", "nicotine replacement", "patch", "gum", "withdrawal", "cancer risk", "lung disease", "breathing"]
+
 # Evidence source metadata
 metadata:
-  version: "1.0.0"
-  last_updated: "2024-10-04"
-  total_sources: 16
-  medical_sources_count: 8
-  finance_sources_count: 8
+  version: "2.0.0"
+  last_updated: "2025-10-08"
+  total_sources: 30
+  medical_sources_count: 14
+  finance_sources_count: 16
   min_reliability_score: 0.85
   citation_format: "simple"
   
