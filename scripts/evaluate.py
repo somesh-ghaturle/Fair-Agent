@@ -57,10 +57,11 @@ from src.core.config import SystemConfig
 from src.utils.logger import setup_loggingfrom agents import Orchestrator
 
 from evaluation import (
+    FaithfulnessEvaluator, AdaptabilityEvaluator, CalibrationEvaluator, RobustnessEvaluator,
+    SafetyEvaluator, InterpretabilityEvaluator
+)
 
-    FaithfulnessEvaluator, CalibrationEvaluator, RobustnessEvaluator,
-
-class SystemEvaluator:    SafetyEvaluator, InterpretabilityEvaluator
+class SystemEvaluator:
 
     """Evaluates the FAIR-Agent system performance""")
 
@@ -602,9 +603,9 @@ if __name__ == "__main__":        """Save evaluation results to files"""
         """Calculate overall FAIR score"""
         weights = {
             'faithfulness': 0.25,
-            'interpretability': 0.25,  # Adaptability represented by interpretability
+            'adaptability': 0.25,     # True adaptability evaluation
             'interpretability': 0.25,  # Interpretability
-            'safety': 0.25  # Risk-awareness represented by safety
+            'safety': 0.25            # Risk-awareness represented by safety
         }
         
         weighted_sum = 0.0

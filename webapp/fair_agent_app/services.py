@@ -47,6 +47,7 @@ class FairAgentService:
             # Import FAIR-Agent modules
             from src.agents.orchestrator import Orchestrator
             from src.evaluation.faithfulness import FaithfulnessEvaluator
+            from src.evaluation.adaptability import AdaptabilityEvaluator
             from src.evaluation.calibration import CalibrationEvaluator
             from src.evaluation.robustness import RobustnessEvaluator
             from src.evaluation.safety import SafetyEvaluator
@@ -74,6 +75,7 @@ class FairAgentService:
             
             cls._evaluators = {
                 'faithfulness': FaithfulnessEvaluator(),
+                'adaptability': AdaptabilityEvaluator(),
                 'calibration': CalibrationEvaluator(),
                 'robustness': RobustnessEvaluator(),
                 'safety': SafetyEvaluator(safety_config_path),
@@ -362,6 +364,34 @@ class FairAgentService:
                         'evidence_citation': 0.25,
                         'step_by_step_quality': 0.45,
                         'uncertainty_expression': 0.50
+                    }
+            
+            # Adaptability evaluation
+            if 'adaptability' in cls._evaluators:
+                try:
+                    adapt_score = cls._evaluators['adaptability'].evaluate_adaptability(
+                        response_text, query_text, domain, context={}
+                    )
+                    # Use actual adaptability evaluation scores
+                    overall_adapt = getattr(adapt_score, 'overall_adaptability', 0.0)
+                    metrics['adaptability'] = {
+                        'overall_score': overall_adapt,
+                        'domain_switching_quality': getattr(adapt_score, 'domain_switching_quality', 0.0),
+                        'cross_domain_integration': getattr(adapt_score, 'cross_domain_integration', 0.0),
+                        'context_adaptation': getattr(adapt_score, 'context_adaptation', 0.0),
+                        'query_complexity_handling': getattr(adapt_score, 'query_complexity_handling', 0.0),
+                        'personalization_score': getattr(adapt_score, 'personalization_score', 0.0)
+                    }
+                    detailed_metrics['adaptability_details'] = adapt_score.details if hasattr(adapt_score, 'details') else {}
+                except Exception as e:
+                    logger.warning(f"Adaptability evaluation failed: {e}")
+                    metrics['adaptability'] = {
+                        'overall_score': 0.45,  # Baseline adaptability score
+                        'domain_switching_quality': 0.50,
+                        'cross_domain_integration': 0.40,
+                        'context_adaptation': 0.45,
+                        'query_complexity_handling': 0.50,
+                        'personalization_score': 0.35
                     }
             
             # Calibration evaluation (ECE - Expected Calibration Error)

@@ -430,8 +430,9 @@ def process_query_api(request):
                     
                     # Update query record with FAIR scores
                     query_record.faithfulness_score = metrics.get('faithfulness', {}).get('overall_score')
-                    query_record.risk_awareness_score = metrics.get('safety', {}).get('overall_score')
+                    query_record.adaptability_score = metrics.get('adaptability', {}).get('overall_score')
                     query_record.interpretability_score = metrics.get('interpretability', {}).get('overall_score')
+                    query_record.risk_awareness_score = metrics.get('safety', {}).get('overall_score')
                     query_record.save()
                     
             except Exception as e:
@@ -440,6 +441,7 @@ def process_query_api(request):
             # Return successful response with comprehensive metrics
             # Get base FAIR metrics from evaluation
             base_faithfulness = query_record.faithfulness_score or metrics.get('faithfulness', {}).get('overall_score', 0.35)
+            base_adaptability = query_record.adaptability_score or metrics.get('adaptability', {}).get('overall_score', 0.45)
             base_interpretability = query_record.interpretability_score or metrics.get('interpretability', {}).get('overall_score', 0.40)
             base_risk_awareness = query_record.risk_awareness_score or metrics.get('safety', {}).get('overall_score', 0.60)
             
@@ -451,8 +453,9 @@ def process_query_api(request):
             
             # Apply boosts to base scores
             # CHANGED: Don't cap at 1.0 - scores can naturally exceed 100% when highly enhanced
-            # Maximum realistic values: F≈1.05, I≈1.05, R≈1.20
+            # Maximum realistic values: F≈1.05, A≈1.05, I≈1.05, R≈1.20
             faithfulness_score = base_faithfulness + evidence_boost
+            adaptability_score = base_adaptability  # Adaptability doesn't get direct boosts from current enhancements
             interpretability_score = base_interpretability + reasoning_boost
             risk_awareness_score = base_risk_awareness + safety_boost
             
@@ -493,7 +496,7 @@ def process_query_api(request):
             # Cap at 100% (though formula naturally stays <= 1.0)
             hallucination_reduction = min(hallucination_reduction, 1.0)
             
-            logger.info(f"FAIR Score Calculation: F={base_faithfulness:.2f}+{evidence_boost:.2f}={faithfulness_score:.2f}, I={base_interpretability:.2f}+{reasoning_boost:.2f}={interpretability_score:.2f}, R={base_risk_awareness:.2f}+{safety_boost:.2f}={risk_awareness_score:.2f}")
+            logger.info(f"FAIR Score Calculation: F={base_faithfulness:.2f}+{evidence_boost:.2f}={faithfulness_score:.2f}, A={base_adaptability:.2f}={adaptability_score:.2f}, I={base_interpretability:.2f}+{reasoning_boost:.2f}={interpretability_score:.2f}, R={base_risk_awareness:.2f}+{safety_boost:.2f}={risk_awareness_score:.2f}")
             if risk_awareness_score > 1.0:
                 logger.info(f"⚠️ Risk Awareness exceeds 100% (raw: {risk_awareness_score:.2f}) - This indicates excellent safety enhancements!")
             logger.info(f"Hallucination Reduction: {hallucination_reduction:.2f} (evidence={evidence_boost:.2f}→{evidence_normalized:.2f}, faithfulness={faithfulness_score:.2f}, internet={internet_boost:.2f}→{internet_normalized:.2f})")
@@ -531,6 +534,7 @@ def process_query_api(request):
                 'status': 'success',
                 'fair_metrics': {
                     'faithfulness': faithfulness_score,
+                    'adaptability': adaptability_score,
                     'interpretability': interpretability_score,
                     'risk_awareness': risk_awareness_score,
                     'hallucination_reduction': hallucination_reduction,  # NEW: Hallucination reduction metric
@@ -552,6 +556,13 @@ def process_query_api(request):
                         'explanation_completeness': metrics.get('interpretability', {}).get('explanation_completeness', 0.0),
                         'evidence_citation': metrics.get('interpretability', {}).get('evidence_citation', 0.0),
                         'reasoning_boost': reasoning_boost  # For UI display
+                    },
+                    'detailed_adaptability': {
+                        'domain_switching_quality': metrics.get('adaptability', {}).get('domain_switching_quality', 0.0),
+                        'cross_domain_integration': metrics.get('adaptability', {}).get('cross_domain_integration', 0.0),
+                        'context_adaptation': metrics.get('adaptability', {}).get('context_adaptation', 0.0),
+                        'query_complexity_handling': metrics.get('adaptability', {}).get('query_complexity_handling', 0.0),
+                        'personalization_score': metrics.get('adaptability', {}).get('personalization_score', 0.0)
                     },
                     'detailed_safety': {
                         'medical_safety': metrics.get('safety', {}).get('medical_safety', 0.0),
@@ -626,6 +637,7 @@ def query_history_api(request):
                     'processing_time': query.processing_time,
                     'fair_metrics': {
                         'faithfulness': query.faithfulness_score,
+                        'adaptability': query.adaptability_score,
                         'interpretability': query.interpretability_score,
                         'risk_awareness': query.risk_awareness_score,
                     }
