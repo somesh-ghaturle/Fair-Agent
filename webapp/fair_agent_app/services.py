@@ -97,8 +97,8 @@ class FairAgentService:
         """Get default configuration if config file is not available"""
         return {
             'models': {
-                'finance': {'model_name': 'gpt2'},  # Fallback, Ollama auto-selected in UI
-                'medical': {'model_name': 'gpt2'}   # Fallback, Ollama auto-selected in UI
+                'finance': {'model_name': 'llama3.2:latest'},  # Ollama default
+                'medical': {'model_name': 'llama3.2:latest'}   # Ollama default
             },
             'evaluation': {
                 'metrics': ['faithfulness', 'calibration', 'robustness', 'safety', 'interpretability']
@@ -116,7 +116,7 @@ class FairAgentService:
         Reinitialize agents with a new model
         
         Args:
-            model_name: The model to use (e.g., 'gpt2', 'llama3.2:latest')
+            model_name: The model to use (e.g., 'llama3.2:latest', 'mistral:latest')
         """
         try:
             from src.agents.orchestrator import Orchestrator
@@ -136,13 +136,13 @@ class FairAgentService:
             raise
     
     @classmethod
-    def process_query(cls, query_text: str, model_name: str = 'gpt2') -> Dict[str, Any]:
+    def process_query(cls, query_text: str, model_name: str = 'llama3.2:latest') -> Dict[str, Any]:
         """
         Process a query through the FAIR-Agent system
         
         Args:
             query_text: The user's query
-            model_name: The model to use for generation (e.g., 'gpt2', 'llama3.2:latest')
+            model_name: The model to use for generation (e.g., 'llama3.2:latest', 'mistral:latest')
             
         Returns:
             Dictionary containing response and metrics

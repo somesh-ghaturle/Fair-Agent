@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 @dataclass
 class AgentConfig:
     """Configuration for individual agents"""
-    model_name: str = "gpt2"
+    model_name: str = "llama3.2:latest"
     device: str = "auto"
     max_length: int = 1024
     temperature: float = 0.7

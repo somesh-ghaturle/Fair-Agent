@@ -28,7 +28,7 @@
 ├──────────────────────────────────────────────────────────────────────────────┤
 │  Step 1: Validate Input                                                      │
 │    - Check query text (not empty)                                            │
-│    - Validate model selection (llama3.2:latest, gpt2, etc.)                  │
+│    - Validate model selection (llama3.2:latest, mistral:latest, etc.)                  │
 │    - Create QueryRecord in database                                          │
 │                                                                               │
 │  Step 2: Initialize FAIR-Agent System                                        │
@@ -750,7 +750,7 @@ overall_fair_score = (
 │  • Django 4.2.7 (Web Framework)                                              │
 │  • Python 3.13 (Runtime)                                                     │
 │  • Ollama (LLM Server - llama3.2:latest)                                     │
-│  • HuggingFace Transformers (Alternative LLM - gpt2)                         │
+│  • HuggingFace Transformers (Embeddings support)                            │
 │  • Sentence-Transformers (Embeddings - all-MiniLM-L6-v2)                     │
 │  • PyTorch (ML Backend - MPS acceleration on Mac)                            │
 │  • SQLite (Database)                                                         │

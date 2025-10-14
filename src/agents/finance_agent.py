@@ -54,7 +54,7 @@ class FinanceAgent:
 
     def __init__(
         self,
-        model_name: str = "gpt2",
+        model_name: str = "llama3.2:latest",
         device: str = "auto",
         max_length: int = 1024
     ):
@@ -62,7 +62,7 @@ class FinanceAgent:
         Initialize the Finance Agent
 
         Args:
-            model_name: Model identifier (default: gpt2)
+            model_name: Model identifier (default: llama3.2:latest)
             device: Device to run the model on ('cpu', 'cuda', or 'auto')
             max_length: Maximum token length for generation
         """
@@ -77,49 +77,12 @@ class FinanceAgent:
         self.cot_integrator = ChainOfThoughtIntegrator()
         self.internet_rag = InternetRAGSystem()  # Internet-based enhancement
 
-        # Check if using Ollama model
-        self.is_ollama = model_name.startswith(('llama', 'codellama', 'mistral'))
-        if self.is_ollama:
-            self.ollama_client = OllamaClient()
-            if not self.ollama_client.is_available():
-                self.logger.warning("Ollama not available, using HuggingFace GPT-2 fallback (lower quality)")
-                self.is_ollama = False
-                self.model_name = "gpt2"
-
-        # Load model (only for HuggingFace models)
-        if not self.is_ollama:
-            self._load_model()
-        else:
-            self.logger.info(f"✅ Finance Agent using Ollama model: {self.model_name}")
-
-    def _load_model(self):
-        """Load the tokenizer and model for financial reasoning (HuggingFace models)"""
-        try:
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-            
-            # Handle models without pad token
-            if self.tokenizer.pad_token is None:
-                self.tokenizer.pad_token = self.tokenizer.eos_token
-                
-            self.model = AutoModelForCausalLM.from_pretrained(
-                self.model_name,
-                torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
-                device_map=self.device if self.device != "auto" else None
-            )
-
-            # Set up text generation pipeline
-            self.pipeline = pipeline(
-                "text-generation",
-                model=self.model,
-                tokenizer=self.tokenizer,
-                device_map=self.device if self.device != "auto" else None
-            )
-
-            self.logger.info(f"✅ Finance Agent loaded with HuggingFace model: {self.model_name}")
-
-        except Exception as e:
-            self.logger.error(f"Failed to load finance model: {e}")
-            raise
+        # Initialize Ollama client
+        self.ollama_client = OllamaClient()
+        if not self.ollama_client.is_available():
+            raise RuntimeError("Ollama is required but not available. Please start Ollama service.")
+        
+        self.logger.info(f"✅ Finance Agent using Ollama model: {self.model_name}")
 
     def query(
         self,
@@ -155,39 +118,21 @@ class FinanceAgent:
             # Step 2: Construct prompt WITH EVIDENCE (NEW - forces citations)
             prompt = self._construct_prompt_with_evidence(question, evidence_sources, context)
             
-            # Step 3: Generate response using Ollama or HuggingFace
+            # Step 3: Generate response using Ollama
             base_answer = None
             try:
-                if self.is_ollama:
-                    self.logger.info(f"Generating evidence-based response using Ollama ({self.model_name})")
-                    generated_text = self.ollama_client.generate(
-                        model=self.model_name,
-                        prompt=prompt,
-                        max_tokens=512,
-                        temperature=0.7,
-                        top_p=0.9
-                    )
-                    if generated_text and len(generated_text.strip()) > 20:
-                        base_answer = generated_text
-                    else:
-                        self.logger.warning("Ollama generated response too short")
+                self.logger.info(f"Generating evidence-based response using Ollama ({self.model_name})")
+                generated_text = self.ollama_client.generate(
+                    model=self.model_name,
+                    prompt=prompt,
+                    max_tokens=512,
+                    temperature=0.7,
+                    top_p=0.9
+                )
+                if generated_text and len(generated_text.strip()) > 20:
+                    base_answer = generated_text
                 else:
-                    outputs = self.pipeline(
-                        prompt,
-                        max_new_tokens=1000,
-                        temperature=0.8,
-                        top_p=0.9,
-                        do_sample=True,
-                        pad_token_id=self.tokenizer.eos_token_id
-                    )
-
-                    generated_text = outputs[0]['generated_text'][len(prompt):].strip()
-
-                    # Check if generated response is of sufficient quality
-                    if len(generated_text.strip()) > 20 and not self._is_low_quality_response(generated_text):
-                        base_answer = generated_text
-                    else:
-                        self.logger.warning("Generated response quality too low, will enhance with systems")
+                    self.logger.warning("Ollama generated response too short")
 
             except Exception as e:
                 self.logger.warning(f"Model generation failed: {e}")

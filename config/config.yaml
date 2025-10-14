@@ -146,8 +146,8 @@ benchmarking:
       description: "ReAct baseline for comparison"
     - name: "toolformer" 
       description: "Toolformer baseline for comparison"
-    - name: "vanilla_gpt2"
-      description: "Standard GPT-2 without enhancements"
+    - name: "vanilla_llama"
+      description: "Standard LLaMA without enhancements"
       
   metrics:
     faithfulness:

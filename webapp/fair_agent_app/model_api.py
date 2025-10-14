@@ -51,12 +51,10 @@ def load_model(request):
         
         # Convert model name to ModelType
         model_type_mapping = {
-            'gpt2': ModelType.GPT2,
-            'gpt2-medium': ModelType.GPT2_MEDIUM,
-            'gpt2-large': ModelType.GPT2_LARGE,
-            'llama-7b': ModelType.LLAMA_7B,
-            'llama-7b-chat': ModelType.LLAMA_7B_CHAT,
-            'flan-t5-base': ModelType.FLAN_T5_BASE
+            'llama3.2:latest': ModelType.LLAMA32_LATEST,
+            'mistral:latest': ModelType.MISTRAL_LATEST,
+            'phi3:latest': ModelType.PHI3_LATEST,
+            'codellama:latest': ModelType.CODELLAMA_LATEST
         }
         
         model_type = model_type_mapping.get(model_name)
@@ -98,12 +96,10 @@ def unload_model(request):
         
         # Convert model name to ModelType
         model_type_mapping = {
-            'gpt2': ModelType.GPT2,
-            'gpt2-medium': ModelType.GPT2_MEDIUM,
-            'gpt2-large': ModelType.GPT2_LARGE,
-            'llama-7b': ModelType.LLAMA_7B,
-            'llama-7b-chat': ModelType.LLAMA_7B_CHAT,
-            'flan-t5-base': ModelType.FLAN_T5_BASE
+            'llama3.2:latest': ModelType.LLAMA32_LATEST,
+            'mistral:latest': ModelType.MISTRAL_LATEST,
+            'phi3:latest': ModelType.PHI3_LATEST,
+            'codellama:latest': ModelType.CODELLAMA_LATEST
         }
         
         model_type = model_type_mapping.get(model_name)
@@ -201,12 +197,10 @@ def test_model_response(request):
         
         # Convert model name to ModelType
         model_type_mapping = {
-            'gpt2': ModelType.GPT2,
-            'gpt2-medium': ModelType.GPT2_MEDIUM,
-            'gpt2-large': ModelType.GPT2_LARGE,
-            'llama-7b': ModelType.LLAMA_7B,
-            'llama-7b-chat': ModelType.LLAMA_7B_CHAT,
-            'flan-t5-base': ModelType.FLAN_T5_BASE
+            'llama3.2:latest': ModelType.LLAMA32_LATEST,
+            'mistral:latest': ModelType.MISTRAL_LATEST,
+            'phi3:latest': ModelType.PHI3_LATEST,
+            'codellama:latest': ModelType.CODELLAMA_LATEST
         }
         
         model_type = model_type_mapping.get(model_name)

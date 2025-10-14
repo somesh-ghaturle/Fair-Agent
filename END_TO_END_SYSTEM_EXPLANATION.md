@@ -29,7 +29,7 @@
 
 FAIR-Agent is a **multi-agent AI system** designed to provide **trustworthy, evidence-based responses** for high-stakes domains (Finance and Medical). It combines:
 
-- **Multiple LLMs** (Ollama llama3.2, GPT-2, Mistral)
+- **Multiple LLMs** (Ollama llama3.2, Mistral, Phi3)
 - **Domain-specialized agents** (Finance Agent, Medical Agent)
 - **Evidence grounding** (RAG with 53 sources: 35 curated + 18 dataset)
 - **Safety enhancements** (Automatic disclaimers, risk warnings)

@@ -61,7 +61,7 @@ class InternetRAGSystem:
         
         Args:
             query: User's financial query
-            base_response: Base response from GPT-2 model
+            base_response: Base response from LLM model
             
         Returns:
             Enhanced response with internet sources and source list
@@ -93,7 +93,7 @@ class InternetRAGSystem:
         
         Args:
             query: User's medical query
-            base_response: Base response from GPT-2 model
+            base_response: Base response from LLM model
             
         Returns:
             Enhanced response with internet sources and source list

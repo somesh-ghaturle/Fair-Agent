@@ -339,7 +339,7 @@ def process_query_api(request):
     try:
         data = json.loads(request.body)
         query_text = data.get('query', '').strip()
-        selected_model = data.get('model', 'gpt2')  # Get selected model, default to gpt2
+        selected_model = data.get('model', 'llama3.2:latest')  # Get selected model, default to llama3.2:latest
         
         if not query_text:
             return JsonResponse({

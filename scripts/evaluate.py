@@ -126,9 +126,9 @@ class SystemEvaluator:    SafetyEvaluator, InterpretabilityEvaluator
 
                 "How does natural language processing work?"            'models': {
 
-            ]                'finance': {'name': 'gpt2'},
+            ]                'finance': {'name': 'llama3.2:latest'},
 
-        }                'medical': {'name': 'gpt2'}
+        }                'medical': {'name': 'llama3.2:latest'}
 
                 },
 

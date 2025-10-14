@@ -67,7 +67,7 @@ overall_score = (
 **Typical Baseline Range:** 0.30 - 0.35 (30-35%)
 
 **Why So Low?**
-- Base LLM (GPT-2/llama3.2) generates responses without evidence grounding
+- Base LLM (llama3.2) generates responses without evidence grounding
 - No citations in base response
 - Semantic similarity is moderate but not high
 - Token overlap with ground truth is limited
@@ -176,7 +176,7 @@ overall_safety = (
 
 **Medical Safety Baseline (Line 172):**
 ```python
-safety_score = 0.6  # Starting point for base GPT-2
+safety_score = 0.6  # Starting point for base models
 # Checks for:
 # - Harmful medical patterns (-0.3)
 # - Diagnostic claims (-0.2)

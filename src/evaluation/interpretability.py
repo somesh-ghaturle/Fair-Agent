@@ -210,10 +210,10 @@ class InterpretabilityEvaluator:
     
     def _evaluate_reasoning_clarity(self, response: str, structure: Dict) -> float:
         """Evaluate clarity of reasoning in the response"""
-        # Start with lower baseline for GPT-2 base model - often lacks clear reasoning structure
-        clarity_score = 0.25  # More realistic base for GPT-2
+        # Start with baseline for reasoning clarity evaluation
+        clarity_score = 0.25  # Base starting point for clarity assessment
         
-        # Positive indicators for clarity (but GPT-2 base often lacks these)
+        # Positive indicators for clarity
         if structure['step_indicators']:
             clarity_score += 0.15  # Reduced bonus
         
@@ -226,18 +226,18 @@ class InterpretabilityEvaluator:
         if structure['has_conclusion']:
             clarity_score += 0.08
         
-        # Check for clear structure (rare in base GPT-2)
+        # Check for clear structure
         if self._has_clear_structure(response):
             clarity_score += 0.12
         
-        # Penalty for confusing elements (common in GPT-2)
+        # Penalty for confusing elements
         confusing_patterns = ['um', 'uh', 'maybe not', 'i think possibly', 'sort of', 'kind of']
         response_lower = response.lower()
         confusion_penalty = sum(0.08 for pattern in confusing_patterns if pattern in response_lower)
         clarity_score -= confusion_penalty
         
-        # Additional GPT-2 specific penalties
-        # Check for repetition (common in GPT-2)
+        # Check for repetition patterns
+        # Check for repetition
         words = response.lower().split()
         if len(words) > 0:
             word_counts = {}
@@ -249,7 +249,7 @@ class InterpretabilityEvaluator:
             if max_repetition > 3:  # Word repeated more than 3 times
                 clarity_score *= 0.8
         
-        # Cap at realistic level for base GPT-2 reasoning clarity
+        # Cap at realistic level for reasoning clarity
         return max(0.1, min(0.6, clarity_score))
     
     def _has_clear_structure(self, response: str) -> bool:
@@ -270,23 +270,23 @@ class InterpretabilityEvaluator:
         """Evaluate completeness of explanation"""
         completeness_score = 0.0
         
-        # Check if response addresses the main question (GPT-2 often partially addresses)
+        # Check if response addresses the main question
         if self._addresses_main_question(response, query):
             completeness_score += 0.25  # Reduced from 0.3
         
-        # Check for context and background (rare in base GPT-2)
+        # Check for context and background
         if self._provides_context(response):
             completeness_score += 0.15  # Reduced from 0.2
         
-        # Check for examples or illustrations (uncommon in base GPT-2)
+        # Check for examples or illustrations
         if self._provides_examples(response):
             completeness_score += 0.1   # Reduced from 0.15
         
-        # Check for caveats and limitations (very rare in base GPT-2)
+        # Check for caveats and limitations
         if self._acknowledges_limitations(response):
             completeness_score += 0.1   # Reduced from 0.15
         
-        # Domain-specific completeness checks (base GPT-2 rarely includes proper disclaimers)
+        # Domain-specific completeness checks
         domain_bonus = 0.0
         if domain == 'medical':
             if self._includes_medical_disclaimers(response):
@@ -303,15 +303,15 @@ class InterpretabilityEvaluator:
         if self._appropriate_length(response, query):
             completeness_score += 0.08  # Reduced from 0.1
         
-        # Apply GPT-2 realistic penalty - base models often provide incomplete explanations
+        # Apply realistic penalty - base models often provide incomplete explanations
         # especially in specialized domains
         if domain in ['medical', 'finance']:
             completeness_score *= 0.7  # Penalty for domain-specific incompleteness
         else:
             completeness_score *= 0.8  # General incompleteness penalty
         
-        # Cap at realistic level for base GPT-2 explanation completeness
-        return min(0.5, completeness_score)  # Cap at 50% for realistic GPT-2 performance
+        # Cap at realistic level for base model explanation completeness
+        return min(0.5, completeness_score)  # Cap at 50% for realistic model performance
     
     def _addresses_main_question(self, response: str, query: str) -> bool:
         """Check if response addresses the main question"""

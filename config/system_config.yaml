@@ -3,15 +3,15 @@
 
 # Model Selection Configuration
 model_selection:
-  # Available models: gpt2, gpt2-medium, gpt2-large, llama-7b, llama-7b-chat, flan-t5-base
+  # Available models: llama3.2:latest, mistral:latest, phi3:latest
   enabled_models:
-    - "gpt2"
-    - "gpt2-medium"
-    - "flan-t5-base"
+    - "llama3.2:latest"
+    - "mistral:latest"
+    - "phi3:latest"
   
   # Default models for each domain
-  default_finance_model: "gpt2"
-  default_medical_model: "gpt2"
+  default_finance_model: "llama3.2:latest"
+  default_medical_model: "llama3.2:latest"
   
   # Model switching strategy: "performance", "capability", "resource"
   selection_strategy: "capability"
@@ -24,8 +24,8 @@ model_selection:
 
 # Finance Agent Configuration
 finance_agent:
-  model_name: "gpt2"  # Primary model
-  alternative_models: ["gpt2-medium", "flan-t5-base"]  # Fallback models
+  model_name: "llama3.2:latest"  # Primary model (Ollama)
+  alternative_models: ["mistral:latest", "phi3:latest"]  # Fallback models
   device: "auto"      # Auto-detect best device (MPS/CUDA/CPU)
   max_length: 512     # Increased for better responses
   temperature: 0.7    # Sampling temperature
@@ -34,8 +34,8 @@ finance_agent:
 
 # Medical Agent Configuration  
 medical_agent:
-  model_name: "gpt2"  # Primary model
-  alternative_models: ["gpt2-medium", "flan-t5-base"]  # Fallback models
+  model_name: "llama3.2:latest"  # Primary model (Ollama)
+  alternative_models: ["mistral:latest", "phi3:latest"]  # Fallback models
   device: "auto"      # Auto-detect best device (MPS/CUDA/CPU)
   max_length: 512     # Increased for better responses
   temperature: 0.7    # Sampling temperature

@@ -68,7 +68,7 @@ class FairAgentEvaluator:
         
         # Baseline scores for comparison (from standard LLM approaches)
         self.baseline_scores = {
-            'faithfulness': 0.65,  # Typical GPT-2 faithfulness
+            'faithfulness': 0.65,  # Typical base model faithfulness
             'interpretability': 0.45,
             'risk_awareness': 0.40,
             'hallucination_rate': 0.35,

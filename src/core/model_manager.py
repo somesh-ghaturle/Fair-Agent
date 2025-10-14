@@ -2,7 +2,7 @@
 Model Manager for FAIR-Agent System
 CS668 Analytics Capstone - Fall 2025
 
-Supports multiple LLM models including GPT-2, LLaMA, and Chi2
+Supports multiple LLM models including LLaMA, Mistral, and other Ollama models
 for enhanced FAIR metrics evaluation and domain specialization.
 """
 
@@ -24,16 +24,11 @@ import json
 logger = logging.getLogger(__name__)
 
 class ModelType(Enum):
-    """Supported model types for FAIR-Agent"""
-    GPT2 = "gpt2"
-    GPT2_MEDIUM = "gpt2-medium"
-    GPT2_LARGE = "gpt2-large"
-    LLAMA_7B = "meta-llama/Llama-2-7b-hf"
-    LLAMA_13B = "meta-llama/Llama-2-13b-hf"
-    LLAMA_7B_CHAT = "meta-llama/Llama-2-7b-chat-hf"
-    CHI2_7B = "microsoft/DialoGPT-medium"  # Alternative model for Chi2-like functionality
-    FLAN_T5_BASE = "google/flan-t5-base"
-    FLAN_T5_LARGE = "google/flan-t5-large"
+    """Supported model types for FAIR-Agent (Ollama models)"""
+    LLAMA32_LATEST = "llama3.2:latest"
+    MISTRAL_LATEST = "mistral:latest"
+    PHI3_LATEST = "phi3:latest"
+    CODELLAMA_LATEST = "codellama:latest"
 
 @dataclass
 class ModelConfig:
@@ -54,26 +49,26 @@ class ModelCapabilities:
     def get_model_capabilities(model_type: ModelType) -> Dict[str, float]:
         """Get model capabilities scores for FAIR metrics"""
         capabilities = {
-            ModelType.GPT2: {
-                'faithfulness': 0.6,
-                'adaptability': 0.7,
-                'interpretability': 0.8,
-                'risk_awareness': 0.5,
-                'domain_knowledge': 0.6
+            ModelType.LLAMA32_LATEST: {
+                'faithfulness': 0.85,
+                'adaptability': 0.90,
+                'interpretability': 0.80,
+                'risk_awareness': 0.85,
+                'domain_knowledge': 0.88
             },
-            ModelType.GPT2_MEDIUM: {
-                'faithfulness': 0.65,
-                'adaptability': 0.75,
-                'interpretability': 0.8,
-                'risk_awareness': 0.55,
-                'domain_knowledge': 0.65
+            ModelType.MISTRAL_LATEST: {
+                'faithfulness': 0.82,
+                'adaptability': 0.88,
+                'interpretability': 0.78,
+                'risk_awareness': 0.80,
+                'domain_knowledge': 0.85
             },
-            ModelType.GPT2_LARGE: {
-                'faithfulness': 0.7,
-                'adaptability': 0.8,
+            ModelType.PHI3_LATEST: {
+                'faithfulness': 0.80,
+                'adaptability': 0.85,
                 'interpretability': 0.75,
-                'risk_awareness': 0.6,
-                'domain_knowledge': 0.7
+                'risk_awareness': 0.78,
+                'domain_knowledge': 0.82
             },
             ModelType.LLAMA_7B: {
                 'faithfulness': 0.75,
@@ -169,51 +164,35 @@ class ModelManager:
         self.internet_rag = InternetRAGSystem()
         
     def _initialize_model_configs(self) -> Dict[ModelType, ModelConfig]:
-        """Initialize configurations for all supported models"""
+        """Initialize configurations for all supported Ollama models"""
         return {
-            ModelType.GPT2: ModelConfig(
-                model_type=ModelType.GPT2,
-                model_name="gpt2",
-                memory_requirement_gb=2.0,
-                recommended_max_length=512,
-                supports_chat=False
-            ),
-            ModelType.GPT2_MEDIUM: ModelConfig(
-                model_type=ModelType.GPT2_MEDIUM,
-                model_name="gpt2-medium",
-                memory_requirement_gb=4.0,
-                recommended_max_length=512,
-                supports_chat=False
-            ),
-            ModelType.GPT2_LARGE: ModelConfig(
-                model_type=ModelType.GPT2_LARGE,
-                model_name="gpt2-large",
-                memory_requirement_gb=6.0,
-                recommended_max_length=512,
-                supports_chat=False
-            ),
-            ModelType.LLAMA_7B: ModelConfig(
-                model_type=ModelType.LLAMA_7B,
-                model_name="meta-llama/Llama-2-7b-hf",
-                requires_auth=True,
-                memory_requirement_gb=14.0,
-                recommended_max_length=2048,
-                supports_chat=False
-            ),
-            ModelType.LLAMA_7B_CHAT: ModelConfig(
-                model_type=ModelType.LLAMA_7B_CHAT,
-                model_name="meta-llama/Llama-2-7b-chat-hf",
-                requires_auth=True,
-                memory_requirement_gb=14.0,
+            ModelType.LLAMA32_LATEST: ModelConfig(
+                model_type=ModelType.LLAMA32_LATEST,
+                model_name="llama3.2:latest",
+                memory_requirement_gb=8.0,
                 recommended_max_length=2048,
                 supports_chat=True
             ),
-            ModelType.FLAN_T5_BASE: ModelConfig(
-                model_type=ModelType.FLAN_T5_BASE,
-                model_name="google/flan-t5-base",
-                memory_requirement_gb=3.0,
-                recommended_max_length=512,
-                supports_chat=False
+            ModelType.MISTRAL_LATEST: ModelConfig(
+                model_type=ModelType.MISTRAL_LATEST,
+                model_name="mistral:latest",
+                memory_requirement_gb=6.0,
+                recommended_max_length=1024,
+                supports_chat=True
+            ),
+            ModelType.PHI3_LATEST: ModelConfig(
+                model_type=ModelType.PHI3_LATEST,
+                model_name="phi3:latest",
+                memory_requirement_gb=4.0,
+                recommended_max_length=1024,
+                supports_chat=True
+            ),
+            ModelType.CODELLAMA_LATEST: ModelConfig(
+                model_type=ModelType.CODELLAMA_LATEST,
+                model_name="codellama:latest",
+                memory_requirement_gb=10.0,
+                recommended_max_length=2048,
+                supports_chat=True
             )
         }
     
@@ -347,7 +326,7 @@ class ModelManager:
         """Get the best model for a specific domain and metric"""
         
         if not self.loaded_models:
-            return ModelType.GPT2  # Default fallback
+            return ModelType.LLAMA32_LATEST  # Default Ollama model
         
         best_model = None
         best_score = 0.0
@@ -368,7 +347,7 @@ class ModelManager:
                 best_score = score
                 best_model = model_type
         
-        return best_model or ModelType.GPT2
+        return best_model or ModelType.LLAMA32_LATEST
     
     def benchmark_models(self, test_prompts: List[str]) -> Dict[str, Any]:
         """Benchmark all loaded models for FAIR metrics comparison"""

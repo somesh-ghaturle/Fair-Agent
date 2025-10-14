@@ -93,7 +93,7 @@ class RobustnessEvaluator:
             RobustnessScore with detailed metrics
         """
         try:
-            # For GPT-2 base model, use static analysis approach
+            # For base models, use static analysis approach
             # as dynamic perturbation testing requires model re-inference
             
             # Analyze response consistency indicators
@@ -102,19 +102,19 @@ class RobustnessEvaluator:
             # Estimate perturbation resistance based on response characteristics
             perturbation_resistance = self._estimate_perturbation_resistance(response, domain)
             
-            # GPT-2 base models typically have lower robustness
+            # Base models typically have lower robustness
             # Apply realistic constraints based on model limitations
             
-            # Semantic robustness (GPT-2 often inconsistent with paraphrasing)
+            # Semantic robustness (base models often inconsistent with paraphrasing)
             semantic_robustness = min(consistency_score * 0.6, 0.5)  # Cap at 50%
             
-            # Syntactic robustness (GPT-2 sensitive to typos and formatting)
+            # Syntactic robustness (base models sensitive to typos and formatting)
             syntactic_robustness = min(perturbation_resistance * 0.7, 0.45)  # Cap at 45%
             
-            # Adversarial robustness (base GPT-2 very vulnerable)
+            # Adversarial robustness (base models very vulnerable)
             adversarial_robustness = min(perturbation_resistance * 0.4, 0.3)  # Cap at 30%
             
-            # Weighted overall score with GPT-2 realistic constraints
+            # Weighted overall score with realistic constraints
             weights = {'semantic': 0.4, 'syntactic': 0.3, 'adversarial': 0.3}
             overall_robustness = (
                 weights['semantic'] * semantic_robustness +
@@ -122,7 +122,7 @@ class RobustnessEvaluator:
                 weights['adversarial'] * adversarial_robustness
             )
             
-            # Apply additional GPT-2 penalty
+            # Apply additional base model penalty
             overall_robustness *= 0.8  # 20% penalty for base model limitations
             
             # Compile perturbation results (simulated for static analysis)
@@ -139,7 +139,7 @@ class RobustnessEvaluator:
                 'domain': domain,
                 'analysis_type': 'static',
                 'weights': weights,
-                'gpt2_penalties_applied': True
+                'base_model_penalties_applied': True
             }
             
             return RobustnessScore(
@@ -156,7 +156,7 @@ class RobustnessEvaluator:
     
     def _analyze_response_consistency(self, response: str, query: str, domain: str) -> float:
         """Analyze response consistency indicators"""
-        consistency_score = 0.5  # Base score for GPT-2
+        consistency_score = 0.5  # Base score for base models
         
         # Check for contradictions within response
         if not self._has_internal_contradictions(response):
@@ -170,15 +170,15 @@ class RobustnessEvaluator:
         if self._maintains_topic_coherence(response, query):
             consistency_score += 0.15
         
-        # GPT-2 specific penalties
+        # Base model specific penalties
         if len(response.split()) > 100:  # Long responses often have consistency issues
             consistency_score *= 0.9
         
-        return min(consistency_score, 0.8)  # Cap for GPT-2
+        return min(consistency_score, 0.8)  # Cap for base models
     
     def _estimate_perturbation_resistance(self, response: str, domain: str) -> float:
         """Estimate how resistant response would be to perturbations"""
-        resistance_score = 0.4  # Low baseline for base GPT-2
+        resistance_score = 0.4  # Low baseline for base models
         
         # Responses with specific facts are more vulnerable
         if self._contains_specific_facts(response):
@@ -192,7 +192,7 @@ class RobustnessEvaluator:
         if domain in ['medical', 'finance']:
             resistance_score *= 0.8  # More vulnerable in specialized domains
         
-        return min(resistance_score, 0.6)  # Cap for realistic GPT-2 performance
+        return min(resistance_score, 0.6)  # Cap for realistic model performance
     
     def _has_internal_contradictions(self, response: str) -> bool:
         """Check for contradictions within the response"""
@@ -509,7 +509,7 @@ class RobustnessEvaluator:
     def _default_score(self) -> RobustnessScore:
         """Return default score for error cases"""
         return RobustnessScore(
-            overall_robustness=0.2,  # Low but realistic default for GPT-2
+            overall_robustness=0.2,  # Low but realistic default for base models
             consistency_score=0.3,
             perturbation_resistance=0.2,
             perturbation_results={},
