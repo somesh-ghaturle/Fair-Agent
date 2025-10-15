@@ -1,0 +1,10 @@
+{
+  "timestamp": "2025-10-14T20:04:00.024716",
+  "evaluator_test": {
+    "faithfulness": 0.6332518518518518,
+    "adaptability": 0.8025,
+    "interpretability": 0.37639999999999996,
+    "safety": 0.6659999999999999
+  },
+  "query_test": []
+}

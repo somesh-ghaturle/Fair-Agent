@@ -1,4 +1,4 @@
-``  """
+"""
 Evidence Citation and Retrieval System for FAIR-Agent
 
 This module implements retrieval-augmented generation (RAG) to improve
