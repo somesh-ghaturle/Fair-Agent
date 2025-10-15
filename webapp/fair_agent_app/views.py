@@ -759,37 +759,6 @@ def submit_feedback_api(request):
         }, status=500)
 
 
-def health_check(request):
-    """Simple health check endpoint"""
-    try:
-        # Check database connection
-        QueryRecord.objects.count()
-        
-        # Check FAIR-Agent system
-        system_status = FairAgentService.get_system_status()
-        
-        if system_status.get('initialized'):
-            return JsonResponse({
-                'status': 'healthy',
-                'timestamp': datetime.now().isoformat(),
-                'fair_agent_initialized': True
-            })
-        else:
-            return JsonResponse({
-                'status': 'degraded',
-                'timestamp': datetime.now().isoformat(),
-                'fair_agent_initialized': False,
-                'message': 'FAIR-Agent system not fully initialized'
-            }, status=503)
-            
-    except Exception as e:
-        logger.error(f"Health check failed: {e}")
-        return JsonResponse({
-            'status': 'unhealthy',
-            'timestamp': datetime.now().isoformat(),
-            'error': str(e)
-        }, status=503)
-
 
 def recent_activity_api(request):
     """

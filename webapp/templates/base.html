@@ -24,7 +24,8 @@
         }
         
         body {
-            background-color: var(--fair-light);
+            background: linear-gradient(135deg, #e3f2fd, #f0f8ff);
+            min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
@@ -181,29 +182,7 @@
                 </ul>
                 
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'fair_agent_app:health_check' %}">
-                            <span class="status-indicator status-healthy"></span>System Status
-                        </a>
-                    </li>
-                    {% if user.is_authenticated %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user me-1"></i>{{ user.username }}
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/admin/">Admin Panel</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/admin/logout/">Logout</a></li>
-                        </ul>
-                    </li>
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/login/">
-                            <i class="fas fa-sign-in-alt me-1"></i>Login
-                        </a>
-                    </li>
-                    {% endif %}
+                    <!-- Removed System Status and Login for cleaner navigation -->
                 </ul>
             </div>
         </div>
@@ -216,19 +195,12 @@
 
     <!-- Footer -->
     <footer class="bg-white border-top mt-5 py-4">
-        <div class="container">
+        <div class="container text-center">
             <div class="row">
-                <div class="col-md-6">
-                    <h6 class="text-muted">FAIR-Agent Framework</h6>
-                    <p class="text-muted small mb-0">
-                        Faithful, Adaptive, Interpretable, and Risk-aware Multi-Agent System
-                    </p>
-                </div>
-                <div class="col-md-6 text-md-end">
+                <div class="col-12">
                     <p class="text-muted small mb-0">
                         Developed by: Somesh Ghaturle, Darshil Malaviya, Priyank Mistry
                     </p>
-                    <p class="text-muted small mb-0">© 2025 FAIR-Agent Team</p>
                 </div>
             </div>
         </div>

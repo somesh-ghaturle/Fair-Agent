@@ -17,74 +17,20 @@
         </div>
     </div>
 
-    <!-- Live Metrics Summary -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm border-0">
-                <div class="card-body p-3">
-                    <div class="row text-center">
-                        <div class="col-md-2">
-                            <div class="h5 mb-1" id="summary-faithfulness">--</div>
-                            <small class="text-muted d-block fw-bold">Faithfulness</small>
-                            <small class="text-muted" style="font-size: 0.7rem;">Accuracy to evidence (target ≥20%)</small>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="h5 mb-1" id="summary-hallucination">--</div>
-                            <small class="text-muted d-block fw-bold">Hallucination Reduction</small>
-                            <small class="text-muted" style="font-size: 0.7rem;">Evidence grounding (target ≥30%)</small>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="h5 mb-1" id="summary-interpretability">--</div>
-                            <small class="text-muted d-block fw-bold">Interpretability</small>
-                            <small class="text-muted" style="font-size: 0.7rem;">Clarity and explainability of reasoning</small>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="h5 mb-1" id="summary-risk">--</div>
-                            <small class="text-muted d-block fw-bold">Risk Awareness</small>
-                            <small class="text-muted" style="font-size: 0.7rem;">Identification of uncertainties and limitations</small>
-                        </div>
-                        <div class="col-md-1">
-                            <div class="h5 mb-1" id="summary-calibration">--</div>
-                            <small class="text-muted d-block fw-bold">Calibration Error</small>
-                            <small class="text-muted" style="font-size: 0.7rem;">Lower is better (target &lt;10%)</small>
-                        </div>
-                        <div class="col-md-1">
-                            <div class="h5 mb-1" id="summary-response-time">--</div>
-                            <small class="text-muted d-block fw-bold">Response Time</small>
-                            <small class="text-muted" style="font-size: 0.7rem;">Processing duration</small>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="h5 mb-1" id="summary-overall">--</div>
-                            <small class="text-muted d-block fw-bold">Overall FAIR</small>
-                            <small class="text-muted" style="font-size: 0.7rem;">Weighted average of all metrics</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="row">
         <div class="col-lg-8">
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-white border-bottom">
-                    <h4 class="mb-0"><i class="fas fa-comments me-2 text-primary"></i>Domain-Specialized Query Interface</h4>
-                    <small class="text-muted">Ask questions about finance or medicine for specialized FAIR analysis</small>
+            <div class="card shadow-lg border-0" style="background: linear-gradient(135deg, #f8fbff, #e8f4fd);">
+                <div class="card-header border-bottom" style="background: linear-gradient(135deg, #007bff, #0056b3);">
+                    <h4 class="mb-0 text-white"><i class="fas fa-comments me-2"></i>FAIR-Agent Query</h4>
+                    <small class="text-white-50">Finance and Medicine specialist</small>
                 </div>
                 <div class="card-body">
                     <form id="queryForm">
                         {% csrf_token %}
                         <div class="mb-3">
-                            <label for="queryInput" class="form-label fw-bold">Enter your domain-specific query:</label>
+                            <label for="queryInput" class="form-label fw-bold">Enter your query:</label>
                             <textarea id="queryInput" class="form-control form-control-lg" rows="4" required 
-                                placeholder="Examples:&#10;• Finance: What are the key financial ratios for evaluating company performance?&#10;• Medicine: How does diabetes affect cardiovascular health outcomes?&#10;• General: Explain machine learning algorithms in healthcare applications"></textarea>
-                            <div class="form-text">
-                                <i class="fas fa-info-circle me-1"></i>
-                                FAIR-Agent specializes in <strong>Finance</strong> and <strong>Medicine</strong> domains with enhanced safety and interpretability
-                            </div>
-                            <div class="alert alert-light border py-2 px-3 mt-2" style="font-size: 0.85rem;">
-                                <strong><i class="fas fa-lightbulb text-warning me-1"></i>Pro Tip:</strong> For best evidence retrieval, use specific medical terms (e.g., "aspirin", "diabetes", "hypertension") or financial keywords (e.g., "portfolio", "retirement", "investment", "bonds")
-                            </div>
+                                placeholder="Ask about finance or medicine topics...&#10;Example: How does diabetes affect cardiovascular health?"></textarea>
                         </div>
                         
                         <!-- Model Selection -->
@@ -93,26 +39,13 @@
                                 <i class="fas fa-brain me-2"></i>Select AI Model:
                             </label>
                             <select id="modelSelect" class="form-select form-select-lg">
-                                <!-- INSTALLED MODELS (Ready to Use) -->
-                                <optgroup label="✅ Installed & Ready">
-                                    <option value="llama3.2:latest" selected>⚡ Llama 3.2 - 2GB (Fastest, Recommended)</option>
-                                    <option value="llama3:latest">🚀 Llama 3 - 4.7GB (Best Quality)</option>
-                                    <option value="gpt-oss:latest">🧠 GPT-OSS - 13GB (Open Source GPT)</option>
-                                    <option value="codellama:latest">� CodeLlama - 3.8GB (Code Specialist)</option>
-                                </optgroup>
+                                <option value="llama3.2:latest" selected>Llama 3.2 (Recommended)</option>
+                                <option value="llama3:latest">Llama 3 (Best Quality)</option>
+                                <option value="gpt-oss:latest">GPT-OSS</option>
+                                <option value="codellama:latest">CodeLlama</option>
                                 
                                 <!-- RECOMMENDED FOR MEDICAL/FINANCE -->
-                                <optgroup label="🏥 Recommended for Medical">
-                                    <option value="meditron:latest" disabled>Meditron - 7B (Medical Specialist) 📥 Download</option>
-                                    <option value="biomistral:latest" disabled>BioMistral - 7B (Biomedical Expert) 📥 Download</option>
-                                    <option value="medllama2:latest" disabled>MedLlama2 - 7B (Clinical Focus) 📥 Download</option>
-                                </optgroup>
                                 
-                                <optgroup label="💰 Recommended for Finance">
-                                    <option value="llama3.1:latest" disabled>Llama 3.1 - 8B (Enhanced Reasoning) 📥 Download</option>
-                                    <option value="mistral:latest" disabled>Mistral - 7B (Fast & Accurate) 📥 Download</option>
-                                    <option value="phi3:latest" disabled>Phi-3 - 3.8B (Microsoft, Efficient) 📥 Download</option>
-                                </optgroup>
                                 
                                 <!-- POPULAR GENERAL PURPOSE -->
                                 <optgroup label="🌟 Popular General Purpose">
@@ -135,12 +68,7 @@
                                     <option value="gpt-4" disabled>GPT-4 (OpenAI API Required)</option>
                                 </optgroup>
                             </select>
-                            <div class="form-text">
-                                <i class="fas fa-info-circle me-1"></i>
-                                <strong>Installed Models Ready:</strong> Llama 3.2 (fastest) • Llama 3 (best) • GPT-OSS • CodeLlama<br>
-                                <strong>To Download:</strong> Select a disabled model to see download command • 
-                                <strong>API Models:</strong> GPT-3.5/4 require OpenAI API key
-                            </div>
+
                         </div>
                         
                         <div class="d-flex justify-content-between align-items-center">
@@ -177,38 +105,20 @@
         
         <div class="col-lg-4">
             <!-- Project Information -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-gradient-info text-white">
+            <div class="card shadow-sm border-0 mb-4" style="background: linear-gradient(135deg, #f8fbff, #e8f4fd);">
+                <div class="card-header text-white" style="background: linear-gradient(135deg, #007bff, #0056b3);">
                     <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Project Information</h5>
                 </div>
                 <div class="card-body">
                     <h6 class="text-primary">CS668 Analytics Capstone Fall 2025</h6>
-                    <p class="small mb-3">Multi-agent LLM framework for finance and medicine domains with evidence-based reasoning, focused on trust and adaptability.</p>
-                    <div class="alert alert-info py-2 px-3 mb-3" style="font-size: 0.85rem;">
-                        <strong><i class="fas fa-lightbulb me-1"></i>Enhanced Features:</strong>
-                        <ul class="mb-0 mt-1 ps-3" style="font-size: 0.8rem;">
-                            <li>Evidence-based RAG system (16 curated sources)</li>
-                            <li>Chain-of-thought reasoning transparency</li>
-                            <li>Safety disclaimers & professional guidance</li>
-                            <li>Dynamic model switching (Ollama/HuggingFace)</li>
-                        </ul>
-                    </div>
+                    <p class="small mb-3">Multi-agent LLM framework for finance and medicine with evidence-based reasoning.</p>
                     
                     <div class="mb-3">
-                        <h6 class="fw-bold">Success Targets:</h6>
+                        <h6 class="fw-bold">Key Features:</h6>
                         <ul class="list-unstyled small">
-                            <li><i class="fas fa-arrow-up text-success me-2"></i>≥20% faithfulness improvement</li>
-                            <li><i class="fas fa-arrow-down text-success me-2"></i>≥30% hallucination reduction</li>
-                            <li><i class="fas fa-bullseye text-success me-2"></i>Calibration error &lt;0.1</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <h6 class="fw-bold">Team Members:</h6>
-                        <ul class="list-unstyled small">
-                            <li><i class="fas fa-user text-primary me-2"></i>Somesh Ramesh Ghaturle</li>
-                            <li><i class="fas fa-user text-primary me-2"></i>Darshil Malaviya</li>
-                            <li><i class="fas fa-user text-primary me-2"></i>Priyank Mistry</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Evidence-based RAG system</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Chain-of-thought reasoning</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Safety disclaimers & guidance</li>
                         </ul>
                     </div>
                     
@@ -219,26 +129,10 @@
                         </div>
                         <div class="row">
                             <div class="col-6">
-                                <p class="mb-1 small fw-bold text-success">Medical (8):</p>
-                                <span class="badge bg-success mb-1" style="font-size: 0.7rem;">Aspirin Guidelines</span><br>
-                                <span class="badge bg-success mb-1" style="font-size: 0.7rem;">Diabetes Management</span><br>
-                                <span class="badge bg-success mb-1" style="font-size: 0.7rem;">Hypertension</span><br>
-                                <span class="badge bg-success mb-1" style="font-size: 0.7rem;">Mental Health</span><br>
-                                <span class="badge bg-success mb-1" style="font-size: 0.7rem;">Antibiotics</span><br>
-                                <span class="badge bg-success mb-1" style="font-size: 0.7rem;">COVID-19 Vaccines</span><br>
-                                <span class="badge bg-success mb-1" style="font-size: 0.7rem;">Cholesterol</span><br>
-                                <span class="badge bg-success mb-1" style="font-size: 0.7rem;">Pain Management</span>
+                                <small class="fw-bold text-success">Medical Sources</small>
                             </div>
                             <div class="col-6">
-                                <p class="mb-1 small fw-bold text-info">Finance (8):</p>
-                                <span class="badge bg-info mb-1" style="font-size: 0.7rem;">Portfolio Theory</span><br>
-                                <span class="badge bg-info mb-1" style="font-size: 0.7rem;">Bonds & Rates</span><br>
-                                <span class="badge bg-info mb-1" style="font-size: 0.7rem;">Cryptocurrency</span><br>
-                                <span class="badge bg-info mb-1" style="font-size: 0.7rem;">Retirement Planning</span><br>
-                                <span class="badge bg-info mb-1" style="font-size: 0.7rem;">Index Investing</span><br>
-                                <span class="badge bg-info mb-1" style="font-size: 0.7rem;">Emergency Fund</span><br>
-                                <span class="badge bg-info mb-1" style="font-size: 0.7rem;">Debt Management</span><br>
-                                <span class="badge bg-info mb-1" style="font-size: 0.7rem;">Real Estate</span>
+                                <small class="fw-bold text-info">Finance Sources</small>
                             </div>
                         </div>
                         <div class="mt-2">
@@ -251,58 +145,20 @@
                 </div>
             </div>
             
-            <!-- System Status -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-gradient-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-heartbeat me-2"></i>System Status</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>Multi-Agent System</span>
-                        <span class="badge bg-success">Active</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>Finance Agent</span>
-                        <span class="badge bg-success">Ready</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>Medicine Agent</span>
-                        <span class="badge bg-success">Ready</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>Safety Evaluator</span>
-                        <span class="badge bg-success">Monitoring</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>FAIR Metrics</span>
-                        <span class="badge bg-success">Enabled</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span>Response Time</span>
-                        <span id="live-response-time" class="badge bg-info">--</span>
-                    </div>
-                </div>
-            </div>
-            
             <!-- Quick Examples -->
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-gradient-secondary text-white">
+            <div class="card shadow-sm border-0" style="background: linear-gradient(135deg, #f8fbff, #e8f4fd);">
+                <div class="card-header text-white" style="background: linear-gradient(135deg, #007bff, #0056b3);">
                     <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Example Queries</h5>
                 </div>
                 <div class="card-body">
-                    <h6 class="text-success">Finance Domain:</h6>
-                    <ul class="list-unstyled small mb-3">
-                        <li class="mb-1"><i class="fas fa-chevron-right text-muted me-2"></i>Calculate ROI for investment portfolio</li>
-                        <li class="mb-1"><i class="fas fa-chevron-right text-muted me-2"></i>Analyze financial ratios for risk assessment</li>
-                        <li class="mb-1"><i class="fas fa-chevron-right text-muted me-2"></i>Compare mutual fund performance metrics</li>
-                    </ul>
-                    
-                    <h6 class="text-info">Medicine Domain:</h6>
-                    <ul class="list-unstyled small">
-                        <li class="mb-1"><i class="fas fa-chevron-right text-muted me-2"></i>Explain diabetes management protocols</li>
-                        <li class="mb-1"><i class="fas fa-chevron-right text-muted me-2"></i>Analyze drug interaction mechanisms</li>
-                        <li class="mb-1"><i class="fas fa-chevron-right text-muted me-2"></i>Assess cardiovascular risk factors</li>
-                    </ul>
+                    <div class="mb-2">
+                        <small class="fw-bold text-success">Finance:</small>
+                        <div class="small text-muted">Portfolio analysis, investment strategies</div>
+                    </div>
+                    <div>
+                        <small class="fw-bold text-info">Medicine:</small>
+                        <div class="small text-muted">Treatment protocols, drug interactions</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -588,8 +444,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </div>
                         
-                        <div class="card border-0 shadow-sm mb-3">
-                            <div class="card-header bg-light">
+                        <div class="card border-0 shadow-sm mb-3" style="background: linear-gradient(135deg, #f8fbff, #e8f4fd);">
+                            <div class="card-header" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb);">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h6 class="mb-0">
                                         <i class="fas fa-robot me-2 text-primary"></i>
@@ -615,30 +471,30 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <h6 class="text-muted mb-2"><i class="fas fa-chart-line me-2"></i>Enhancement Boosts Applied:</h6>
                                     <div class="row g-2">
                                         <div class="col-6 col-md-3">
-                                            <div class="text-center p-2 bg-light rounded">
-                                                <div class="small text-muted">Safety</div>
+                                            <div class="text-center p-2 rounded" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb);">
+                                                <div class="small" style="color: #0d47a1;">Safety</div>
                                                 <div class="fw-bold text-success">+${(data.fair_metrics.detailed_safety?.safety_boost || 0.20).toFixed(2)}</div>
                                             </div>
                                         </div>
                                         <div class="col-6 col-md-3">
-                                            <div class="text-center p-2 bg-light rounded">
-                                                <div class="small text-muted">Evidence</div>
+                                            <div class="text-center p-2 rounded" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb);">
+                                                <div class="small" style="color: #0d47a1;">Evidence</div>
                                                 <div class="fw-bold ${data.fair_metrics.detailed_faithfulness?.evidence_boost > 0 ? 'text-success' : 'text-secondary'}">
                                                     ${data.fair_metrics.detailed_faithfulness?.evidence_boost ? '+' + data.fair_metrics.detailed_faithfulness.evidence_boost.toFixed(2) : '+0.00'}
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-6 col-md-3">
-                                            <div class="text-center p-2 bg-light rounded">
-                                                <div class="small text-muted">Reasoning</div>
+                                            <div class="text-center p-2 rounded" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb);">
+                                                <div class="small" style="color: #0d47a1;">Reasoning</div>
                                                 <div class="fw-bold ${data.fair_metrics.detailed_interpretability?.reasoning_boost > 0 ? 'text-success' : 'text-secondary'}">
                                                     ${data.fair_metrics.detailed_interpretability?.reasoning_boost ? '+' + data.fair_metrics.detailed_interpretability.reasoning_boost.toFixed(2) : '+0.00'}
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-6 col-md-3">
-                                            <div class="text-center p-2 bg-light rounded">
-                                                <div class="small text-muted">Internet</div>
+                                            <div class="text-center p-2 rounded" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb);">
+                                                <div class="small" style="color: #0d47a1;">Internet</div>
                                                 <div class="fw-bold text-info">+${(data.fair_metrics.internet_boost || 0.05).toFixed(2)}</div>
                                             </div>
                                         </div>
@@ -701,9 +557,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <style>
 /* Custom styles for FAIR-Agent interface */
+body {
+    background: linear-gradient(135deg, #e3f2fd, #f0f8ff) !important;
+    min-height: 100vh;
+}
+
 .metric-card {
     transition: all 0.3s ease;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb) !important;
 }
 
 .metric-card:hover {

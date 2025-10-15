@@ -17,7 +17,4 @@ urlpatterns = [
     # Test interface
     path('test/', views.test_ui, name='test_ui'),
     path('test-api/', views.test_api, name='test_api'),
-    
-    # Health check
-    path('health/', views.health_check, name='health_check'),
 ]

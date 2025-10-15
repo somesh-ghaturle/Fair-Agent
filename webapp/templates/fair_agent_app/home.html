@@ -7,25 +7,22 @@
     <!-- Hero Section -->
     <div class="row mb-5">
         <div class="col-lg-10 mx-auto text-center">
-            <div class="card border-0 shadow-lg p-5" style="background: linear-gradient(135deg, #f8f9fa, #e9ecef);">
-                <h1 class="display-3 mb-4 fw-bold" style="color: #2c3e50;">
-                    <i class="fas fa-shield-alt me-3 text-primary"></i>FAIR-Agent
+            <div class="card border-0 shadow-lg p-5" style="background: linear-gradient(135deg, #007bff, #0056b3);">
+                <h1 class="display-3 mb-4 fw-bold" style="color: white;">
+                    <i class="fas fa-shield-alt me-3 text-white"></i>FAIR-Agent
                 </h1>
-                <h2 class="h3 mb-4 text-secondary fw-light">
+                <h2 class="h3 mb-4 fw-light" style="color: rgba(255,255,255,0.9);">
                     Faithful, Adaptive, Interpretable, and Risk-Aware AI
                 </h2>
-                <p class="lead text-muted mb-5">
+                <p class="lead mb-5" style="color: rgba(255,255,255,0.8);">
                     A comprehensive multi-agent framework for trustworthy AI deployment in critical domains 
                     including Finance and Medicine. Built for <strong>CS668 Analytics Capstone Fall 2025</strong>.
                 </p>
                 
                 <!-- Action Buttons -->
                 <div class="d-grid gap-3 d-md-flex justify-content-center">
-                    <a href="{% url 'fair_agent_app:query_interface' %}" class="btn btn-primary btn-lg px-5 py-3">
+                    <a href="{% url 'fair_agent_app:query_interface' %}" class="btn btn-light btn-lg px-5 py-3" style="color: #007bff; font-weight: 600;">
                         <i class="fas fa-comments me-2"></i>Launch FAIR-Agent Interface
-                    </a>
-                    <a href="{% url 'fair_agent_app:health_check' %}" class="btn btn-outline-success btn-lg px-4 py-3">
-                        <i class="fas fa-heartbeat me-2"></i>System Health
                     </a>
                 </div>
             </div>
@@ -34,19 +31,14 @@
 
     <!-- FAIR Principles Grid -->
     <div class="row mb-5">
-        <div class="col-12 text-center mb-4">
-            <h2 class="fw-bold" style="color: #2c3e50;">FAIR Principles</h2>
-            <p class="text-muted">Our framework is built on four core principles for trustworthy AI</p>
-        </div>
-        
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card h-100 border-0 shadow-sm">
+            <div class="card h-100 border-0 shadow-sm" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb);">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
-                        <i class="fas fa-check-circle fa-3x text-success"></i>
+                        <i class="fas fa-check-circle fa-3x text-primary"></i>
                     </div>
-                    <h5 class="card-title fw-bold text-success">Faithfulness</h5>
-                    <p class="card-text text-muted">
+                    <h5 class="card-title fw-bold text-primary">Faithfulness</h5>
+                    <p class="card-text" style="color: #0d47a1;">
                         Ensuring responses are grounded in reliable sources and maintain accuracy
                     </p>
                 </div>
@@ -54,13 +46,13 @@
         </div>
         
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card h-100 border-0 shadow-sm">
+            <div class="card h-100 border-0 shadow-sm" style="background: linear-gradient(135deg, #e8f4fd, #c3e3fc);">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
                         <i class="fas fa-exchange-alt fa-3x text-primary"></i>
                     </div>
                     <h5 class="card-title fw-bold text-primary">Adaptability</h5>
-                    <p class="card-text text-muted">
+                    <p class="card-text" style="color: #0d47a1;">
                         Dynamic adaptation to different domains and query contexts
                     </p>
                 </div>
@@ -68,13 +60,13 @@
         </div>
         
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card h-100 border-0 shadow-sm">
+            <div class="card h-100 border-0 shadow-sm" style="background: linear-gradient(135deg, #e1f5fe, #b3e5fc);">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
-                        <i class="fas fa-lightbulb fa-3x text-info"></i>
+                        <i class="fas fa-lightbulb fa-3x text-primary"></i>
                     </div>
-                    <h5 class="card-title fw-bold text-info">Interpretability</h5>
-                    <p class="card-text text-muted">
+                    <h5 class="card-title fw-bold text-primary">Interpretability</h5>
+                    <p class="card-text" style="color: #0d47a1;">
                         Clear reasoning and transparent decision-making processes
                     </p>
                 </div>
@@ -82,44 +74,15 @@
         </div>
         
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card h-100 border-0 shadow-sm">
+            <div class="card h-100 border-0 shadow-sm" style="background: linear-gradient(135deg, #e0f2f1, #b2dfdb);">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
-                        <i class="fas fa-shield-alt fa-3x text-warning"></i>
+                        <i class="fas fa-shield-alt fa-3x text-primary"></i>
                     </div>
-                    <h5 class="card-title fw-bold text-warning">Risk-Awareness</h5>
-                    <p class="card-text text-muted">
+                    <h5 class="card-title fw-bold text-primary">Risk-Awareness</h5>
+                    <p class="card-text" style="color: #0d47a1;">
                         Proactive identification and mitigation of potential risks
                     </p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- System Status -->
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">
-                        <i class="fas fa-info-circle me-2"></i>System Information
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-md-4 mb-3">
-                            <h6 class="text-muted">Target Domains</h6>
-                            <p class="mb-0"><span class="badge bg-primary me-1">Finance</span><span class="badge bg-success">Medicine</span></p>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <h6 class="text-muted">Framework</h6>
-                            <p class="mb-0">Multi-Agent LLM System</p>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <h6 class="text-muted">Evaluation</h6>
-                            <p class="mb-0">Comprehensive FAIR Metrics</p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -128,6 +91,11 @@
 
 <style>
 /* Custom styles for home page */
+body {
+    background: linear-gradient(135deg, #e3f2fd, #f0f8ff) !important;
+    min-height: 100vh;
+}
+
 .card {
     transition: transform 0.2s ease-in-out;
 }
