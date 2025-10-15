@@ -2,7 +2,7 @@
 
 > **The World's First Quantifiably Trustworthy AI**  
 > **+205% Better Than ChatGPT, Claude & Gemini**  
-> **F**aithful, **A**daptive, **I**nterpretable, and **R**isk-Aware Multi-Agent LLM
+> **F**aithful, **A**daptable, **I**nterpretable, and **R**isk-Aware Multi-Agent LLM
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Django 4.2](https://img.shields.io/badge/django-4.2-green.svg)](https://www.djangoproject.com/)
@@ -404,10 +404,10 @@ graph LR
         SKLEARN[📊 Scikit-learn<br/>ML Algorithms]
     end
     
-    subgraph "Storage & Caching"
+    subgraph "Storage & Data"
         SQLITE[💾 SQLite<br/>Primary Database]
-        REDIS[🗃️ Redis<br/>Caching Layer]
-        FILES[📁 File Storage<br/>Static Assets]
+        FILES[� File Storage<br/>Static Assets]
+        RESULTS[� Results Storage<br/>JSON Evaluation Data]
     end
 ```
 
@@ -419,7 +419,7 @@ graph LR
 
 - Python 3.11+
 - [Ollama](https://ollama.ai/)
-- 8GB+ RAM
+- 8GB+ RAM recommended
 - macOS, Linux, or Windows with WSL
 
 ### Step 1: Install Ollama
@@ -431,12 +431,14 @@ brew install ollama
 # Linux
 curl -fsSL https://ollama.ai/install.sh | sh
 
-# Start Ollama
+# Windows (WSL)
+curl -fsSL https://ollama.ai/install.sh | sh
+
+# Start Ollama service
 ollama serve
 
-# Pull models
-ollama pull llama3.2
-ollama pull mistral
+# Pull required models
+ollama pull llama3.2:latest
 ```
 
 ### Step 2: Clone Repository
@@ -446,19 +448,41 @@ git clone https://github.com/somesh-ghaturle/Fair-Agent.git
 cd Fair-Agent
 ```
 
-### Step 3: Setup Environment
+### Step 3: Setup Python Environment
 
 ```bash
 python3 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### Step 4: Database Setup
+### Step 4: Configure System
+
+```bash
+# Copy example configuration (edit as needed)
+cp config/config.yaml.example config/config.yaml
+
+# Create required directories
+mkdir -p data/datasets results logs
+```
+
+### Step 5: Database Setup
 
 ```bash
 cd webapp
 python manage.py migrate
+python manage.py collectstatic --noinput
+cd ..
+```
+
+### Step 6: Initialize System
+
+```bash
+# Test system configuration
+python main.py --check-config
+
+# Initialize datasets (optional)
+python scripts/evaluate.py --setup-only
 ```
 
 ---
@@ -517,42 +541,143 @@ curl -X POST http://127.0.0.1:8000/api/query/process/ \
 
 ```
 Fair-Agent/
-├── config/               # Configuration files
-├── data/                 # Datasets and evidence
-├── src/
-│   ├── agents/          # Finance & Medical agents
-│   ├── evaluation/      # FAIR metrics
-│   ├── evidence/        # RAG system
-│   ├── reasoning/       # Chain-of-thought
-│   └── safety/          # Disclaimer system
-├── webapp/
-│   ├── fair_agent_app/  # Django application
-│   ├── static/          # CSS, JavaScript
-│   └── templates/       # HTML templates
-├── scripts/             # Utility scripts
-└── requirements.txt     # Dependencies
+├── 📁 config/                      # Configuration files
+│   ├── config.yaml                # Main system configuration
+│   ├── evidence_sources.yaml      # RAG evidence sources
+│   ├── fair_metrics_config.py     # FAIR evaluation settings
+│   ├── safety_keywords.yaml       # Safety filtering keywords
+│   └── system_config.yaml         # System-wide settings
+├── 📁 data/                        # Datasets and evidence
+│   ├── datasets/                  # Medical/Financial datasets
+│   │   ├── medmcqa/              # Medical Q&A dataset
+│   │   ├── mimiciv/              # Medical records dataset
+│   │   └── pubmedqa/             # PubMed Q&A dataset
+│   └── training_data_manager.py   # Dataset management
+├── 📁 src/                         # Core system components
+│   ├── agents/                    # Multi-agent system
+│   │   ├── finance_agent.py      # Financial domain agent
+│   │   ├── medical_agent.py      # Medical domain agent
+│   │   └── orchestrator.py       # Agent coordination
+│   ├── core/                      # Core system modules
+│   │   ├── config.py             # Configuration management
+│   │   ├── model_manager.py      # LLM model handling
+│   │   └── system.py             # Main system orchestration
+│   ├── data/                      # Data processing
+│   │   └── dataset_loader.py     # Dataset loading utilities
+│   ├── data_sources/              # External data sources
+│   │   └── internet_rag.py       # Internet RAG integration
+│   ├── evaluation/                # FAIR metrics evaluation
+│   │   ├── comprehensive_evaluator.py  # Main evaluator
+│   │   ├── faithfulness.py       # Evidence grounding metrics
+│   │   ├── adaptability.py       # Context handling metrics
+│   │   ├── interpretability.py   # Transparency metrics
+│   │   ├── safety.py             # Risk awareness metrics
+│   │   ├── calibration.py        # Confidence calibration
+│   │   └── robustness.py         # System robustness
+│   ├── evidence/                  # RAG system
+│   │   └── rag_system.py         # Evidence retrieval & citation
+│   ├── reasoning/                 # Chain-of-thought
+│   │   └── cot_system.py         # Reasoning chain generation
+│   ├── safety/                    # Safety & compliance
+│   │   └── disclaimer_system.py  # Automatic disclaimers
+│   └── utils/                     # Utility modules
+│       ├── logger.py             # System logging
+│       └── ollama_client.py      # Local LLM client
+├── 📁 webapp/                      # Django web application
+│   ├── logs/                      # Application logs
+│   ├── static/                    # Frontend assets
+│   │   ├── css/fair-agent.css    # Styling
+│   │   └── js/fair-agent.js      # JavaScript functionality
+│   ├── templates/                 # HTML templates
+│   │   ├── base.html             # Base template
+│   │   └── fair_agent_app/       # App-specific templates
+│   ├── fair_agent_app/           # Main Django app
+│   │   ├── migrations/           # Database migrations
+│   │   ├── api_urls.py          # API routing
+│   │   ├── consumers.py         # WebSocket consumers
+│   │   ├── formatters.py        # Response formatting
+│   │   ├── model_api.py         # Model API interface
+│   │   ├── models.py            # Database models
+│   │   ├── routing.py           # WebSocket routing
+│   │   ├── services.py          # Business logic
+│   │   ├── urls.py              # URL configuration
+│   │   └── views.py             # View controllers
+│   ├── manage.py                 # Django management
+│   ├── settings.py               # Django settings
+│   ├── urls.py                   # Main URL configuration
+│   ├── asgi.py                   # ASGI configuration
+│   ├── wsgi.py                   # WSGI configuration
+│   └── db.sqlite3                # SQLite database
+├── 📁 results/                     # Evaluation results
+│   └── evaluation_*.json          # FAIR metrics results
+├── 📁 scripts/                     # Utility scripts
+│   └── evaluate.py               # System evaluation script
+├── main.py                        # Main entry point
+├── requirements.txt               # Python dependencies
+└── README.md                      # This documentation
 ```
 
 ---
 
 ## ⚙️ Configuration
 
-### Main Config (`config/config.yaml`)
+The system uses multiple configuration files for different components:
+
+### **Main Configuration (`config/config.yaml`)**
 
 ```yaml
-model:
-  default: "llama3.2"
-  backend: "ollama"
-
-agents:
+models:
   finance:
-    confidence_threshold: 0.7
+    model_name: "llama3.2:latest"
+    device: "auto"
+    max_length: 512
   medical:
-    confidence_threshold: 0.8
+    model_name: "llama3.2:latest"
+    device: "auto"
+    max_length: 512
 
-evidence:
-  similarity_threshold: 0.3
-  max_results: 3
+datasets:
+  finance:
+    - name: "finqa"
+      path: "data/datasets/finqa"
+    - name: "financial_phrasebank"
+      path: "data/datasets/financial_phrasebank"
+  medical:
+    - name: "medmcqa"
+      path: "data/datasets/medmcqa"
+    - name: "pubmedqa"
+      path: "data/datasets/pubmedqa"
+
+web:
+  host: "0.0.0.0"
+  port: 8000
+  debug: false
+  cors_origins: ["http://localhost:3000", "http://127.0.0.1:3000"]
+
+evaluation:
+  output_dir: "results"
+  metrics: ["faithfulness", "adaptability", "interpretability", "robustness", "safety"]
+  batch_size: 32
+```
+
+### **Evidence Sources (`config/evidence_sources.yaml`)**
+
+```yaml
+medical_sources:
+  - name: "pubmed"
+    enabled: true
+    priority: 1
+  - name: "medline"
+    enabled: true
+    priority: 2
+
+financial_sources:
+  - name: "sec_filings"
+    enabled: true
+    priority: 1
+  - name: "financial_news"
+    enabled: true
+    priority: 2
 ```
 
 ---
