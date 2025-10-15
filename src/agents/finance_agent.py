@@ -15,17 +15,25 @@ from dataclasses import dataclass
 import sys
 import os
 
-# Add enhancement modules to path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'safety'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'evidence'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'reasoning'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'data_sources'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
-from disclaimer_system import ResponseEnhancer
-from rag_system import RAGSystem
-from cot_system import ChainOfThoughtIntegrator
-from internet_rag import InternetRAGSystem
-from ollama_client import OllamaClient
+# Import enhancement modules using relative imports
+try:
+    from ..safety.disclaimer_system import ResponseEnhancer
+    from ..evidence.rag_system import RAGSystem
+    from ..reasoning.cot_system import ChainOfThoughtIntegrator
+    from ..data_sources.internet_rag import InternetRAGSystem
+    from ..utils.ollama_client import OllamaClient
+except ImportError:
+    # Fallback to sys.path method if relative imports fail
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'safety'))
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'evidence'))
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'reasoning'))
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'data_sources'))
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
+    from disclaimer_system import ResponseEnhancer
+    from rag_system import RAGSystem
+    from cot_system import ChainOfThoughtIntegrator
+    from internet_rag import InternetRAGSystem
+    from ollama_client import OllamaClient
 
 @dataclass
 class FinanceResponse:

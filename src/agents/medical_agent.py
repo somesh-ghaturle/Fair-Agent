@@ -15,17 +15,25 @@ from dataclasses import dataclass
 import sys
 import os
 
-# Add enhancement modules to path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'safety'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'evidence'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'reasoning'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'data_sources'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
-from disclaimer_system import ResponseEnhancer
-from rag_system import RAGSystem
-from cot_system import ChainOfThoughtIntegrator
-from internet_rag import InternetRAGSystem
-from ollama_client import OllamaClient 
+# Import enhancement modules using relative imports
+try:
+    from ..safety.disclaimer_system import ResponseEnhancer
+    from ..evidence.rag_system import RAGSystem
+    from ..reasoning.cot_system import ChainOfThoughtIntegrator
+    from ..data_sources.internet_rag import InternetRAGSystem
+    from ..utils.ollama_client import OllamaClient
+except ImportError:
+    # Fallback to sys.path method if relative imports fail
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'safety'))
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'evidence'))
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'reasoning'))
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'data_sources'))
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
+    from disclaimer_system import ResponseEnhancer
+    from rag_system import RAGSystem
+    from cot_system import ChainOfThoughtIntegrator
+    from internet_rag import InternetRAGSystem
+    from ollama_client import OllamaClient 
 
 @dataclass
 class MedicalResponse:
@@ -79,31 +87,6 @@ class MedicalAgent:
         self.internet_rag = InternetRAGSystem()  # Internet-based enhancement
         
         # Initialize Ollama client (required)
-        self.ollama_client = OllamaClient()
-        if not self.ollama_client.is_available():
-            raise RuntimeError("Ollama is required but not available. Please start Ollama service.")
-        
-        self.logger.info(f"✅ Medical Agent using Ollama model: {self.model_name}")
-        """
-        Initialize the Medical Agent
-        
-        Args:
-            model_name: Ollama model identifier for medical reasoning
-            device: Device to run the model on ('cpu', 'cuda', or 'auto')
-            max_length: Maximum token length for generation
-        """
-        self.model_name = model_name
-        self.device = device
-        self.max_length = max_length
-        self.logger = logging.getLogger(__name__)
-        
-        # Initialize all enhancement systems
-        self.response_enhancer = ResponseEnhancer()
-        self.rag_system = RAGSystem()
-        self.cot_integrator = ChainOfThoughtIntegrator()
-        self.internet_rag = InternetRAGSystem()  # Internet-based enhancement
-        
-        # Initialize Ollama client
         self.ollama_client = OllamaClient()
         if not self.ollama_client.is_available():
             raise RuntimeError("Ollama is required but not available. Please start Ollama service.")

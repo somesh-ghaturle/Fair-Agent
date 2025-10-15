@@ -17,6 +17,71 @@
         </div>
     </div>
 
+    <!-- Live FAIR Metrics Dashboard -->
+    <div class="row mb-4" id="metricsRow" style="display: none;">
+        <div class="col-12">
+            <div class="card shadow-lg border-0" style="background: linear-gradient(135deg, #f8fbff, #e8f4fd);">
+                <div class="card-header" style="background: linear-gradient(135deg, #007bff, #0056b3);">
+                    <h5 class="mb-0 text-white"><i class="fas fa-chart-line me-2"></i>Live FAIR Metrics Dashboard</h5>
+                    <small class="text-white-50">Real-time analysis results</small>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-2">
+                            <div class="text-center p-3 rounded" style="background: linear-gradient(135deg, #007bff, #0056b3); color: white;">
+                                <div class="small fw-bold mb-1" style="color: white;">Faithfulness</div>
+                                <div class="h4 mb-1 text-white" id="summary-faithfulness">--</div>
+                                <small style="color: #e3f2fd;">Evidence-based</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center p-3 rounded" style="background: linear-gradient(135deg, #007bff, #0056b3); color: white;">
+                                <div class="small fw-bold mb-1" style="color: white;">Hallucination</div>
+                                <div class="h4 mb-1 text-white" id="summary-hallucination">--</div>
+                                <small style="color: #e3f2fd;">Reduction</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center p-3 rounded" style="background: linear-gradient(135deg, #007bff, #0056b3); color: white;">
+                                <div class="small fw-bold mb-1" style="color: white;">Interpretability</div>
+                                <div class="h4 mb-1 text-white" id="summary-interpretability">--</div>
+                                <small style="color: #e3f2fd;">Clarity</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center p-3 rounded" style="background: linear-gradient(135deg, #007bff, #0056b3); color: white;">
+                                <div class="small fw-bold mb-1" style="color: white;">Risk</div>
+                                <div class="h4 mb-1 text-white" id="summary-risk">--</div>
+                                <small style="color: #e3f2fd;">Awareness</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center p-3 rounded" style="background: linear-gradient(135deg, #007bff, #0056b3); color: white;">
+                                <div class="small fw-bold mb-1" style="color: white;">Calibration</div>
+                                <div class="h4 mb-1 text-white" id="summary-calibration">--</div>
+                                <small style="color: #e3f2fd;">Error</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center p-3 rounded" style="background: linear-gradient(135deg, #007bff, #0056b3); color: white;">
+                                <div class="small fw-bold mb-1" style="color: white;">Overall FAIR</div>
+                                <div class="h4 mb-1 text-white" id="summary-overall">--</div>
+                                <small style="color: #e3f2fd;">Combined</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3 text-center">
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>Response Time: <span id="summary-response-time">--</span>
+                            <span class="ms-3"><i class="fas fa-info-circle me-1"></i>Live metrics update after each query</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-lg-8">
             <div class="card shadow-lg border-0" style="background: linear-gradient(135deg, #f8fbff, #e8f4fd);">
@@ -166,20 +231,43 @@
 </div>
 
 <script>
+// Global error handler to catch and log JavaScript errors
+window.addEventListener('error', function(e) {
+    console.error('💥 JavaScript Error Caught:', {
+        message: e.message,
+        filename: e.filename,
+        lineno: e.lineno,
+        colno: e.colno,
+        error: e.error
+    });
+    
+    // Show user-friendly error message
+    if (e.message.includes('textContent')) {
+        console.error('🔍 This is the textContent error we are looking for!');
+        console.error('📍 Error location:', e.filename, 'line:', e.lineno);
+    }
+});
+
 function log(message, type = 'info') {
     const logContent = document.getElementById('logContent');
     const timestamp = new Date().toLocaleTimeString();
-    const colors = {
-        'info': 'text-info',
-        'success': 'text-success', 
-        'error': 'text-danger',
-        'warning': 'text-warning',
-        'system': 'text-light'
-    };
-    const colorClass = colors[type] || 'text-light';
-    logContent.innerHTML += `<div class="${colorClass}">[${timestamp}] ${message}</div>`;
-    logContent.scrollTop = logContent.scrollHeight;
+    
+    // Always log to console
     console.log(`[${timestamp}] ${message}`);
+    
+    // Only update DOM if element exists
+    if (logContent) {
+        const colors = {
+            'info': 'text-info',
+            'success': 'text-success', 
+            'error': 'text-danger',
+            'warning': 'text-warning',
+            'system': 'text-light'
+        };
+        const colorClass = colors[type] || 'text-light';
+        logContent.innerHTML += `<div class="${colorClass}">[${timestamp}] ${message}</div>`;
+        logContent.scrollTop = logContent.scrollHeight;
+    }
 }
 
 function detectDomain(query) {
@@ -199,12 +287,41 @@ function detectDomain(query) {
     }
 }
 
+// Helper function for safe DOM element access
+function safeGetElement(id) {
+    const element = document.getElementById(id);
+    if (!element) {
+        console.warn(`Element with ID '${id}' not found`);
+        return null;
+    }
+    return element;
+}
+
+// Helper function for safe element operations
+function safeElementOperation(elementId, operation, fallback) {
+    try {
+        const element = safeGetElement(elementId);
+        if (element) {
+            return operation(element);
+        } else if (fallback) {
+            return fallback();
+        }
+    } catch (error) {
+        console.error(`Error performing operation on element '${elementId}':`, error);
+        if (fallback) {
+            return fallback();
+        }
+    }
+    return null;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     log('FAIR-Agent system initialized', 'system');
     log('Multi-agent framework ready for finance and medicine queries', 'success');
     
     // Model selector change handler - show download instructions for disabled models
-    document.getElementById('modelSelect').addEventListener('change', function(e) {
+    safeElementOperation('modelSelect', function(modelSelect) {
+        modelSelect.addEventListener('change', function(e) {
         const selectedOption = e.target.options[e.target.selectedIndex];
         const modelValue = selectedOption.value;
         
@@ -257,114 +374,205 @@ Would you like to copy the download command?
         }
         
         log(`Selected model: ${modelValue}`, 'info');
+        });
     });
     
 });
 
+// Update live metrics dashboard at the top of the page
 function updateLiveMetrics(data) {
-    if (data.fair_metrics) {
-        // Debug: Log the received data
-        console.log('📊 FAIR Metrics Received:', data.fair_metrics);
-        console.log('🧠 Hallucination Reduction Raw Value:', data.fair_metrics.hallucination_reduction);
-        console.log('📏 Calibration Error Raw Value:', data.fair_metrics.calibration_error);
-        
-        // Calculate metrics
-        const faithfulness = Math.round(data.fair_metrics.faithfulness * 100);
-        const hallucinationReduction = Math.round((data.fair_metrics.hallucination_reduction || 0) * 100);
-        const interpretability = Math.round(data.fair_metrics.interpretability * 100);
-        const riskAwareness = Math.round(data.fair_metrics.risk_awareness * 100);
-        const calibrationError = Math.round(data.fair_metrics.calibration_error * 100);
-        
-        console.log('🧠 Hallucination Reduction Percentage:', hallucinationReduction + '%');
-        console.log('📏 Calibration Error Percentage:', calibrationError + '%');
-        
-        // Update top summary bar metrics only
-        document.getElementById('summary-faithfulness').textContent = faithfulness + '%';
-        document.getElementById('summary-hallucination').textContent = hallucinationReduction + '%';
-        document.getElementById('summary-interpretability').textContent = interpretability + '%';
-        document.getElementById('summary-risk').textContent = riskAwareness + '%';
-        document.getElementById('summary-calibration').textContent = calibrationError + '%';
-        
-        if (data.processing_time) {
-            document.getElementById('summary-response-time').textContent = data.processing_time.toFixed(2) + 's';
-        }
-        
-        // Calculate overall FAIR score (now includes hallucination reduction)
-        const overallFair = Math.round((faithfulness + hallucinationReduction + interpretability + riskAwareness) / 4);
-        document.getElementById('summary-overall').textContent = overallFair + '%';
-        
-        // Color code functions based on target thresholds
-        // Standard metrics: Higher is better
-        const colorCode = (value, element) => {
-            if (value >= 70) element.className = 'h5 mb-1 text-success';
-            else if (value >= 50) element.className = 'h5 mb-1 text-warning';
-            else element.className = 'h5 mb-1 text-danger';
-        };
-        
-        // Faithfulness: Target ≥20% improvement (green ≥20%, yellow 10-19%, red <10%)
-        const colorCodeFaithfulness = (value, element) => {
-            if (value >= 20) element.className = 'h5 mb-1 text-success';
-            else if (value >= 10) element.className = 'h5 mb-1 text-warning';
-            else element.className = 'h5 mb-1 text-danger';
-        };
-        
-        // Hallucination Reduction: Target ≥30% (green ≥30%, yellow 20-29%, red <20%)
-        const colorCodeHallucination = (value, element) => {
-            if (value >= 30) element.className = 'h5 mb-1 text-success';
-            else if (value >= 20) element.className = 'h5 mb-1 text-warning';
-            else element.className = 'h5 mb-1 text-danger';
-        };
-        
-        // Calibration Error: Target <10% (INVERSE: lower is better)
-        const colorCodeCalibration = (value, element) => {
-            if (value < 10) element.className = 'h5 mb-1 text-success';  // Green if <10%
-            else if (value < 20) element.className = 'h5 mb-1 text-warning';  // Yellow if 10-19%
-            else element.className = 'h5 mb-1 text-danger';  // Red if ≥20%
-        };
-        
-        // Apply color coding with specific thresholds
-        colorCodeFaithfulness(faithfulness, document.getElementById('summary-faithfulness'));
-        colorCodeHallucination(hallucinationReduction, document.getElementById('summary-hallucination'));
-        colorCode(interpretability, document.getElementById('summary-interpretability'));
-        colorCode(riskAwareness, document.getElementById('summary-risk'));
-        colorCodeCalibration(calibrationError, document.getElementById('summary-calibration'));
-        colorCode(overallFair, document.getElementById('summary-overall'));
-        
-        // Update response time in System Status (if exists)
-        const liveResponseTime = document.getElementById('live-response-time');
-        if (liveResponseTime && data.processing_time) {
-            liveResponseTime.textContent = data.processing_time.toFixed(2) + 's';
-        }
-        
-        log(`Metrics updated: F:${faithfulness}% H:${hallucinationReduction}% I:${interpretability}% R:${riskAwareness}% C:${calibrationError}% Overall:${overallFair}%`, 'info');
+    if (!data || !data.fair_metrics) {
+        console.log('No FAIR metrics data to update');
+        return;
     }
+    
+    // Show the metrics dashboard
+    safeElementOperation('metricsRow', function(metricsRow) {
+        metricsRow.style.display = 'block';
+    });
+    
+    // Calculate metrics
+    const faithfulness = Math.round((data.fair_metrics.faithfulness || 0) * 100);
+    const hallucinationReduction = Math.round((data.fair_metrics.hallucination_reduction || 0) * 100);
+    const interpretability = Math.round((data.fair_metrics.interpretability || 0) * 100);
+    const riskAwareness = Math.round((data.fair_metrics.risk_awareness || 0) * 100);
+    const calibrationError = Math.round((data.fair_metrics.calibration_error || 0) * 100);
+    const overallFair = Math.round((faithfulness + hallucinationReduction + interpretability + riskAwareness) / 4);
+    
+    console.log('🧠 Hallucination Reduction Percentage:', hallucinationReduction + '%');
+    console.log('📏 Calibration Error Percentage:', calibrationError + '%');
+    
+    // Update top dashboard metrics with safe checks
+    const updateElement = (id, value, suffix = '') => {
+        const element = document.getElementById(id);
+        if (element) {
+            try {
+                element.textContent = value + suffix;
+                
+                // Keep consistent white text styling on blue background
+                element.className = 'h4 mb-1 text-white';
+            } catch (error) {
+                console.warn('Could not update element ' + id + ':', error);
+            }
+        }
+    };
+    
+    // Update all metrics
+    updateElement('summary-faithfulness', faithfulness, '%');
+    updateElement('summary-hallucination', hallucinationReduction, '%');
+    updateElement('summary-interpretability', interpretability, '%');
+    updateElement('summary-risk', riskAwareness > 100 ? '100+' : riskAwareness, '%');
+    updateElement('summary-calibration', calibrationError, '%');
+    updateElement('summary-overall', overallFair, '%');
+    
+    // Update response time
+    if (data.processing_time) {
+        updateElement('summary-response-time', data.processing_time.toFixed(2), 's');
+    }
+    
+    log(`Live Metrics → F:${faithfulness}% H:${hallucinationReduction}% I:${interpretability}% R:${riskAwareness}% C:${calibrationError}% Overall:${overallFair}%`, 'info');
+}
+
+// Safe metrics display function - adds metrics to response instead of separate elements
+function displayMetricsSafely(data) {
+    if (!data || !data.fair_metrics) {
+        console.log('No FAIR metrics data to display');
+        return;
+    }
+    
+    // Calculate metrics safely
+    const faithfulness = Math.round((data.fair_metrics.faithfulness || 0) * 100);
+    const hallucinationReduction = Math.round((data.fair_metrics.hallucination_reduction || 0) * 100);
+    const interpretability = Math.round((data.fair_metrics.interpretability || 0) * 100);
+    const riskAwareness = Math.round((data.fair_metrics.risk_awareness || 0) * 100);
+    const calibrationError = Math.round((data.fair_metrics.calibration_error || 0) * 100);
+    const overallFair = Math.round((faithfulness + hallucinationReduction + interpretability + riskAwareness) / 4);
+    
+    // Create metrics display HTML
+    const metricsHtml = `
+        <div class="mt-4 p-3 border rounded" style="background: linear-gradient(135deg, #f8fbff, #e8f4fd);">
+            <h6 class="text-primary mb-3"><i class="fas fa-chart-line me-2"></i>FAIR Metrics Analysis</h6>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="metric-item p-2 rounded" style="background: white; border: 1px solid #e3f2fd;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Faithfulness</span>
+                            <span class="badge ${faithfulness >= 70 ? 'bg-success' : faithfulness >= 50 ? 'bg-warning' : 'bg-danger'}">${faithfulness}%</span>
+                        </div>
+                        <small class="text-muted">Evidence-based accuracy</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="metric-item p-2 rounded" style="background: white; border: 1px solid #e3f2fd;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Hallucination Reduction</span>
+                            <span class="badge ${hallucinationReduction >= 30 ? 'bg-success' : hallucinationReduction >= 20 ? 'bg-warning' : 'bg-danger'}">${hallucinationReduction}%</span>
+                        </div>
+                        <small class="text-muted">Reduced false information</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="metric-item p-2 rounded" style="background: white; border: 1px solid #e3f2fd;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Interpretability</span>
+                            <span class="badge ${interpretability >= 70 ? 'bg-success' : interpretability >= 50 ? 'bg-warning' : 'bg-danger'}">${interpretability}%</span>
+                        </div>
+                        <small class="text-muted">Explanation clarity</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="metric-item p-2 rounded" style="background: white; border: 1px solid #e3f2fd;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Risk Awareness</span>
+                            <span class="badge ${riskAwareness >= 70 ? 'bg-success' : riskAwareness >= 50 ? 'bg-warning' : 'bg-danger'}">${riskAwareness > 100 ? '100+' : riskAwareness}%</span>
+                        </div>
+                        <small class="text-muted">Safety considerations</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="metric-item p-2 rounded" style="background: white; border: 1px solid #e3f2fd;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Calibration Error</span>
+                            <span class="badge ${calibrationError < 10 ? 'bg-success' : calibrationError < 20 ? 'bg-warning' : 'bg-danger'}">${calibrationError}%</span>
+                        </div>
+                        <small class="text-muted">Confidence accuracy (lower is better)</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="metric-item p-2 rounded" style="background: linear-gradient(135deg, #007bff, #0056b3); color: white;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Overall FAIR Score</span>
+                            <span class="badge bg-white text-dark">${overallFair}%</span>
+                        </div>
+                        <small style="color: #e3f2fd;">Combined FAIR performance</small>
+                    </div>
+                </div>
+            </div>
+            
+            ${data.processing_time ? `
+                <div class="mt-3 text-center">
+                    <small class="text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        Processing Time: ${data.processing_time.toFixed(2)}s
+                    </small>
+                </div>
+            ` : ''}
+            
+            <div class="mt-3 text-center">
+                <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    FAIR metrics show how the response was enhanced with evidence, safety, and reasoning
+                </small>
+            </div>
+        </div>
+    `;
+    
+    // Find response body and append metrics safely
+    safeElementOperation('responseBody', function(responseBody) {
+        responseBody.innerHTML += metricsHtml;
+    }, function() {
+        console.warn('responseBody element not found, metrics display skipped');
+    });
+    
+    // Log metrics for debugging
+    console.log('📊 FAIR Metrics:', {
+        faithfulness: faithfulness + '%',
+        hallucinationReduction: hallucinationReduction + '%', 
+        interpretability: interpretability + '%',
+        riskAwareness: (riskAwareness > 100 ? '100+' : riskAwareness) + '%',
+        calibrationError: calibrationError + '%',
+        overall: overallFair + '%'
+    });
 }
 
 // WORKING FORM HANDLER - Simple and reliable
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('queryForm');
-    if (form) {
+    safeElementOperation('queryForm', function(form) {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             log('Form submission started', 'info');
             
-            const query = document.getElementById('queryInput').value.trim();
+            const queryInput = safeGetElement('queryInput');
+            const modelSelect = safeGetElement('modelSelect');
+            
+            if (!queryInput || !modelSelect) {
+                alert('Form elements not found. Please refresh the page.');
+                return;
+            }
+            
+            const query = queryInput.value.trim();
             if (!query) {
                 alert('Please enter a query');
                 return;
             }
             
             // Get selected model
-            const selectedModel = document.getElementById('modelSelect').value;
+            const selectedModel = modelSelect.value;
             log('Query: ' + query, 'info');
             log('Selected Model: ' + selectedModel, 'info');
             
-            // Show loading
-            const loadingDiv = document.getElementById('loadingDiv');
-            const responseDiv = document.getElementById('responseDiv');
-            const submitBtn = document.getElementById('submitBtn');
-            
-            if (loadingDiv) {
+            // Show loading safely
+            safeElementOperation('loadingDiv', function(loadingDiv) {
                 loadingDiv.innerHTML = `<div class="d-flex align-items-center">
                     <div class="spinner-border text-primary me-3" role="status">
                         <span class="visually-hidden">Loading...</span>
@@ -375,7 +583,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>`;
                 loadingDiv.style.display = 'block';
-            }
+            });
+            
+            const responseDiv = safeGetElement('responseDiv');
+            const submitBtn = safeGetElement('submitBtn');
             if (responseDiv) responseDiv.style.display = 'none';
             if (submitBtn) submitBtn.disabled = true;
             
@@ -421,14 +632,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (loadingDiv) loadingDiv.style.display = 'none';
                 if (submitBtn) submitBtn.disabled = false;
                 
-                // Update live metrics dashboard (sidebar)
+                // Update FAIR metrics in both dashboard and response
                 if (data.fair_metrics) {
-                    updateLiveMetrics(data);
+                    try {
+                        updateLiveMetrics(data);
+                        displayMetricsSafely(data);
+                        log('FAIR metrics updated successfully', 'success');
+                    } catch (error) {
+                        console.warn('Could not update all metrics:', error);
+                        log('Metrics calculation completed (some display issues)', 'warning');
+                    }
                 }
                 
                 // Show clean response without duplicate metrics
-                const responseBody = document.getElementById('responseBody');
-                if (responseBody) {
+                safeElementOperation('responseBody', function(responseBody) {
                     // Format the answer with better styling
                     const formattedAnswer = data.formatted_answer || data.answer || 'No response generated';
                     const modelUsed = data.model_used || selectedModel || 'Unknown';
@@ -510,7 +727,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </div>
                     `;
-                }
+                });
                 
                 if (responseDiv) responseDiv.style.display = 'block';
                 log('Results displayed successfully', 'success');
@@ -531,9 +748,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     errorMessage = 'Network error - Unable to connect to server. Please check your connection.';
                 }
                 
-                // Show error
-                const responseBody = document.getElementById('responseBody');
-                if (responseBody) {
+                // Show error safely
+                safeElementOperation('responseBody', function(responseBody) {
                     responseBody.innerHTML = `
                         <div class="alert alert-danger">
                             <strong>Error:</strong> ${errorMessage}
@@ -547,11 +763,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </div>
                     `;
-                }
+                });
                 if (responseDiv) responseDiv.style.display = 'block';
             });
         });
-    }
+    });
 });
 </script>
 
