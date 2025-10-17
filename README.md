@@ -15,7 +15,7 @@
 **🎯 Live Performance:** 62.0% FAIR Score vs 25.0% best competitor | **🏆 Status:** Industry Revolutionary  
 
 **CS668 Analytics Capstone - Fall 2025**  
-**Author:** Somesh Ghaturle | **Institution:** Pace University
+**Author:** Somesh Ghaturle , Darshil Malviya, Priyank Mistry| **Institution:** Pace University
 
 ---
 
