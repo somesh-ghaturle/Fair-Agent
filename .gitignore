@@ -53,25 +53,24 @@ webapp/logs/*.log
 *.sqlite3-journal
 db.sqlite3
 
-# Dataset files (large files that should not be in git)
+# Large Model and Dataset files (prevent accidental commits)
 *.arrow
 *.parquet
 *.hdf5
 *.h5
 *.feather
+*.bin
+*.pt
+*.pth
+models/
 data/datasets/*/data-*.arrow
 data/datasets/*/data-*.parquet
+data/evidence/embeddings_cache/*.npz
 
 # Temporary files
 *.tmp
 *.temp
 *.bak
-
-# Model files (if they get large)
-*.bin
-*.pt
-*.pth
-models/
 
 # Test files
 test_*.py
@@ -96,3 +95,14 @@ media/
 
 # Docker
 .dockerignore
+
+# GitHub specific
+.github/
+*.orig
+
+# Security sensitive files
+secrets.yaml
+.secrets/
+*.key
+*.pem
+*.cert
