@@ -1,8 +1,8 @@
 # FAIR-Agent System Requirements
 # Dependencies for the FAIR-Agent multi-agent system
 
-# Web Framework - Updated to latest stable versions
-Django==5.2.7
+# Web Framework - Updated to compatible stable versions
+Django>=4.2.0,<5.0
 django-cors-headers==4.5.0
 asgiref>=3.8.1
 
@@ -59,13 +59,17 @@ sqlparse>=0.5.0
 pytest>=8.3.0
 pytest-django>=4.9.0
 pytest-asyncio>=0.24.0
+pytest-cov>=2.12.0
+pytest-mock>=3.6.0
 
 # Security and Production
 gunicorn>=23.0.0
 whitenoise>=6.8.0
-pytest-django>=4.5.2
 black>=23.0.0
 flake8>=6.0.0
+mypy>=0.910
+isort>=5.9.0
+pre-commit>=2.15.0
 
 # Medical Domain Specific (optional - uncomment if needed)
 # bio-embeddings>=0.2.2
@@ -74,80 +78,27 @@ flake8>=6.0.0
 
 # Finance Domain Specific
 yfinance>=0.1.70
-# quantlib>=1.26  # May have compilation issues in Docker
-
-# Optional: Enhanced NLP capabilities (uncomment if needed)
-# sentence-transformers>=2.2.0
-# spacy>=3.6.0
-
-# Web and API frameworks (for future API development)
-
-# Production deployment (optional)fastapi>=0.68.0
-
-# gunicorn>=21.0.0              # Uncomment for productionuvicorn>=0.15.0
-
-# whitenoise>=6.5.0             # Uncomment for static filesrequests>=2.26.0
-
-# psycopg2-binary>=2.9.7        # Uncomment for PostgreSQL
-# Visualization
-matplotlib>=3.4.0
-seaborn>=0.11.0
-plotly>=5.0.0
-
-# Testing
-pytest>=6.2.0
-pytest-cov>=2.12.0
-pytest-mock>=3.6.0
-
-# Development and testing
-pytest>=6.2.0
-pytest-asyncio>=0.18.0
-pytest-mock>=3.6.0
-black>=21.0.0
-flake8>=3.9.0
-mypy>=0.910
-
-# Django Web Application Dependencies
-Django>=4.2.0,<5.0
-djangorestframework>=3.14.0
-django-cors-headers>=4.0.0
-channels>=4.0.0
-channels-redis>=4.1.0
-redis>=4.5.0
-gunicorn>=20.1.0
-whitenoise>=6.4.0
-daphne>=4.0.0
 
 # Documentation
 sphinx>=4.0.0
 sphinx-rtd-theme>=0.5.0
 
-# Development tools
-black>=21.0.0  # Code formatting
-flake8>=3.9.0  # Linting
-isort>=5.9.0  # Import sorting
-pre-commit>=2.15.0  # Git hooks
+# Environment and Configuration
+python-decouple>=3.4
+python-dotenv>=1.0.1
 
-# Logging and monitoring
+# Database Support
+psycopg2-binary>=2.9.7
+redis>=4.5.0
+daphne>=4.0.0
+
+# Logging and Monitoring
 loguru>=0.6.0
-wandb>=0.12.0  # Experiment tracking
-tensorboard>=2.7.0
-
-# Database (for caching and storage)
-redis>=3.5.0  # Optional for advanced caching
 
 # Security
 cryptography>=3.4.0
 
-# Environment management
-python-decouple>=3.4
-
-# Optional GPU acceleration
-# Uncomment if using CUDA
-# torch-audio>=0.9.0
-# torchvision>=0.10.0
-
-# Development dependencies (for notebook/interactive work)
+# Development Environment
 jupyter>=1.0.0
 ipython>=7.25.0
 notebook>=6.4.0
