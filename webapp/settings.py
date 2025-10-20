@@ -15,10 +15,10 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-production-secure-key-' + 'a' * 50 + 'b' * 20 + 'c' * 15 + 'd' * 10)
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-dev-insecure-' + 'x' * 50 + 'y' * 20 + 'z' * 15)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() == 'true'
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
