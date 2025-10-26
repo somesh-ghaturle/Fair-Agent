@@ -495,25 +495,104 @@ class ChainOfThoughtGenerator:
             condition = self._extract_key_terms(query, ['diabetes', 'hypertension', 'condition', 'disease'])
             filled_template = template.replace('{condition}', condition or 'this condition')
         
-        # Generate meaningful step content based on question type and step
-        if domain == "finance" and "what is finance" in query.lower():
-            step_templates = {
-                1: "Finance is fundamentally about managing money, resources, and financial decisions across different time periods and situations.",
-                2: "The field encompasses personal finance (individual money management), corporate finance (business financial decisions), and public finance (government financial management).",
-                3: "Key areas include investment analysis, risk management, financial planning, and understanding how money grows over time through compound interest.",
-                4: "Successful financial management requires understanding concepts like budgeting, saving, investing, and balancing risk with potential returns.",
-                5: "For personalized financial advice, it's always best to consult with qualified financial professionals who can assess your specific situation.",
-                6: "Remember that good financial habits and understanding these fundamentals can significantly improve your long-term financial well-being."
-            }
-            
-            if step_number in step_templates:
-                return step_templates[step_number]
-        
-        # For other cases, use template only for concise reasoning steps
-        # Avoid duplicating the full response content in reasoning steps
-        step_content = filled_template
+        # Generate dynamic step content based on response content and reasoning flow
+        if response_part and len(response_part.strip()) > 0:
+            # Analyze the response part to generate contextual reasoning
+            step_content = self._generate_contextual_reasoning(
+                filled_template, response_part, query, domain, step_number
+            )
+        else:
+            # Fall back to template for structure
+            step_content = filled_template
         
         return step_content
+    
+    def _generate_contextual_reasoning(
+        self, 
+        template: str, 
+        response_part: str, 
+        query: str, 
+        domain: str, 
+        step_number: int
+    ) -> str:
+        """Generate dynamic reasoning based on actual response content"""
+        
+        # Extract key concepts from the response part
+        key_concepts = self._extract_response_concepts(response_part, domain)
+        
+        # Generate reasoning based on step type and content
+        if step_number == 1:
+            # Problem analysis step
+            query_focus = self._identify_query_focus(query, domain)
+            return f"I need to analyze your question about {query_focus}. {template}"
+        
+        elif "evaluate" in template.lower() or "consider" in template.lower():
+            # Evaluation step - analyze what's being evaluated
+            if key_concepts:
+                concept_list = ", ".join(key_concepts[:3])  # Top 3 concepts
+                return f"Let me evaluate the key factors: {concept_list}. {template}"
+            
+        elif "conclusion" in template.lower() or step_number >= 5:
+            # Conclusion step - summarize the reasoning
+            conclusion_focus = self._extract_conclusion_focus(response_part)
+            return f"Based on my analysis, {conclusion_focus}. {template}"
+        
+        # Default: Use template with context
+        return f"{template} Based on the information: {response_part[:100]}..."
+    
+    def _extract_response_concepts(self, response_part: str, domain: str) -> List[str]:
+        """Extract key concepts from response content"""
+        concepts = []
+        
+        # Domain-specific concept extraction
+        if domain == "finance":
+            finance_terms = ['risk', 'investment', 'return', 'portfolio', 'diversification', 
+                           'volatility', 'savings', 'retirement', 'compound', 'debt']
+            concepts.extend([term for term in finance_terms if term in response_part.lower()])
+            
+        elif domain == "medical":
+            medical_terms = ['treatment', 'symptoms', 'diagnosis', 'side effects', 'dosage',
+                           'consultation', 'health', 'medical', 'professional', 'condition']
+            concepts.extend([term for term in medical_terms if term in response_part.lower()])
+        
+        return concepts[:5]  # Return top 5 concepts
+    
+    def _identify_query_focus(self, query: str, domain: str) -> str:
+        """Identify the main focus of the query"""
+        query_lower = query.lower()
+        
+        if domain == "finance":
+            if any(word in query_lower for word in ['invest', 'investment']):
+                return "investment strategy"
+            elif any(word in query_lower for word in ['retirement', '401k']):
+                return "retirement planning"
+            elif any(word in query_lower for word in ['debt', 'loan']):
+                return "debt management"
+            else:
+                return "financial planning"
+                
+        elif domain == "medical":
+            if any(word in query_lower for word in ['symptom', 'pain']):
+                return "symptoms and health concerns"
+            elif any(word in query_lower for word in ['medication', 'drug']):
+                return "medication information"
+            else:
+                return "health-related questions"
+        
+        return "your inquiry"
+    
+    def _extract_conclusion_focus(self, response_part: str) -> str:
+        """Extract the main conclusion focus from response"""
+        response_lower = response_part.lower()
+        
+        if any(word in response_lower for word in ['recommend', 'suggest', 'should']):
+            return "the key recommendation is clear"
+        elif any(word in response_lower for word in ['risk', 'danger', 'careful']):
+            return "important risks need consideration"
+        elif any(word in response_lower for word in ['consult', 'professional', 'doctor']):
+            return "professional consultation is essential"
+        else:
+            return "the analysis points to important considerations"
     
     def _extract_key_terms(self, text: str, potential_terms: List[str]) -> Optional[str]:
         """Extract key terms from text"""
@@ -524,25 +603,91 @@ class ChainOfThoughtGenerator:
         return None
     
     def _assess_step_confidence(self, content: str, domain: str) -> float:
-        """Assess confidence level for a reasoning step"""
+        """Dynamically assess confidence level for a reasoning step"""
         
-        base_confidence = 0.7
+        # Start with content-based confidence
+        base_confidence = self._calculate_content_confidence(content)
         
-        # Lower confidence for uncertainty language
-        uncertainty_words = ['may', 'might', 'could', 'possibly', 'uncertain']
-        if any(word in content.lower() for word in uncertainty_words):
-            base_confidence -= 0.2
+        # Adjust for uncertainty language
+        uncertainty_penalty = self._calculate_uncertainty_penalty(content)
+        base_confidence -= uncertainty_penalty
         
-        # Higher confidence for specific information
-        if len(content) > 100:  # Detailed content
-            base_confidence += 0.1
+        # Adjust for specificity and detail
+        specificity_bonus = self._calculate_specificity_bonus(content)
+        base_confidence += specificity_bonus
         
-        # Domain-specific adjustments
-        if domain == "medical":
-            if any(word in content.lower() for word in ['consult', 'doctor', 'professional']):
-                base_confidence += 0.1  # Good practice increases confidence
+        # Domain-specific confidence adjustments
+        domain_adjustment = self._calculate_domain_confidence(content, domain)
+        base_confidence += domain_adjustment
         
         return max(0.3, min(base_confidence, 0.95))
+    
+    def _calculate_content_confidence(self, content: str) -> float:
+        """Calculate base confidence from content characteristics"""
+        
+        # Length-based confidence (longer = more detailed = higher confidence)
+        word_count = len(content.split())
+        if word_count < 10:
+            return 0.5  # Short, less confident
+        elif word_count < 30:
+            return 0.65  # Medium length
+        elif word_count < 80:
+            return 0.75  # Good detail
+        else:
+            return 0.8   # Very detailed
+    
+    def _calculate_uncertainty_penalty(self, content: str) -> float:
+        """Calculate confidence penalty for uncertainty language"""
+        content_lower = content.lower()
+        
+        uncertainty_words = ['may', 'might', 'could', 'possibly', 'uncertain', 'unclear', 'depends']
+        uncertainty_count = sum(1 for word in uncertainty_words if word in content_lower)
+        
+        # More uncertainty words = bigger penalty
+        return min(uncertainty_count * 0.1, 0.3)
+    
+    def _calculate_specificity_bonus(self, content: str) -> float:
+        """Calculate confidence bonus for specific, actionable content"""
+        content_lower = content.lower()
+        bonus = 0.0
+        
+        # Bonus for specific numbers/percentages
+        if any(char.isdigit() for char in content):
+            bonus += 0.05
+        
+        # Bonus for specific recommendations
+        if any(word in content_lower for word in ['recommend', 'should', 'must', 'always']):
+            bonus += 0.1
+        
+        # Bonus for evidence-based language
+        if any(word in content_lower for word in ['research', 'studies', 'evidence', 'data']):
+            bonus += 0.1
+        
+        return min(bonus, 0.2)
+    
+    def _calculate_domain_confidence(self, content: str, domain: str) -> float:
+        """Calculate domain-specific confidence adjustments"""
+        content_lower = content.lower()
+        
+        if domain == "medical":
+            # Higher confidence for appropriate medical disclaimers
+            if any(word in content_lower for word in ['consult', 'doctor', 'professional', 'healthcare']):
+                return 0.1
+            # Lower confidence for definitive medical claims without disclaimers
+            elif any(word in content_lower for word in ['diagnose', 'cure', 'treatment']) and \
+                 'consult' not in content_lower:
+                return -0.15
+                
+        elif domain == "finance":
+            # Higher confidence for appropriate financial disclaimers
+            if any(word in content_lower for word in ['advisor', 'professional', 'financial planner']):
+                return 0.1
+            # Lower confidence for definitive investment advice without disclaimers
+            elif any(word in content_lower for word in ['guarantee', 'definitely', 'certain return']) and \
+                 'risk' not in content_lower:
+                return -0.15
+        
+        return 0.0
     
     def _assess_reasoning_quality(self, content: str) -> float:
         """Assess the quality of reasoning in content"""

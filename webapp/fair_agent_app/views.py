@@ -339,7 +339,14 @@ def process_query_api(request):
     try:
         data = json.loads(request.body)
         query_text = data.get('query', '').strip()
-        selected_model = data.get('model', 'llama3.2:latest')  # Get selected model, default to llama3.2:latest
+        # Get selected model with dynamic default
+        try:
+            from src.core.model_manager import ModelRegistry
+            default_model = ModelRegistry.get_default_model()
+        except ImportError:
+            default_model = 'llama3.2:latest'  # Last resort fallback
+        
+        selected_model = data.get('model', default_model)
         
         if not query_text:
             return JsonResponse({

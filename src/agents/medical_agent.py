@@ -63,7 +63,7 @@ class MedicalAgent:
     
     def __init__(
         self, 
-        model_name: str = "llama3.2:latest",
+        model_name: Optional[str] = None,
         device: str = "auto",
         max_length: int = 1024  # Increased from 256 to allow for longer responses
     ):
@@ -75,18 +75,17 @@ class MedicalAgent:
             device: Device to run the model on ('cpu', 'cuda', or 'auto')
             max_length: Maximum token length for generation
         """
-        self.model_name = model_name
-        self.device = device
-        self.max_length = max_length
+        # Dynamic model selection
+        if model_name is None:
+            from ..core.model_manager import ModelRegistry
+            self.model_name = ModelRegistry.get_domain_recommended_model('medical')
+        else:
+            self.model_name = model_name
+            
+        self.config = {}
         self.logger = logging.getLogger(__name__)
         
-        # Initialize all enhancement systems
-        self.response_enhancer = ResponseEnhancer()
-        self.rag_system = RAGSystem()
-        self.cot_integrator = ChainOfThoughtIntegrator()
-        self.internet_rag = InternetRAGSystem()  # Internet-based enhancement
-        
-        # Initialize Ollama client (required)
+        # Initialize model client
         self.ollama_client = OllamaClient()
         if not self.ollama_client.is_available():
             raise RuntimeError("Ollama is required but not available. Please start Ollama service.")

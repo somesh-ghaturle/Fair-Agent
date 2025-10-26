@@ -180,25 +180,136 @@ class SafetyDisclaimerManager:
         return enhanced_response
     
     def get_safety_score_improvement(self, response: str, query: str, domain: str) -> float:
-        """Calculate safety score improvement from disclaimers"""
+        """Calculate safety score improvement from disclaimers dynamically"""
         needed_disclaimers = self.analyze_response_for_disclaimers(response, query, domain)
         
-        # Base improvement
+        if not needed_disclaimers:
+            return 0.0
+        
+        return self._calculate_dynamic_safety_improvement(needed_disclaimers, response, query, domain)
+    
+    def _calculate_dynamic_safety_improvement(self, needed_disclaimers: List[DisclaimerType], 
+                                           response: str, query: str, domain: str) -> float:
+        """Calculate dynamic safety improvement based on content characteristics"""
+        
+        # Base improvement calculation
         base_improvement = 0.0
         
-        # Points for each disclaimer type
-        disclaimer_points = {
-            DisclaimerType.MEDICAL: 0.25,
-            DisclaimerType.FINANCIAL: 0.20,
-            DisclaimerType.EMERGENCY: 0.30,
-            DisclaimerType.PROFESSIONAL_CONSULTATION: 0.15
+        # Dynamic points calculation for each disclaimer type
+        for disclaimer_type in needed_disclaimers:
+            disclaimer_value = self._calculate_disclaimer_value(disclaimer_type, response, query, domain)
+            base_improvement += disclaimer_value
+        
+        # Risk level assessment multiplier
+        risk_multiplier = self._assess_content_risk_level(response, query, domain)
+        
+        # Final improvement with risk adjustment
+        final_improvement = base_improvement * risk_multiplier
+        
+        # Dynamic cap based on content severity
+        max_improvement = self._calculate_max_safety_improvement(needed_disclaimers, domain)
+        
+        return min(final_improvement, max_improvement)
+    
+    def _calculate_disclaimer_value(self, disclaimer_type: DisclaimerType, 
+                                  response: str, query: str, domain: str) -> float:
+        """Calculate dynamic value for each disclaimer type"""
+        
+        # Base values adjusted by content characteristics
+        base_values = {
+            DisclaimerType.MEDICAL: 0.20,       # Base medical disclaimer value
+            DisclaimerType.FINANCIAL: 0.15,     # Base financial disclaimer value  
+            DisclaimerType.EMERGENCY: 0.25,     # Base emergency disclaimer value
+            DisclaimerType.PROFESSIONAL_CONSULTATION: 0.10  # Base consultation value
         }
         
-        for disclaimer_type in needed_disclaimers:
-            base_improvement += disclaimer_points.get(disclaimer_type, 0.10)
+        base_value = base_values.get(disclaimer_type, 0.05)
         
-        # Cap at reasonable improvement level
-        return min(base_improvement, 0.40)  # Max 40% improvement
+        # Content-specific adjustments
+        content_text = f"{query} {response}".lower()
+        
+        if disclaimer_type == DisclaimerType.MEDICAL:
+            # Higher value for serious medical conditions
+            serious_conditions = ['heart', 'cancer', 'diabetes', 'stroke', 'medication', 'surgery']
+            serious_count = sum(1 for condition in serious_conditions if condition in content_text)
+            medical_boost = min(serious_count * 0.05, 0.15)  # Up to 15% boost
+            return base_value + medical_boost
+            
+        elif disclaimer_type == DisclaimerType.FINANCIAL:
+            # Higher value for investment-specific advice
+            investment_terms = ['investment', 'portfolio', 'risk', 'return', 'stock', 'bond']
+            investment_count = sum(1 for term in investment_terms if term in content_text)
+            financial_boost = min(investment_count * 0.03, 0.12)  # Up to 12% boost
+            return base_value + financial_boost
+            
+        elif disclaimer_type == DisclaimerType.EMERGENCY:
+            # Emergency disclaimers get highest value due to severity
+            emergency_urgency = ['911', 'immediate', 'urgent', 'emergency', 'crisis']
+            urgency_count = sum(1 for term in emergency_urgency if term in content_text)
+            emergency_boost = min(urgency_count * 0.08, 0.20)  # Up to 20% boost
+            return base_value + emergency_boost
+            
+        elif disclaimer_type == DisclaimerType.PROFESSIONAL_CONSULTATION:
+            # Higher value for complex advisory content
+            advisory_complexity = ['should', 'recommend', 'advise', 'suggest', 'best']
+            complexity_count = sum(1 for term in advisory_complexity if term in content_text)
+            consultation_boost = min(complexity_count * 0.02, 0.08)  # Up to 8% boost
+            return base_value + consultation_boost
+        
+        return base_value
+    
+    def _assess_content_risk_level(self, response: str, query: str, domain: str) -> float:
+        """Assess content risk level to adjust safety improvement multiplier"""
+        content_text = f"{query} {response}".lower()
+        
+        # Base multiplier
+        base_multiplier = 1.0
+        
+        # High-risk indicators increase the value of safety disclaimers
+        high_risk_indicators = [
+            'dosage', 'medication', 'treatment', 'diagnosis',  # Medical risks
+            'invest all', 'guaranteed return', 'no risk', 'sure thing',  # Financial risks
+            'emergency', 'urgent', 'immediate', 'crisis'  # Emergency risks
+        ]
+        
+        risk_count = sum(1 for indicator in high_risk_indicators if indicator in content_text)
+        
+        if risk_count >= 3:
+            # Very high risk content: disclaimers more valuable
+            return base_multiplier + 0.4
+        elif risk_count >= 2:
+            # High risk content
+            return base_multiplier + 0.25
+        elif risk_count >= 1:
+            # Medium risk content
+            return base_multiplier + 0.15
+        else:
+            # Lower risk content
+            return base_multiplier
+    
+    def _calculate_max_safety_improvement(self, needed_disclaimers: List[DisclaimerType], domain: str) -> float:
+        """Calculate dynamic maximum safety improvement cap"""
+        
+        # Base caps by domain
+        domain_caps = {
+            'medical': 0.50,     # Medical domain can have higher safety impact
+            'finance': 0.45,     # Financial domain significant impact
+            'health': 0.50,      # Health content high impact
+            'investment': 0.45,  # Investment content significant impact
+            'general': 0.35      # General content moderate impact
+        }
+        
+        base_cap = domain_caps.get(domain.lower(), 0.40)
+        
+        # Adjust cap based on number and type of disclaimers
+        if DisclaimerType.EMERGENCY in needed_disclaimers:
+            # Emergency content can have higher safety impact
+            return min(base_cap + 0.10, 0.60)
+        elif len(needed_disclaimers) >= 3:
+            # Multiple disclaimers increase potential impact
+            return min(base_cap + 0.05, 0.55)
+        else:
+            return base_cap
     
     def evaluate_disclaimer_presence(self, response: str) -> Dict[str, bool]:
         """Evaluate what disclaimers are present in a response"""
@@ -253,18 +364,91 @@ class ResponseEnhancer:
             enhanced_response
         )
         
-        # Calculate detailed improvements
-        improvements = {
-            'overall_safety_improvement': safety_improvement,
-            'medical_safety_improvement': 0.30 if disclaimer_presence['medical_disclaimer'] else 0.0,
-            'financial_safety_improvement': 0.25 if disclaimer_presence['financial_disclaimer'] else 0.0,
-            'professional_referral_improvement': 0.20 if disclaimer_presence['professional_consultation'] else 0.0,
-            'emergency_awareness_improvement': 0.35 if disclaimer_presence['emergency_notice'] else 0.0,
-        }
+        # Calculate detailed improvements dynamically
+        improvements = self._calculate_detailed_safety_improvements(
+            safety_improvement, disclaimer_presence, response, query, domain
+        )
         
         self.logger.info(f"Enhanced response with safety improvement: {safety_improvement:.2f}")
         
         return enhanced_response, improvements
+    
+    def _calculate_detailed_safety_improvements(self, overall_improvement: float, 
+                                              disclaimer_presence: Dict[str, bool],
+                                              response: str, query: str, domain: str) -> Dict[str, float]:
+        """Calculate detailed safety improvements dynamically based on content and domain"""
+        
+        content_text = f"{query} {response}".lower()
+        
+        # Medical safety improvement
+        medical_improvement = 0.0
+        if disclaimer_presence['medical_disclaimer']:
+            # Base medical improvement
+            base_medical = 0.25
+            
+            # Adjust based on medical content severity
+            serious_medical_terms = ['medication', 'surgery', 'treatment', 'diagnosis', 'condition']
+            medical_severity = sum(1 for term in serious_medical_terms if term in content_text)
+            medical_boost = min(medical_severity * 0.03, 0.15)  # Up to 15% additional
+            medical_improvement = base_medical + medical_boost
+        
+        # Financial safety improvement
+        financial_improvement = 0.0
+        if disclaimer_presence['financial_disclaimer']:
+            # Base financial improvement
+            base_financial = 0.20
+            
+            # Adjust based on financial advice specificity
+            investment_advice_terms = ['invest', 'portfolio', 'buy', 'sell', 'return', 'risk']
+            financial_specificity = sum(1 for term in investment_advice_terms if term in content_text)
+            financial_boost = min(financial_specificity * 0.02, 0.12)  # Up to 12% additional
+            financial_improvement = base_financial + financial_boost
+        
+        # Professional consultation improvement
+        consultation_improvement = 0.0
+        if disclaimer_presence['professional_consultation']:
+            # Base consultation improvement
+            base_consultation = 0.15
+            
+            # Adjust based on advisory complexity
+            advisory_terms = ['should', 'recommend', 'advise', 'suggest', 'consider']
+            advisory_complexity = sum(1 for term in advisory_terms if term in content_text)
+            consultation_boost = min(advisory_complexity * 0.02, 0.10)  # Up to 10% additional
+            consultation_improvement = base_consultation + consultation_boost
+        
+        # Emergency awareness improvement
+        emergency_improvement = 0.0
+        if disclaimer_presence['emergency_notice']:
+            # Base emergency improvement (highest due to severity)
+            base_emergency = 0.30
+            
+            # Adjust based on emergency urgency indicators
+            urgency_terms = ['911', 'immediate', 'urgent', 'emergency', 'crisis', 'severe']
+            emergency_urgency = sum(1 for term in urgency_terms if term in content_text)
+            emergency_boost = min(emergency_urgency * 0.05, 0.20)  # Up to 20% additional
+            emergency_improvement = base_emergency + emergency_boost
+        
+        # Domain-specific adjustments
+        domain_multiplier = self._get_domain_safety_multiplier(domain)
+        
+        return {
+            'overall_safety_improvement': overall_improvement,
+            'medical_safety_improvement': medical_improvement * domain_multiplier,
+            'financial_safety_improvement': financial_improvement * domain_multiplier,
+            'professional_referral_improvement': consultation_improvement * domain_multiplier,
+            'emergency_awareness_improvement': emergency_improvement * domain_multiplier,
+        }
+    
+    def _get_domain_safety_multiplier(self, domain: str) -> float:
+        """Get domain-specific safety multiplier"""
+        multipliers = {
+            'medical': 1.2,      # Medical domain: safety more critical
+            'finance': 1.1,      # Financial domain: safety important
+            'health': 1.2,       # Health content: safety critical
+            'investment': 1.1,   # Investment content: safety important
+            'general': 1.0       # General content: standard safety
+        }
+        return multipliers.get(domain.lower(), 1.0)
 
 # Example usage and testing
 def test_disclaimer_system():

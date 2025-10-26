@@ -91,13 +91,9 @@ class InterpretabilityEvaluator:
             uncertainty_expression = self._evaluate_uncertainty_expression(response, domain)
             
             # Calculate overall interpretability score
-            weights = {
-                'reasoning_clarity': 0.25,
-                'explanation_completeness': 0.20,
-                'step_by_step_quality': 0.20,
-                'evidence_citation': 0.15,
-                'uncertainty_expression': 0.20
-            }
+            weights = self._calculate_dynamic_weights(
+                reasoning_structure, domain, response, query
+            )
             
             overall_interpretability = (
                 weights['reasoning_clarity'] * reasoning_clarity +
@@ -131,6 +127,99 @@ class InterpretabilityEvaluator:
         except Exception as e:
             self.logger.error(f"Error evaluating interpretability: {e}")
             return self._default_score()
+    
+    def _calculate_dynamic_weights(
+        self, 
+        reasoning_structure: Dict, 
+        domain: str, 
+        response: str, 
+        query: str
+    ) -> Dict[str, float]:
+        """
+        Calculate dynamic weights based on response characteristics and domain
+        
+        Args:
+            reasoning_structure: Analysis of reasoning structure
+            domain: Domain context (medical, finance, etc.)
+            response: The response text
+            query: The original query
+            
+        Returns:
+            Dictionary of dynamic weights for interpretability components
+        """
+        # Base weights (starting point)
+        base_weights = {
+            'reasoning_clarity': 0.25,
+            'explanation_completeness': 0.20,
+            'step_by_step_quality': 0.20,
+            'evidence_citation': 0.15,
+            'uncertainty_expression': 0.20
+        }
+        
+        # Adjust weights based on response characteristics
+        response_length = len(response.split())
+        query_complexity = len(query.split())
+        
+        # 1. Adjust for response complexity
+        if response_length > 200:  # Long, detailed response
+            base_weights['reasoning_clarity'] += 0.05
+            base_weights['step_by_step_quality'] += 0.05
+            base_weights['explanation_completeness'] -= 0.05
+            base_weights['uncertainty_expression'] -= 0.05
+        elif response_length < 50:  # Short response
+            base_weights['explanation_completeness'] += 0.10
+            base_weights['reasoning_clarity'] -= 0.05
+            base_weights['step_by_step_quality'] -= 0.05
+        
+        # 2. Adjust for domain requirements
+        if domain == "medical":
+            # Medical domain prioritizes uncertainty and evidence
+            base_weights['uncertainty_expression'] += 0.10
+            base_weights['evidence_citation'] += 0.05
+            base_weights['reasoning_clarity'] -= 0.08
+            base_weights['step_by_step_quality'] -= 0.07
+        elif domain == "finance":
+            # Finance prioritizes clear reasoning and evidence
+            base_weights['reasoning_clarity'] += 0.08
+            base_weights['evidence_citation'] += 0.07
+            base_weights['uncertainty_expression'] -= 0.08
+            base_weights['explanation_completeness'] -= 0.07
+        
+        # 3. Adjust based on reasoning structure quality
+        logical_flow = reasoning_structure.get('logical_flow', 0.0)
+        if logical_flow > 0.8:  # High-quality logical flow
+            base_weights['step_by_step_quality'] += 0.05
+            base_weights['reasoning_clarity'] += 0.03
+            base_weights['explanation_completeness'] -= 0.08
+        elif logical_flow < 0.4:  # Poor logical flow
+            base_weights['reasoning_clarity'] += 0.08
+            base_weights['step_by_step_quality'] -= 0.05
+            base_weights['uncertainty_expression'] -= 0.03
+        
+        # 4. Adjust for query complexity
+        if query_complexity > 15:  # Complex query needs more explanation
+            base_weights['explanation_completeness'] += 0.08
+            base_weights['step_by_step_quality'] += 0.05
+            base_weights['reasoning_clarity'] -= 0.08
+            base_weights['uncertainty_expression'] -= 0.05
+        
+        # 5. Normalize weights to sum to 1.0
+        total_weight = sum(base_weights.values())
+        normalized_weights = {
+            key: value / total_weight for key, value in base_weights.items()
+        }
+        
+        # Ensure no weight goes below 0.05 or above 0.40
+        for key in normalized_weights:
+            normalized_weights[key] = max(0.05, min(0.40, normalized_weights[key]))
+        
+        # Re-normalize after clamping
+        total_weight = sum(normalized_weights.values())
+        final_weights = {
+            key: value / total_weight for key, value in normalized_weights.items()
+        }
+        
+        return final_weights
     
     def _analyze_reasoning_structure(self, response: str) -> Dict:
         """Analyze the structure of reasoning in the response"""

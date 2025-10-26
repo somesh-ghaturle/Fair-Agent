@@ -20,7 +20,13 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-dev-insecure-' + 'x' * 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+# Dynamic allowed hosts configuration
+try:
+    from src.core.network_config import NetworkConfig
+    ALLOWED_HOSTS = NetworkConfig.get_allowed_hosts()
+except ImportError:
+    # Fallback if network config not available
+    ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -140,12 +146,18 @@ REST_FRAMEWORK = {
 }
 
 # CORS settings for API access
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-]
+# Dynamic CORS configuration
+try:
+    from src.core.network_config import NetworkConfig
+    CORS_ALLOWED_ORIGINS = NetworkConfig.get_cors_origins()
+except ImportError:
+    # Fallback CORS configuration
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000", 
+        "http://127.0.0.1:8000",
+        "http://localhost:8000",
+    ]
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -154,7 +166,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+            "hosts": [NetworkConfig.discover_redis_endpoint()] if 'NetworkConfig' in locals() else [('127.0.0.1', 6379)],
         },
     },
 }

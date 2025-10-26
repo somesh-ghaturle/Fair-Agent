@@ -24,11 +24,69 @@ import json
 logger = logging.getLogger(__name__)
 
 class ModelType(Enum):
-    """Supported model types for FAIR-Agent (Ollama models)"""
+    """Supported model types for FAIR-Agent (dynamically populated)"""
+    # Static enum values for supported models
     LLAMA32_LATEST = "llama3.2:latest"
     MISTRAL_LATEST = "mistral:latest"
     PHI3_LATEST = "phi3:latest"
     CODELLAMA_LATEST = "codellama:latest"
+    LLAMA_7B = "llama:7b"
+    LLAMA_7B_CHAT = "llama:7b-chat"
+    FLAN_T5_BASE = "flan-t5:base"
+
+class ModelRegistry:
+    """Dynamic model registry that discovers available models"""
+    
+    @classmethod
+    def get_available_models(cls) -> List[str]:
+        """Get list of available Ollama models"""
+        try:
+            response = requests.get("http://localhost:11434/api/tags", timeout=5)
+            if response.status_code == 200:
+                models = response.json().get("models", [])
+                return [model["name"] for model in models]
+        except Exception as e:
+            logger.warning(f"Could not fetch available models: {e}")
+        
+        # Fallback to common model names if API unavailable
+        return ["llama3.2:latest", "mistral:latest", "phi3:latest"]
+    
+    @classmethod  
+    def get_default_model(cls) -> str:
+        """Get the best available default model"""
+        available_models = cls.get_available_models()
+        
+        # Preference order for default model selection
+        preferred_models = [
+            "llama3.2:latest", "llama3.1:latest", "llama3:latest",
+            "mistral:latest", "phi3:latest"
+        ]
+        
+        for preferred in preferred_models:
+            if preferred in available_models:
+                return preferred
+        
+        # If none of the preferred models are available, use the first available
+        return available_models[0] if available_models else "llama3.2:latest"
+    
+    @classmethod
+    def get_domain_recommended_model(cls, domain: str) -> str:
+        """Get recommended model for specific domain"""
+        available_models = cls.get_available_models()
+        
+        domain_preferences = {
+            'medical': ["llama3.2:latest", "mistral:latest"],  # Medical reasoning
+            'finance': ["llama3.2:latest", "phi3:latest"],    # Financial analysis
+            'general': ["llama3.2:latest", "mistral:latest"]  # General purpose
+        }
+        
+        preferences = domain_preferences.get(domain.lower(), domain_preferences['general'])
+        
+        for preferred in preferences:
+            if preferred in available_models:
+                return preferred
+        
+        return cls.get_default_model()
 
 @dataclass
 class ModelConfig:

@@ -62,7 +62,7 @@ class FinanceAgent:
 
     def __init__(
         self,
-        model_name: str = "llama3.2:latest",
+        model_name: Optional[str] = None,
         device: str = "auto",
         max_length: int = 1024
     ):
@@ -74,7 +74,13 @@ class FinanceAgent:
             device: Device to run the model on ('cpu', 'cuda', or 'auto')
             max_length: Maximum token length for generation
         """
-        self.model_name = model_name
+        # Dynamic model selection  
+        if model_name is None:
+            from ..core.model_manager import ModelRegistry
+            self.model_name = ModelRegistry.get_domain_recommended_model('finance')
+        else:
+            self.model_name = model_name
+            
         self.device = device
         self.max_length = max_length
         self.logger = logging.getLogger(__name__)

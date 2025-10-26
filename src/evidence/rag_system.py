@@ -469,12 +469,12 @@ class EvidenceDatabase:
         
         # Use semantic search if available
         if self.semantic_model and self.source_embeddings:
-            return self._semantic_search(query, domain_source_ids, max_results)
+            return self._semantic_search(query, domain_source_ids, max_results, domain)
         else:
             # Fallback to keyword matching
             return self._keyword_search(query, domain_source_ids, max_results)
     
-    def _semantic_search(self, query: str, source_ids: List[str], max_results: int) -> List[EvidenceSource]:
+    def _semantic_search(self, query: str, source_ids: List[str], max_results: int, domain: str = "general") -> List[EvidenceSource]:
         """Perform semantic similarity search using embeddings with prioritization"""
         try:
             # Encode query
@@ -504,9 +504,9 @@ class EvidenceDatabase:
             # Sort by similarity and return top results
             scored_sources.sort(key=lambda x: x[0], reverse=True)
             
-            # Filter by minimum threshold (0.3 is quite lenient)
-            MIN_SIMILARITY = 0.3
-            filtered_sources = [(score, source) for score, source in scored_sources if score >= MIN_SIMILARITY]
+            # Dynamic similarity threshold based on query characteristics
+            min_similarity = self._calculate_dynamic_similarity_threshold(query, domain)
+            filtered_sources = [(score, source) for score, source in scored_sources if score >= min_similarity]
             
             top_sources = [source for _, source in filtered_sources[:max_results]]
             
@@ -516,7 +516,7 @@ class EvidenceDatabase:
                 dataset_count = sum(1 for s in top_sources if s.id in self.dataset_source_ids)
                 logger.info(f"[EVIDENCE] ✅ Found {len(top_sources)} sources (curated: {curated_count}, dataset: {dataset_count}) - similarity: {scores_str}")
             else:
-                logger.warning(f"[EVIDENCE] ⚠️ Semantic search found no sources above threshold {MIN_SIMILARITY}")
+                logger.warning(f"[EVIDENCE] ⚠️ Semantic search found no sources above threshold {min_similarity:.2f}")
                 # Fallback: return top 3 even if below threshold
                 if scored_sources:
                     top_sources = [source for _, source in scored_sources[:min(3, max_results)]]
@@ -528,6 +528,52 @@ class EvidenceDatabase:
             logger.error(f"[EVIDENCE] Error in semantic search: {e}")
             # Fallback to keyword matching
             return self._keyword_search(query, source_ids, max_results)
+    
+    def _calculate_dynamic_similarity_threshold(self, query: str, domain: str) -> float:
+        """Calculate dynamic similarity threshold based on query and domain characteristics"""
+        
+        # Base threshold by domain (some domains need stricter matching)
+        domain_thresholds = {
+            'medical': 0.35,    # Medical needs higher precision
+            'finance': 0.32,    # Financial information needs accuracy  
+            'scientific': 0.35, # Scientific queries need precision
+            'legal': 0.40,      # Legal domain requires high accuracy
+            'general': 0.25,    # General queries can be more lenient
+        }
+        base_threshold = domain_thresholds.get(domain.lower(), 0.30)
+        
+        # Adjust threshold based on query complexity
+        query_length = len(query.split())
+        if query_length <= 3:
+            # Short queries: lower threshold (more results)
+            length_adjustment = -0.05
+        elif query_length <= 8:
+            # Medium queries: standard threshold
+            length_adjustment = 0.0
+        else:
+            # Long queries: higher threshold (more precise)
+            length_adjustment = 0.05
+        
+        # Technical term density adjustment
+        technical_terms = ['analyze', 'calculate', 'determine', 'evaluate', 'assess', 'compare']
+        technical_count = sum(1 for term in technical_terms if term in query.lower())
+        technical_density = technical_count / max(query_length, 1)
+        
+        if technical_density > 0.3:
+            # High technical density: increase threshold
+            technical_adjustment = 0.05
+        elif technical_density > 0.1:
+            # Medium technical density: slight increase
+            technical_adjustment = 0.02
+        else:
+            # Low technical density: standard threshold
+            technical_adjustment = 0.0
+        
+        # Combine all adjustments
+        final_threshold = base_threshold + length_adjustment + technical_adjustment
+        
+        # Ensure reasonable bounds
+        return max(0.15, min(final_threshold, 0.50))
     
     def _keyword_search(self, query: str, source_ids: List[str], max_results: int) -> List[EvidenceSource]:
         """Fallback keyword-based search"""
@@ -744,18 +790,87 @@ class EvidenceIntegrator:
         return min(coverage, 1.0)
     
     def _calculate_citation_quality(self, citations: List[Citation]) -> float:
-        """Calculate overall citation quality score"""
+        """Calculate overall citation quality score dynamically"""
         if not citations:
             return 0.0
         
-        # Average relevance score weighted by source reliability
-        total_score = sum(citation.relevance_score for citation in citations)
-        average_score = total_score / len(citations)
+        return self._calculate_dynamic_citation_quality(citations)
+    
+    def _calculate_dynamic_citation_quality(self, citations: List[Citation]) -> float:
+        """Calculate citation quality based on source characteristics and diversity"""
+        if not citations:
+            return 0.0
         
-        # Bonus for having multiple citations
-        quantity_bonus = min(len(citations) * 0.1, 0.3)
+        # Base quality from relevance scores
+        relevance_scores = [citation.relevance_score for citation in citations]
+        base_quality = sum(relevance_scores) / len(relevance_scores)
         
-        return min(average_score + quantity_bonus, 1.0)
+        # Source diversity scoring (different source types)
+        source_types = set()
+        for citation in citations:
+            if hasattr(citation, 'source_type'):
+                source_types.add(citation.source_type)
+        
+        # Dynamic diversity bonus based on source variety
+        diversity_factor = min(len(source_types) / 3.0, 1.0)  # Normalize to max 3 types
+        diversity_bonus = diversity_factor * 0.15  # Up to 15% bonus
+        
+        # Source reliability assessment
+        reliability_scores = []
+        for citation in citations:
+            # Dynamic reliability based on source characteristics
+            reliability = self._assess_source_reliability(citation)
+            reliability_scores.append(reliability)
+        
+        avg_reliability = sum(reliability_scores) / len(reliability_scores)
+        reliability_factor = avg_reliability * 0.25  # Up to 25% from reliability
+        
+        # Citation quantity factor (diminishing returns)
+        quantity_count = len(citations)
+        if quantity_count == 1:
+            quantity_factor = 0.0
+        elif quantity_count == 2:
+            quantity_factor = 0.10
+        elif quantity_count == 3:
+            quantity_factor = 0.20
+        else:  # 4+ citations
+            quantity_factor = 0.25
+        
+        # Combine all factors
+        final_score = base_quality + diversity_bonus + reliability_factor + quantity_factor
+        return min(final_score, 1.0)
+    
+    def _assess_source_reliability(self, citation: Citation) -> float:
+        """Assess individual source reliability dynamically"""
+        reliability_score = 0.5  # Base reliability
+        
+        # Check if citation has source information
+        if not hasattr(citation, 'source_type'):
+            return reliability_score
+        
+        # Source type reliability (dynamically assessed)
+        source_type = getattr(citation, 'source_type', 'unknown')
+        
+        if 'academic' in source_type.lower() or 'journal' in source_type.lower():
+            reliability_score += 0.3  # Academic sources more reliable
+        elif 'medical' in source_type.lower() or 'clinical' in source_type.lower():
+            reliability_score += 0.25  # Medical sources highly reliable
+        elif 'financial' in source_type.lower() or 'regulatory' in source_type.lower():
+            reliability_score += 0.25  # Financial regulatory sources reliable
+        elif 'government' in source_type.lower() or 'official' in source_type.lower():
+            reliability_score += 0.20  # Government sources reliable
+        elif 'news' in source_type.lower():
+            reliability_score += 0.10  # News sources moderately reliable
+        else:
+            reliability_score += 0.05  # Unknown sources get small boost
+        
+        # Content quality indicators
+        if hasattr(citation, 'relevance_score'):
+            # Higher relevance suggests better source matching
+            relevance_boost = citation.relevance_score * 0.15
+            reliability_score += relevance_boost
+        
+        return min(reliability_score, 1.0)
 
 class RAGSystem:
     """Complete Retrieval-Augmented Generation system"""
@@ -823,22 +938,122 @@ class RAGSystem:
             response, query, domain
         )
         
-        # Calculate improvement metrics
-        # Add base boost even with low coverage to encourage evidence retrieval
-        base_evidence_boost = 0.05 if enhanced_response.evidence_coverage > 0 else 0.0
-        coverage_boost = enhanced_response.evidence_coverage * 0.35  # Up to 35% from coverage
-        
-        improvements = {
-            'evidence_coverage': enhanced_response.evidence_coverage,
-            'citation_quality': enhanced_response.citation_quality_score,
-            'faithfulness_improvement': min(base_evidence_boost + coverage_boost, 0.40),  # 0.05 base + up to 0.35 = 0.40 max
-            'citation_accuracy_improvement': enhanced_response.citation_quality_score * 0.3,  # Up to 30% improvement
-            'factual_consistency_improvement': enhanced_response.evidence_coverage * 0.35,  # Up to 35% improvement
-        }
+        # Calculate improvement metrics dynamically
+        improvements = self._calculate_dynamic_improvements(enhanced_response, query, domain)
         
         self.logger.info(f"Enhanced response with {len(enhanced_response.evidence_sources)} evidence sources")
         
         return enhanced_response.answer, improvements
+    
+    def _calculate_dynamic_improvements(self, enhanced_response: EnhancedResponse, query: str, domain: str) -> dict:
+        """Calculate evidence-based improvements dynamically based on response characteristics"""
+        
+        # Base evidence presence assessment
+        has_evidence = enhanced_response.evidence_coverage > 0
+        evidence_count = len(enhanced_response.evidence_sources)
+        
+        # Dynamic base boost calculation
+        if has_evidence:
+            # Scale base boost by evidence quality and quantity
+            evidence_quality_factor = enhanced_response.citation_quality_score
+            quantity_factor = min(evidence_count / 3.0, 1.0)  # Normalize to 3 sources
+            base_boost = 0.03 + (evidence_quality_factor * quantity_factor * 0.07)  # 3-10% range
+        else:
+            base_boost = 0.0
+        
+        # Domain-specific coverage weighting
+        domain_coverage_multiplier = self._get_domain_coverage_multiplier(domain)
+        coverage_boost = enhanced_response.evidence_coverage * domain_coverage_multiplier
+        
+        # Quality-adjusted citation improvement
+        citation_base_improvement = enhanced_response.citation_quality_score
+        
+        # Adjust citation improvement based on query complexity
+        query_complexity = self._assess_query_complexity(query)
+        citation_complexity_factor = 0.20 + (query_complexity * 0.15)  # 20-35% range
+        citation_improvement = citation_base_improvement * citation_complexity_factor
+        
+        # Factual consistency improvement based on evidence characteristics
+        evidence_diversity = self._assess_evidence_diversity(enhanced_response.evidence_sources)
+        consistency_multiplier = 0.25 + (evidence_diversity * 0.15)  # 25-40% range
+        factual_improvement = enhanced_response.evidence_coverage * consistency_multiplier
+        
+        # Overall faithfulness improvement (combining base and coverage)
+        faithfulness_improvement = min(base_boost + coverage_boost, 0.45)  # Cap at 45%
+        
+        return {
+            'evidence_coverage': enhanced_response.evidence_coverage,
+            'citation_quality': enhanced_response.citation_quality_score,
+            'faithfulness_improvement': faithfulness_improvement,
+            'citation_accuracy_improvement': citation_improvement,
+            'factual_consistency_improvement': factual_improvement,
+        }
+    
+    def _get_domain_coverage_multiplier(self, domain: str) -> float:
+        """Get domain-specific multiplier for evidence coverage impact"""
+        domain_multipliers = {
+            'medical': 0.40,    # Medical domain values evidence highly
+            'finance': 0.35,    # Financial domain needs solid backing  
+            'scientific': 0.40, # Scientific queries require strong evidence
+            'legal': 0.45,      # Legal domain heavily evidence-dependent
+            'general': 0.30,    # General queries less evidence-dependent
+        }
+        return domain_multipliers.get(domain.lower(), 0.30)
+    
+    def _assess_query_complexity(self, query: str) -> float:
+        """Assess query complexity to adjust citation requirements"""
+        if not query:
+            return 0.0
+        
+        complexity_indicators = 0.0
+        
+        # Length-based complexity
+        word_count = len(query.split())
+        if word_count > 20:
+            complexity_indicators += 0.3
+        elif word_count > 10:
+            complexity_indicators += 0.2
+        elif word_count > 5:
+            complexity_indicators += 0.1
+        
+        # Technical term complexity
+        technical_terms = ['analyze', 'compare', 'evaluate', 'assess', 'determine', 'calculate']
+        technical_count = sum(1 for term in technical_terms if term in query.lower())
+        complexity_indicators += min(technical_count * 0.15, 0.3)
+        
+        # Question complexity markers
+        complex_markers = ['why', 'how', 'what if', 'compare', 'difference', 'relationship']
+        marker_count = sum(1 for marker in complex_markers if marker in query.lower())
+        complexity_indicators += min(marker_count * 0.1, 0.2)
+        
+        return min(complexity_indicators, 1.0)
+    
+    def _assess_evidence_diversity(self, evidence_sources: List[EvidenceSource]) -> float:
+        """Assess diversity of evidence sources for consistency scoring"""
+        if not evidence_sources:
+            return 0.0
+        
+        # Count unique source types
+        source_types = set()
+        publication_years = set()
+        
+        for source in evidence_sources:
+            if hasattr(source, 'source_type'):
+                source_types.add(source.source_type)
+            if hasattr(source, 'publication_date') and source.publication_date:
+                try:
+                    year = source.publication_date[:4]  # Extract year
+                    publication_years.add(year)
+                except:
+                    pass
+        
+        # Diversity score based on variety
+        type_diversity = min(len(source_types) / 3.0, 1.0)  # Max 3 different types
+        temporal_diversity = min(len(publication_years) / 3.0, 1.0)  # Max 3 different years
+        
+        # Combined diversity score
+        overall_diversity = (type_diversity + temporal_diversity) / 2.0
+        return overall_diversity
 
 # Example usage and testing
 def test_rag_system():

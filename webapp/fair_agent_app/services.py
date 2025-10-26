@@ -103,13 +103,23 @@ class FairAgentService:
         """Get default configuration if config file is not available"""
         return {
             'models': {
-                'finance': {'model_name': 'llama3.2:latest'},  # Ollama default
-                'medical': {'model_name': 'llama3.2:latest'}   # Ollama default
+                'finance': {'model_name': cls._get_domain_model('finance')},
+                'medical': {'model_name': cls._get_domain_model('medical')}
             },
             'evaluation': {
                 'metrics': ['faithfulness', 'calibration', 'robustness', 'safety', 'interpretability']
             }
         }
+    
+    @classmethod
+    def _get_domain_model(cls, domain: str) -> str:
+        """Get the appropriate model for a domain"""
+        try:
+            from src.core.model_manager import ModelRegistry
+            return ModelRegistry.get_domain_recommended_model(domain)
+        except ImportError:
+            # Fallback if ModelRegistry not available
+            return "llama3.2:latest"
     
     @classmethod
     def is_initialized(cls) -> bool:
