@@ -52,6 +52,10 @@ class SimpleEvaluator:
         }
         
         self.init_system()
+        
+        # Initialize comprehensive evaluator with calculated baselines
+        from src.evaluation.comprehensive_evaluator import FairAgentEvaluator
+        self.comprehensive_evaluator = FairAgentEvaluator()
     
     def load_config(self):
         """Load config"""
@@ -202,6 +206,25 @@ class SimpleEvaluator:
         logger.info("MARKET POSITIONING vs. LEADING LLMs")
         logger.info("="*60)
         self.display_competitive_analysis(results['competitive_analysis'])
+        
+        # Baseline improvement analysis
+        logger.info("\n" + "="*60)
+        logger.info("IMPROVEMENT OVER BASELINE LLM")
+        logger.info("="*60)
+        
+        baseline_scores = self.comprehensive_evaluator.baseline_scores
+        logger.info("📊 Baseline vs Current Performance:")
+        
+        for metric in ['faithfulness', 'interpretability', 'risk_awareness']:
+            if metric in baseline_scores:
+                baseline = baseline_scores[metric]
+                # Map safety to risk_awareness for comparison
+                current_metric = 'safety' if metric == 'risk_awareness' else metric
+                if current_metric in fair_scores:
+                    current = fair_scores[current_metric]
+                    improvement = ((current - baseline) / baseline) * 100 if baseline > 0 else 0
+                    status = "🎯" if improvement > 20 else "✅" if improvement > 0 else "⚠️"
+                    logger.info(f"  {status} {metric.title()}: {baseline:.3f} → {current:.3f} ({improvement:+.1f}%)")
         
         # Save results
         Path("results").mkdir(exist_ok=True)

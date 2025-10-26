@@ -31,6 +31,7 @@ class FairAgentService:
     _orchestrator = None
     _evaluators = None
     _initialized = False
+    _baseline_scores_path = "results/baseline_scores.json"
     
     def __new__(cls):
         if cls._instance is None:
@@ -73,6 +74,9 @@ class FairAgentService:
             # Initialize evaluators
             safety_config_path = getattr(settings, 'FAIR_AGENT_SETTINGS', {}).get('SAFETY_KEYWORDS_PATH')
             
+            # Ensure baseline scores are available for evaluations
+            cls._ensure_baseline_scores_available()
+            
             cls._evaluators = {
                 'faithfulness': FaithfulnessEvaluator(),
                 'adaptability': AdaptabilityEvaluator(),
@@ -111,6 +115,50 @@ class FairAgentService:
     def is_initialized(cls) -> bool:
         """Check if the service is initialized"""
         return cls._initialized
+    
+    @classmethod
+    def _ensure_baseline_scores_available(cls):
+        """Ensure baseline scores are available for evaluation using auto-refresh system"""
+        try:
+            from src.evaluation.baseline_refresh import ensure_baseline_available
+            
+            # Use the baseline refresh manager to ensure baselines are available
+            success = ensure_baseline_available()
+            
+            if success:
+                logger.info("✅ Baseline scores are available and up-to-date")
+            else:
+                logger.warning("⚠️ Could not ensure baseline availability - using fallback scores")
+                
+        except Exception as e:
+            logger.warning(f"⚠️ Error with baseline refresh system: {e}")
+            logger.warning("Falling back to manual baseline check...")
+            
+            # Fallback to original method
+            import os
+            from pathlib import Path
+            
+            project_root = Path(__file__).parent.parent.parent
+            baseline_path = project_root / cls._baseline_scores_path
+            
+            if not baseline_path.exists():
+                logger.info("🔍 Baseline scores not found. Calculating baselines...")
+                try:
+                    from src.evaluation.baseline_evaluator import BaselineEvaluator
+                    
+                    evaluator = BaselineEvaluator()
+                    results = evaluator.run_baseline_evaluation(num_queries_per_domain=3)
+                    
+                    baseline_path.parent.mkdir(parents=True, exist_ok=True)
+                    evaluator.save_baseline_results(results, str(baseline_path))
+                    
+                    logger.info(f"✅ Baseline scores calculated and saved to {baseline_path}")
+                    
+                except Exception as e:
+                    logger.warning(f"⚠️ Could not calculate baseline scores: {e}")
+                    logger.warning("Using fallback hardcoded baselines for evaluation")
+            else:
+                logger.info(f"✅ Using existing baseline scores from {baseline_path}")
     
     @classmethod
     def _reinitialize_agents_with_model(cls, model_name: str):

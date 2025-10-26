@@ -40,6 +40,7 @@ python-dotenv>=1.0.1
 click>=8.1.7
 tqdm>=4.66.0
 requests>=2.32.0
+schedule>=1.2.0
 
 # AI/ML Additional Dependencies
 sentence-transformers>=3.3.0

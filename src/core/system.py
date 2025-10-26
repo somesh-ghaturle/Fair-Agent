@@ -41,6 +41,9 @@ class FairAgentSystem:
         # Initialize orchestrator
         self.orchestrator = None
         self._initialize_orchestrator()
+        
+        # Initialize baseline auto-refresh system
+        self._initialize_baseline_refresh()
     
     def _initialize_orchestrator(self):
         """Initialize the orchestrator with agents"""
@@ -68,6 +71,19 @@ class FairAgentSystem:
         except Exception as e:
             self.logger.error(f"Failed to initialize system: {e}")
             raise
+    
+    def _initialize_baseline_refresh(self):
+        """Initialize baseline auto-refresh system"""
+        try:
+            from ..evaluation.baseline_refresh import start_auto_refresh
+            
+            # Start automatic baseline refresh
+            start_auto_refresh()
+            self.logger.info("Baseline auto-refresh system started")
+            
+        except Exception as e:
+            self.logger.warning(f"Could not start baseline auto-refresh: {e}")
+            self.logger.warning("Baseline scores will use manual refresh only")
     
     def process_query(self, query: str, context: Optional[Dict] = None) -> Dict[str, Any]:
         """

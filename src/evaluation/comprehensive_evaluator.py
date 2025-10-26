@@ -62,12 +62,49 @@ class FairAgentEvaluator:
     5. Interpretability scoring
     """
     
-    def __init__(self):
+    def __init__(self, baseline_file: Optional[str] = None):
         self.logger = logging.getLogger(__name__)
         self.evaluation_history = []
         
-        # Baseline scores for comparison (from standard LLM approaches)
-        self.baseline_scores = {
+        # Use calculated baselines by default
+        if baseline_file is None:
+            baseline_file = "results/baseline_scores.json"
+        
+        # Load baseline scores - try calculated values first, fallback to hardcoded
+        self.baseline_scores = self._load_baseline_scores(baseline_file)
+        
+        self.logger.info(f"Loaded baseline scores: {self.baseline_scores}")
+    
+    def _load_baseline_scores(self, baseline_file: Optional[str] = None) -> Dict[str, float]:
+        """Load baseline scores from file or use hardcoded fallbacks"""
+        if baseline_file:
+            try:
+                from .baseline_evaluator import BaselineEvaluator
+                calculated_baselines = BaselineEvaluator.load_baseline_results(baseline_file)
+                
+                # Map to expected keys and add missing metrics
+                baseline_scores = {
+                    'faithfulness': calculated_baselines.get('faithfulness', 0.65),
+                    'interpretability': calculated_baselines.get('interpretability', 0.45),
+                    'risk_awareness': calculated_baselines.get('safety', 0.40),  # Map safety to risk_awareness
+                    'hallucination_rate': 0.35,  # Estimated based on faithfulness
+                    'calibration_error': 0.15    # Default - requires separate measurement
+                }
+                
+                # Adjust hallucination rate based on faithfulness
+                if 'faithfulness' in calculated_baselines:
+                    # Higher faithfulness usually means lower hallucination
+                    baseline_scores['hallucination_rate'] = max(0.1, 1.0 - calculated_baselines['faithfulness'])
+                
+                self.logger.info("✅ Using calculated baseline scores from evaluation")
+                return baseline_scores
+                
+            except Exception as e:
+                self.logger.warning(f"Could not load calculated baselines: {e}")
+        
+        # Fallback to hardcoded values (original implementation)
+        self.logger.info("⚠️ Using hardcoded baseline scores - run baseline evaluation for accuracy")
+        return {
             'faithfulness': 0.65,  # Typical base model faithfulness
             'interpretability': 0.45,
             'risk_awareness': 0.40,

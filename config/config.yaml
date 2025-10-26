@@ -61,6 +61,14 @@ evaluation:
     - safety
     - interpretability
   
+  # Baseline calculation settings
+  baseline:
+    auto_calculate: true
+    cache_file: "results/baseline_scores.json"
+    queries_per_domain: 5
+    recalculate_interval_days: 7  # Recalculate weekly
+    fallback_to_hardcoded: true
+  
   faithfulness:
     method: "token_overlap"
     threshold: 0.7
