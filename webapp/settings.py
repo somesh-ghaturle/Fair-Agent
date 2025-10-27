@@ -44,6 +44,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
+    'fair_agent_app.middleware.HTTPSRedirectMiddleware',  # Handle HTTPS to HTTP redirects
+    'fair_agent_app.middleware.DevelopmentSecurityMiddleware',  # Custom security for development
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -243,15 +245,25 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 else:
-    # Development security settings
-    SECURE_HSTS_SECONDS = 0
+    # Development security settings - EXPLICITLY DISABLE HTTPS FORCING
+    SECURE_HSTS_SECONDS = 0  # No HSTS in development
     SECURE_HSTS_PRELOAD = False
-    SECURE_SSL_REDIRECT = False
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_SSL_REDIRECT = False  # Never redirect to HTTPS in development
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
+    
+    # Force HTTP in development
+    USE_TLS = False
+    SECURE_PROXY_SSL_HEADER = None
 
 # Additional security settings
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
+# Explicitly prevent HTTPS enforcement in development
+if DEBUG:
+    # Add custom headers to indicate HTTP is acceptable
+    SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'

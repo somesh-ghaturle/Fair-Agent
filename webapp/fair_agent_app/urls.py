@@ -4,6 +4,7 @@ URL configuration for FAIR-Agent application
 
 from django.urls import path
 from . import views
+from . import https_views
 
 app_name = 'fair_agent_app'
 
@@ -13,6 +14,9 @@ urlpatterns = [
     path('query/', views.QueryInterfaceView.as_view(), name='query_interface'),
     path('simple/', views.SimpleQueryView.as_view(), name='simple_query'),
     path('datasets/', views.DatasetsView.as_view(), name='datasets'),
+    
+    # HTTPS redirect helper
+    path('https-info/', https_views.https_redirect_info, name='https_info'),
     
     # Test interface
     path('test/', views.test_ui, name='test_ui'),
