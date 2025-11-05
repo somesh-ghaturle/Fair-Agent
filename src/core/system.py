@@ -41,9 +41,6 @@ class FairAgentSystem:
         # Initialize orchestrator
         self.orchestrator = None
         self._initialize_orchestrator()
-        
-        # Initialize baseline auto-refresh system
-        self._initialize_baseline_refresh()
     
     def _initialize_orchestrator(self):
         """Initialize the orchestrator with agents"""
@@ -63,7 +60,8 @@ class FairAgentSystem:
             self.orchestrator = Orchestrator(
                 finance_config=finance_config,
                 medical_config=medical_config,
-                enable_cross_domain=self.config.enable_cross_domain
+                enable_cross_domain=self.config.enable_cross_domain,
+                enable_knowledge_graph=True  # Enable knowledge graph by default
             )
             
             self.logger.info("FAIR-Agent system initialized successfully")

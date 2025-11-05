@@ -1,6 +1,14 @@
 # FAIR-Agent System Requirements
 # Dependencies for the FAIR-Agent multi-agent system
 
+# Knowledge Graph Libraries
+rdflib>=7.0.0
+networkx>=3.3
+owlready2>=0.46
+py2neo>=2021.2.3
+
+# Web Framework - Updated to compatible stable versions
+
 # Web Framework - Updated to compatible stable versions
 Django>=4.2.0,<5.0
 django-cors-headers==4.5.0

@@ -20,6 +20,10 @@ from .medical_agent import MedicalAgent, MedicalResponse
 # Add enhancement modules to path for general query handling
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'safety'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'reasoning'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'knowledge_graph'))
+
+# Import knowledge graph components
+from knowledge_graph import KnowledgeGraph, GraphBuilder, KnowledgeGraphReasoner
 
 class QueryDomain(Enum):
     """Enumeration of supported query domains"""
@@ -54,7 +58,8 @@ class Orchestrator:
         self,
         finance_config: Optional[Dict] = None,
         medical_config: Optional[Dict] = None,
-        enable_cross_domain: bool = True
+        enable_cross_domain: bool = True,
+        enable_knowledge_graph: bool = True
     ):
         """
         Initialize the Orchestrator
@@ -63,9 +68,11 @@ class Orchestrator:
             finance_config: Configuration for finance agent
             medical_config: Configuration for medical agent
             enable_cross_domain: Whether to enable cross-domain reasoning
+            enable_knowledge_graph: Whether to enable knowledge graph enhancements
         """
         self.logger = logging.getLogger(__name__)
         self.enable_cross_domain = enable_cross_domain
+        self.enable_knowledge_graph = enable_knowledge_graph
         
         # Initialize agents with provided configurations
         finance_config = finance_config or {}
@@ -74,10 +81,157 @@ class Orchestrator:
         try:
             self.finance_agent = FinanceAgent(**finance_config)
             self.medical_agent = MedicalAgent(**medical_config)
+            
+            # Initialize knowledge graph system
+            if self.enable_knowledge_graph:
+                self._initialize_knowledge_graph()
+            else:
+                self.kg = None
+                self.kg_builder = None
+                self.kg_reasoner = None
+            
             self.logger.info("Orchestrator initialized successfully")
         except Exception as e:
             self.logger.error(f"Failed to initialize orchestrator: {e}")
             raise
+    
+    def _initialize_knowledge_graph(self):
+        """Initialize the knowledge graph system"""
+        try:
+            # Create knowledge graph instance
+            self.kg = KnowledgeGraph(name="fair_agent_kg")
+            
+            # Create graph builder and reasoner
+            self.kg_builder = GraphBuilder()
+            self.kg_reasoner = KnowledgeGraphReasoner()
+            
+            # Build initial domain knowledge
+            self._build_initial_knowledge()
+            
+            self.logger.info("Knowledge graph system initialized")
+            
+        except Exception as e:
+            self.logger.error(f"Failed to initialize knowledge graph: {e}")
+            self.kg = None
+            self.kg_builder = None
+            self.kg_reasoner = None
+    
+    def _build_initial_knowledge(self):
+        """Build initial knowledge base from domain ontologies"""
+        if not self.kg or not self.kg_builder:
+            return
+        
+        try:
+            # Build medical ontology
+            self.kg_builder.build_medical_ontology(self.kg)
+            
+            # Build finance ontology
+            self.kg_builder.build_finance_ontology(self.kg)
+            
+            # Build cross-domain relationships
+            self.kg_builder.build_cross_domain_relationships(self.kg)
+            
+            # Try to populate from datasets if available
+            data_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
+            if os.path.exists(data_dir):
+                self.kg_builder.populate_from_datasets(self.kg, data_dir)
+            
+            self.logger.info(f"Initial knowledge base built with {self.kg.get_statistics()['network_nodes']} entities")
+            
+        except Exception as e:
+            self.logger.error(f"Failed to build initial knowledge: {e}")
+    
+    def _enhance_with_knowledge_graph(self, query: str, response: str, domain: QueryDomain) -> Dict[str, Any]:
+        """
+        Enhance response using knowledge graph reasoning
+        
+        Args:
+            query: Original query
+            response: Agent response
+            domain: Query domain
+            
+        Returns:
+            Enhancement dictionary with additional insights
+        """
+        if not self.kg or not self.kg_reasoner:
+            return {"kg_enhanced": False}
+        
+        try:
+            enhancement = {
+                "kg_enhanced": True,
+                "related_concepts": [],
+                "inferred_relationships": [],
+                "confidence_boost": 0.0,
+                "explanation": ""
+            }
+            
+            # Extract key entities from query and response
+            entities = self._extract_entities_from_text(query + " " + response)
+            
+            if not entities:
+                return {"kg_enhanced": False, "reason": "No entities found"}
+            
+            # Find related concepts for each entity
+            all_related = []
+            for entity in entities[:3]:  # Limit to top 3 entities
+                related = self.kg.find_related_entities(entity, max_depth=2)
+                if related:
+                    all_related.extend([{"entity": entity, "relations": related}])
+            
+            enhancement["related_concepts"] = all_related
+            
+            # Try to infer new relationships
+            inferred = []
+            for entity in entities[:2]:  # Limit inference to top 2 entities
+                inf = self.kg_reasoner.infer_relationships(self.kg, entity)
+                if inf:
+                    inferred.extend(inf[:2])  # Limit to 2 inferences per entity
+            
+            enhancement["inferred_relationships"] = inferred
+            
+            # Calculate confidence boost based on knowledge graph support
+            kg_support = len(all_related) + len(inferred)
+            enhancement["confidence_boost"] = min(kg_support * 0.05, 0.15)  # Max 15% boost
+            
+            # Generate explanation
+            if all_related:
+                enhancement["explanation"] = f"Knowledge graph found {len(all_related)} related concepts and {len(inferred)} inferred relationships."
+            else:
+                enhancement["explanation"] = "Knowledge graph analysis completed but no additional relationships found."
+            
+            return enhancement
+            
+        except Exception as e:
+            self.logger.error(f"Failed to enhance with knowledge graph: {e}")
+            return {"kg_enhanced": False, "error": str(e)}
+    
+    def _extract_entities_from_text(self, text: str) -> List[str]:
+        """
+        Extract potential entities from text for knowledge graph lookup
+        
+        Args:
+            text: Text to extract entities from
+            
+        Returns:
+            List of potential entity names
+        """
+        # Simple entity extraction - in production, use NER models
+        entities = []
+        text_lower = text.lower()
+        
+        # Medical entities
+        medical_terms = ["diabetes", "insulin", "glucose", "hypertension", "cancer", 
+                        "heart", "blood", "aspirin", "treatment", "symptoms"]
+        
+        # Financial entities
+        finance_terms = ["diversification", "portfolio", "risk", "return", "volatility",
+                        "stocks", "bonds", "investment", "market", "profit"]
+        
+        for term in medical_terms + finance_terms:
+            if term in text_lower:
+                entities.append(term)
+        
+        return list(set(entities))  # Remove duplicates
     
     def process_query(
         self,
@@ -218,10 +372,27 @@ class Orchestrator:
         """Handle finance-specific queries"""
         finance_response = self.finance_agent.query(query, context)
         
+        # Enhance with knowledge graph if available
+        kg_enhancement = self._enhance_with_knowledge_graph(query, finance_response.answer, QueryDomain.FINANCE)
+        
+        # Apply confidence boost from knowledge graph
+        boosted_confidence = min(finance_response.confidence_score + kg_enhancement.get("confidence_boost", 0.0), 1.0)
+        
+        # Add knowledge graph insights to response
+        enhanced_answer = finance_response.answer
+        if kg_enhancement.get("kg_enhanced", False):
+            kg_explanation = kg_enhancement.get("explanation", "")
+            if kg_explanation:
+                enhanced_answer += f"\n\n**Knowledge Graph Insights**: {kg_explanation}"
+        
+        # Update the response with enhanced answer and confidence
+        finance_response.answer = enhanced_answer
+        finance_response.confidence_score = boosted_confidence
+        
         return OrchestratedResponse(
-            primary_answer=finance_response.answer,
+            primary_answer=enhanced_answer,
             domain=QueryDomain.FINANCE,
-            confidence_score=finance_response.confidence_score,
+            confidence_score=boosted_confidence,
             finance_response=finance_response,
             routing_explanation="Query routed to Finance Agent based on financial keywords and patterns"
         )
@@ -230,10 +401,27 @@ class Orchestrator:
         """Handle medical-specific queries"""
         medical_response = self.medical_agent.query(query, context)
         
+        # Enhance with knowledge graph if available
+        kg_enhancement = self._enhance_with_knowledge_graph(query, medical_response.answer, QueryDomain.MEDICAL)
+        
+        # Apply confidence boost from knowledge graph
+        boosted_confidence = min(medical_response.confidence_score + kg_enhancement.get("confidence_boost", 0.0), 1.0)
+        
+        # Add knowledge graph insights to response
+        enhanced_answer = medical_response.answer
+        if kg_enhancement.get("kg_enhanced", False):
+            kg_explanation = kg_enhancement.get("explanation", "")
+            if kg_explanation:
+                enhanced_answer += f"\n\n**Knowledge Graph Insights**: {kg_explanation}"
+        
+        # Update the response with enhanced answer and confidence
+        medical_response.answer = enhanced_answer
+        medical_response.confidence_score = boosted_confidence
+        
         return OrchestratedResponse(
-            primary_answer=medical_response.answer,
+            primary_answer=enhanced_answer,
             domain=QueryDomain.MEDICAL,
-            confidence_score=medical_response.confidence_score,
+            confidence_score=boosted_confidence,
             medical_response=medical_response,
             routing_explanation="Query routed to Medical Agent based on medical keywords and patterns"
         )
