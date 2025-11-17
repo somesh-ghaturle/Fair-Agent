@@ -414,6 +414,7 @@ Begin your answer:
         Ensure response follows structured format for interpretability
         
         NEW METHOD - Boosts interpretability scores
+        UPDATED: Evidence now appears at the TOP of the response
         """
         if not response:
             return response
@@ -421,35 +422,41 @@ Begin your answer:
         # Check if response already has good structure
         has_steps = bool(re.search(r'(\*\*Step \d+|\bStep \d+:|First,|Next,|Then,|Finally,)', response, re.I))
         has_citations = bool(re.search(r'\[Source \d+\]', response))
+        has_evidence_section = bool(re.search(r'(Evidence-Based Information|References:|Evidence Sources)', response, re.I))
         
-        # If already well-structured, return as-is
-        if has_steps and has_citations:
+        # If already well-structured with evidence, return as-is
+        if has_steps and has_citations and has_evidence_section:
             self.logger.info("✅ Response already well-structured")
             return response
         
-        # Add structure if missing
-        structured = response
+        # Build evidence section FIRST (at the top)
+        evidence_header = ""
+        if not has_citations and not has_evidence_section and evidence_sources:
+            evidence_header = "**📚 Evidence-Based Information:**\n\n"
+            for i, source in enumerate(evidence_sources, 1):
+                evidence_header += f"**[Source {i}]** {source.title}\n"
+                evidence_header += f"- Type: {source.source_type}\n"
+                evidence_header += f"- Reliability: {source.reliability_score:.0%}\n"
+                # Add snippet if available
+                if hasattr(source, 'content') and source.content:
+                    snippet = source.content[:200] + '...' if len(source.content) > 200 else source.content
+                    evidence_header += f"- Summary: {snippet}\n"
+                evidence_header += "\n"
+            evidence_header += "\n---\n\n**Analysis Based on Evidence:**\n\n"
         
-        # Add section headers if completely unstructured
+        # Add structure to main response if missing
+        structured = response
         if not has_steps and not re.search(r'\*\*.*\*\*', response):
             paragraphs = [p.strip() for p in response.split('\n\n') if p.strip()]
             if len(paragraphs) > 1:
-                restructured = "## Financial Analysis\n\n"
+                restructured = ""
                 for i, para in enumerate(paragraphs[:4], 1):  # Max 4 steps
                     if para:
                         restructured += f"**Step {i}:** {para}\n\n"
                 structured = restructured
         
-        # Add evidence sources if citations missing AND no evidence section exists
-        has_evidence_section = bool(re.search(r'(Evidence-Based Information|References:|Evidence Sources)', structured, re.I))
-        if not has_citations and not has_evidence_section and evidence_sources:
-            structured += "\n\n## Evidence Sources Referenced\n\n"
-            for i, source in enumerate(evidence_sources, 1):
-                structured += f"**[Source {i}]** {source.title}\n"
-                structured += f"- Type: {source.source_type}\n"
-                structured += f"- Reliability: {source.reliability_score:.0%}\n\n"
-        
-        return structured
+        # Combine: Evidence FIRST, then the analysis
+        return evidence_header + structured
     
     def _add_finance_disclaimer(self, response: str) -> str:
         """

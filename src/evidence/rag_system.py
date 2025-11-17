@@ -756,23 +756,11 @@ class EvidenceIntegrator:
         if not sources:
             return response
         
-        # Add evidence-based enhancement
-        evidence_section = "\n\n**Evidence-Based Information:**\n"
+        # DO NOT add evidence sections here - let the agent's _add_structured_format handle ALL formatting
+        # This prevents duplicate evidence sections
+        # Just return the original response - the agent will format it with evidence sources
         
-        for i, (source, citation) in enumerate(zip(sources, citations), 1):
-            evidence_section += f"\n{citation.text_snippet} {citation.citation_format}\n"
-        
-        # Add citations section
-        if citations:
-            citations_section = "\n\n**References:**\n"
-            for citation in citations:
-                citations_section += f"{citation.citation_format}\n"
-            
-            enhanced_response = response + evidence_section + citations_section
-        else:
-            enhanced_response = response + evidence_section
-        
-        return enhanced_response
+        return response
     
     def _calculate_evidence_coverage(self, query: str, sources: List[EvidenceSource]) -> float:
         """Calculate how well evidence covers the query"""
