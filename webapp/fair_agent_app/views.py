@@ -303,6 +303,123 @@ class DatasetsView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page_title'] = 'Datasets'
+        
+        # Load evidence sources from YAML
+        import yaml
+        import os
+        import json
+        from pathlib import Path
+        
+        base_dir = Path(__file__).resolve().parent.parent.parent
+        evidence_sources_path = base_dir / 'config' / 'evidence_sources.yaml'
+        
+        # Load curated sources
+        try:
+            with open(evidence_sources_path, 'r') as f:
+                evidence_data = yaml.safe_load(f)
+                context['medical_sources'] = evidence_data.get('medical_sources', [])
+                context['finance_sources'] = evidence_data.get('finance_sources', [])
+                curated_count = len(context['medical_sources']) + len(context['finance_sources'])
+        except Exception as e:
+            logger.error(f"Error loading evidence sources: {e}")
+            context['medical_sources'] = []
+            context['finance_sources'] = []
+            curated_count = 0
+        
+        # Load dataset Q&A sources
+        dataset_qa_sources = []
+        finqa_path = base_dir / 'data' / 'datasets' / 'finqa' / 'finance_qa.jsonl'
+        
+        if finqa_path.exists():
+            try:
+                with open(finqa_path, 'r') as f:
+                    for idx, line in enumerate(f):
+                        try:
+                            data = json.loads(line)
+                            dataset_qa_sources.append({
+                                'id': f"dataset_fin_{idx:04d}",
+                                'title': f"Finance Q&A: {data['question'][:60]}...",
+                                'content': f"Q: {data['question']}\n\nA: {data['answer']}",
+                                'source_type': 'qa_dataset',
+                                'reliability_score': 0.75,
+                                'domain': 'finance',
+                                'publication_date': '2024-10-05'
+                            })
+                        except json.JSONDecodeError:
+                            continue
+            except Exception as e:
+                logger.error(f"Error loading dataset Q&A sources: {e}")
+        
+        context['dataset_qa_sources'] = dataset_qa_sources
+        context['total_sources'] = curated_count + len(dataset_qa_sources)
+        context['curated_count'] = curated_count
+        context['dataset_qa_count'] = len(dataset_qa_sources)
+        
+        # Dataset information
+        datasets_dir = base_dir / 'data' / 'datasets'
+        context['datasets'] = [
+            {
+                'name': 'MedMCQA',
+                'domain': 'medical',
+                'description': 'Medical multiple choice question answering dataset for medical entrance exams',
+                'links': [
+                    {'text': '🤗 HuggingFace Dataset', 'url': 'https://huggingface.co/datasets/openlifescienceai/medmcqa'},
+                    {'text': '📊 Original Repository', 'url': 'https://github.com/medmcqa/medmcqa'},
+                    {'text': '📄 Research Paper', 'url': 'https://proceedings.mlr.press/v174/pal22a.html'}
+                ]
+            },
+            {
+                'name': 'PubMedQA',
+                'domain': 'medical',
+                'description': 'Biomedical question answering using PubMed abstracts',
+                'links': [
+                    {'text': '🤗 HuggingFace Dataset', 'url': 'https://huggingface.co/datasets/qiaojin/PubMedQA'},
+                    {'text': '📊 Original Repository', 'url': 'https://github.com/pubmedqa/pubmedqa'},
+                    {'text': '📄 Research Paper', 'url': 'https://arxiv.org/abs/1909.06146'}
+                ]
+            },
+            {
+                'name': 'MIMIC-IV',
+                'domain': 'medical',
+                'description': 'Medical Information Mart for Intensive Care - clinical database',
+                'links': [
+                    {'text': '📊 PhysioNet Repository', 'url': 'https://physionet.org/content/mimiciv/2.2/'},
+                    {'text': '📄 Research Paper', 'url': 'https://www.nature.com/articles/s41597-022-01899-x'},
+                    {'text': '⚠️ Requires Access', 'url': '#'}
+                ]
+            },
+            {
+                'name': 'FinQA',
+                'domain': 'finance',
+                'description': 'Financial question answering with numerical reasoning',
+                'links': [
+                    {'text': '📊 Dataset Repository', 'url': 'https://github.com/czyssrs/FinQA'},
+                    {'text': '📄 Research Paper (EMNLP 2021)', 'url': 'https://aclanthology.org/2021.emnlp-main.300/'},
+                    {'text': '🌐 Project Website', 'url': 'https://finqasite.github.io/'}
+                ]
+            },
+            {
+                'name': 'TAT-QA',
+                'domain': 'finance',
+                'description': 'Table-and-text question answering for financial documents',
+                'links': [
+                    {'text': '📊 Dataset Repository', 'url': 'https://github.com/NExTplusplus/TAT-QA'},
+                    {'text': '📄 Research Paper (ACL 2021)', 'url': 'https://aclanthology.org/2021.acl-long.254/'},
+                    {'text': '🌐 Project Website', 'url': 'https://nextplusplus.github.io/TAT-QA/'}
+                ]
+            },
+            {
+                'name': 'ConvFinQA',
+                'domain': 'finance',
+                'description': 'Conversational financial question answering',
+                'links': [
+                    {'text': '📊 Dataset Repository', 'url': 'https://github.com/czyssrs/ConvFinQA'},
+                    {'text': '📄 Research Paper (EMNLP 2022)', 'url': 'https://aclanthology.org/2022.emnlp-main.421/'},
+                    {'text': '🌐 Project Website', 'url': 'https://sites.google.com/view/convfinqa'}
+                ]
+            }
+        ]
+        
         return context
 
 

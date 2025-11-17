@@ -524,21 +524,32 @@ class ChainOfThoughtGenerator:
         if step_number == 1:
             # Problem analysis step
             query_focus = self._identify_query_focus(query, domain)
-            return f"I need to analyze your question about {query_focus}. {template}"
+            return f"{template.rstrip(':')} to provide accurate, evidence-based information."
         
-        elif "evaluate" in template.lower() or "consider" in template.lower():
-            # Evaluation step - analyze what's being evaluated
+        elif "first" in template.lower() and step_number == 2:
+            # First evaluation step - what we're analyzing
             if key_concepts:
                 concept_list = ", ".join(key_concepts[:3])  # Top 3 concepts
-                return f"Let me evaluate the key factors: {concept_list}. {template}"
+                return f"{template.rstrip(':')} including {concept_list}."
+            else:
+                return f"{template.rstrip(':')} to understand the core question."
             
-        elif "conclusion" in template.lower() or step_number >= 5:
-            # Conclusion step - summarize the reasoning
-            conclusion_focus = self._extract_conclusion_focus(response_part)
-            return f"Based on my analysis, {conclusion_focus}. {template}"
+        elif "next" in template.lower() or "then" in template.lower():
+            # Middle evaluation steps - deeper analysis
+            if key_concepts:
+                return f"{template.rstrip(':')} particularly focusing on {key_concepts[0] if key_concepts else 'relevant factors'}."
+            else:
+                return f"{template.rstrip(':')} based on current understanding."
+                
+        elif "finally" in template.lower() or step_number >= 5:
+            # Conclusion step - emphasize key takeaway
+            if "professional" in response_part.lower() or "consult" in response_part.lower():
+                return f"{template.rstrip(':')} Professional guidance is essential for your specific situation."
+            else:
+                return f"{template.rstrip(':')} Consider all factors in your decision-making."
         
-        # Default: Use template with context
-        return f"{template} Based on the information: {response_part[:100]}..."
+        # Default: Use clean template without truncation
+        return template
     
     def _extract_response_concepts(self, response_part: str, domain: str) -> List[str]:
         """Extract key concepts from response content"""
@@ -755,17 +766,20 @@ class ChainOfThoughtIntegrator:
         # Start with the main answer
         formatted_response = chain.final_conclusion
         
-        # Add reasoning process with concise steps
-        formatted_response += "\n\nMy Reasoning Process:\n"
+        # Add reasoning process section with clean formatting
+        formatted_response += "\n\n---\n\nMy Reasoning Process:\n"
         
         for step in chain.thought_steps:
-            # Use clean, concise step descriptions without verbose evidence duplication
-            step_content = step.thought
-            formatted_response += f"\nStep {step.step_number}: {step_content}"
+            # Use clean, concise step descriptions
+            step_content = step.thought.strip()
+            # Remove any truncation artifacts
+            if step_content.endswith('...'):
+                step_content = step_content[:-3].rstrip()
+            formatted_response += f"Step {step.step_number}: {step_content}\n\n"
         
-        # Add confidence and transparency information
-        formatted_response += f"\n\nReasoning Confidence: {chain.overall_confidence:.1%}"
-        formatted_response += f"\nTransparency Score: {chain.reasoning_transparency:.1%}"
+        # Add confidence metrics in a clean format
+        formatted_response += f"Reasoning Confidence: {chain.overall_confidence:.1%}\n"
+        formatted_response += f"Transparency Score: {chain.reasoning_transparency:.1%}"
         
         return formatted_response
 
