@@ -154,10 +154,10 @@ class FinanceAgent:
             # Step 4: Enhance response using full system integration (keep existing enhancements)
             enhanced_answer, internet_source_count = self._enhance_with_systems(question, base_answer)
             
-            # Step 5: Structured format and evidence will be added by FAIR pipeline in _parse_finance_response
-            # No need to call _add_structured_format here to avoid duplication
+            # Step 5: Add structured format (deduplication handled in method)
+            enhanced_answer = self._add_structured_format(enhanced_answer, evidence_sources)
 
-            # Step 3: Parse and structure the enhanced response
+            # Step 6: Parse and structure the enhanced response
             structured_response = self._parse_finance_response(
                 enhanced_answer,
                 question,

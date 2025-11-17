@@ -150,9 +150,9 @@ class MedicalAgent:
             # Step 4: Enhance response using full system integration
             enhanced_answer, internet_source_count = self._enhance_with_systems(question, base_answer)
             
-            # Step 5: Structured format, evidence, and disclaimers will be added by FAIR pipeline
-            # No need to call _add_structured_format here to avoid duplication
-            # Medical disclaimer is added by safety system in _parse_medical_response
+            # Step 5: Add structured format (deduplication handled in method)
+            enhanced_answer = self._add_structured_format(enhanced_answer, evidence_sources)
+            enhanced_answer = self._add_medical_disclaimer(enhanced_answer)
             
             # Step 6: Parse and structure the enhanced response
             structured_response = self._parse_medical_response(
