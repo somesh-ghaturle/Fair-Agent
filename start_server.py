@@ -78,7 +78,7 @@ def start_server(port=8000):
         # Wait for server to start and monitor output
         server_started = False
         start_time = time.time()
-        timeout = 60  # 60 seconds timeout
+        timeout = 300  # 300 seconds timeout (5 minutes)
         
         print("⏳ Waiting for server to start...")
         
@@ -87,7 +87,7 @@ def start_server(port=8000):
             if line:
                 print(f"📝 {line.strip()}")
                 
-                if "Starting development server" in line:
+                if "Starting development server" in line or "Watching for file changes" in line or "Starting ASGI/Daphne" in line:
                     server_started = True
                     break
                 elif "Error" in line or "Exception" in line:

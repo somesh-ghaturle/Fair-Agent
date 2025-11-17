@@ -154,8 +154,8 @@ class FinanceAgent:
             # Step 4: Enhance response using full system integration (keep existing enhancements)
             enhanced_answer, internet_source_count = self._enhance_with_systems(question, base_answer)
             
-            # Step 5: Add structured format (disclaimer is added by safety system in _parse_finance_response)
-            enhanced_answer = self._add_structured_format(enhanced_answer, evidence_sources)
+            # Step 5: Structured format and evidence will be added by FAIR pipeline in _parse_finance_response
+            # No need to call _add_structured_format here to avoid duplication
 
             # Step 3: Parse and structure the enhanced response
             structured_response = self._parse_finance_response(
@@ -440,8 +440,9 @@ Begin your answer:
                         restructured += f"**Step {i}:** {para}\n\n"
                 structured = restructured
         
-        # Add evidence sources if citations missing
-        if not has_citations and evidence_sources:
+        # Add evidence sources if citations missing AND no evidence section exists
+        has_evidence_section = bool(re.search(r'(Evidence-Based Information|References:|Evidence Sources)', structured, re.I))
+        if not has_citations and not has_evidence_section and evidence_sources:
             structured += "\n\n## Evidence Sources Referenced\n\n"
             for i, source in enumerate(evidence_sources, 1):
                 structured += f"**[Source {i}]** {source.title}\n"

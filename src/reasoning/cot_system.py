@@ -756,16 +756,16 @@ class ChainOfThoughtIntegrator:
         formatted_response = chain.final_conclusion
         
         # Add reasoning process with concise steps
-        formatted_response += "\n\n**My Reasoning Process:**\n"
+        formatted_response += "\n\nMy Reasoning Process:\n"
         
         for step in chain.thought_steps:
             # Use clean, concise step descriptions without verbose evidence duplication
             step_content = step.thought
-            formatted_response += f"\n**Step {step.step_number}:** {step_content}"
+            formatted_response += f"\nStep {step.step_number}: {step_content}"
         
         # Add confidence and transparency information
-        formatted_response += f"\n\n**Reasoning Confidence:** {chain.overall_confidence:.1%}"
-        formatted_response += f"\n**Transparency Score:** {chain.reasoning_transparency:.1%}"
+        formatted_response += f"\n\nReasoning Confidence: {chain.overall_confidence:.1%}"
+        formatted_response += f"\nTransparency Score: {chain.reasoning_transparency:.1%}"
         
         return formatted_response
 
