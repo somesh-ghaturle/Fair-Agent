@@ -22,6 +22,7 @@ try:
     from ..reasoning.cot_system import ChainOfThoughtIntegrator
     from ..data_sources.internet_rag import InternetRAGSystem
     from ..utils.ollama_client import OllamaClient
+    from .response_standardizer import ResponseStandardizer
 except ImportError:
     # Fallback to sys.path method if relative imports fail
     sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'safety'))
@@ -33,7 +34,8 @@ except ImportError:
     from rag_system import RAGSystem
     from cot_system import ChainOfThoughtIntegrator
     from internet_rag import InternetRAGSystem
-    from ollama_client import OllamaClient 
+    from ollama_client import OllamaClient
+    from response_standardizer import ResponseStandardizer 
 
 @dataclass
 class MedicalResponse:
@@ -154,9 +156,21 @@ class MedicalAgent:
             enhanced_answer = self._add_structured_format(enhanced_answer, evidence_sources)
             enhanced_answer = self._add_medical_disclaimer(enhanced_answer)
             
+            # Step 5.5: STANDARDIZE THE RESPONSE FORMAT (NEW)
+            # This ensures every response follows the same professional structure
+            confidence_from_text = ResponseStandardizer.extract_confidence_from_response(enhanced_answer)
+            final_confidence = confidence_from_text if safety_check else 0.7
+            
+            standardized_answer = ResponseStandardizer.standardize_medical_response(
+                raw_response=enhanced_answer,
+                evidence_sources=evidence_sources,
+                confidence=final_confidence,
+                question=question
+            )
+            
             # Step 6: Parse and structure the enhanced response
             structured_response = self._parse_medical_response(
-                enhanced_answer, 
+                standardized_answer,  # Use standardized instead of enhanced
                 question,
                 safety_check,
                 internet_source_count
