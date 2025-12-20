@@ -30,6 +30,7 @@ except ImportError:
     sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'reasoning'))
     sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'data_sources'))
     sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
+    sys.path.append(os.path.dirname(__file__)) # Add current directory for response_standardizer
     from disclaimer_system import ResponseEnhancer
     from rag_system import RAGSystem
     from cot_system import ChainOfThoughtIntegrator
@@ -128,7 +129,20 @@ class MedicalAgent:
                     self.logger.info(f"✅ Retrieved {len(evidence_sources)} medical evidence sources")
                 except Exception as e:
                     self.logger.warning(f"Evidence retrieval failed: {e}")
-            
+                        # STRICT MODE: If no evidence is found, return simple refusal immediately
+            if not evidence_sources:
+                return MedicalResponse(
+                    answer="I cannot answer this question because my search for evidence yielded 0 results. I am programmed to only provide information that is backed by verified sources.",
+                    confidence_score=0.0,
+                    reasoning_steps=[
+                        "Initiated search for evidence",
+                        "Search yielded 0 results",
+                        "Strict adherence to evidence-based policy triggered refusal"
+                    ],
+                    safety_assessment="High Risk: No verified medical evidence available.",
+                    medical_evidence=[],
+                    uncertainty_indicators=["No evidence found"]
+                )
             # Step 2: Construct prompt WITH EVIDENCE (NEW - forces citations)
             prompt = self._construct_prompt_with_evidence(question, evidence_sources, context)
             
@@ -336,7 +350,8 @@ Please provide detailed medical information about this topic:"""
         
         # If no evidence, fall back to standard prompt
         if not evidence_text:
-            return self._construct_medical_prompt(question, context)
+            # STRICT MODE: If no evidence is found, refuse to answer
+            return "You are a helpful assistant. Please state clearly that you cannot answer the question because no relevant medical documents or evidence were found in the provided context. Do not attempt to answer from general knowledge."
         
         # Build comprehensive evidence-based prompt
         prompt = f"""You are a medical expert assistant. You must answer questions using ONLY the evidence sources provided below.

@@ -19,6 +19,16 @@ import numpy as np
 # Get absolute project root path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
+# Import OllamaClient for Query Expansion
+import sys
+sys.path.append(str(PROJECT_ROOT / "src" / "utils"))
+try:
+    from ollama_client import OllamaClient
+except ImportError:
+    logger = logging.getLogger(__name__)
+    logger.warning("Could not import OllamaClient. Query expansion will be disabled.")
+    OllamaClient = None
+
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -457,7 +467,7 @@ class EvidenceDatabase:
             self._compute_embeddings()
     
     def search_sources(self, query: str, domain: str, max_results: int = 5) -> List[EvidenceSource]:
-        """Search for relevant evidence sources using semantic similarity"""
+        """Search for relevant evidence sources using hybrid search (semantic + keyword)"""
         
         # Get domain-specific sources
         domain_source_ids = self.domain_index.get(domain, [])
@@ -467,12 +477,29 @@ class EvidenceDatabase:
         
         logger.info(f"[EVIDENCE] Searching {len(domain_source_ids)} {domain} sources for query: '{query[:60]}...'")
         
-        # Use semantic search if available
+        results = []
+        
+        # 1. Try Semantic Search first
         if self.semantic_model and self.source_embeddings:
-            return self._semantic_search(query, domain_source_ids, max_results, domain)
-        else:
-            # Fallback to keyword matching
-            return self._keyword_search(query, domain_source_ids, max_results)
+            results = self._semantic_search(query, domain_source_ids, max_results, domain)
+        
+        # 2. Hybrid Fallback: If semantic search yields few results, try keyword search
+        if len(results) < max_results:
+            logger.info(f"[EVIDENCE] Semantic search returned {len(results)} results. Augmenting with keyword search.")
+            keyword_results = self._keyword_search(query, domain_source_ids, max_results)
+            
+            # Merge results, avoiding duplicates
+            existing_ids = {s.id for s in results}
+            for source in keyword_results:
+                if source.id not in existing_ids:
+                    results.append(source)
+                    existing_ids.add(source.id)
+                    if len(results) >= max_results:
+                        break
+            
+            logger.info(f"[EVIDENCE] Combined results count: {len(results)}")
+            
+        return results[:max_results]
     
     def _semantic_search(self, query: str, source_ids: List[str], max_results: int, domain: str = "general") -> List[EvidenceSource]:
         """Perform semantic similarity search using embeddings with prioritization"""
@@ -517,10 +544,8 @@ class EvidenceDatabase:
                 logger.info(f"[EVIDENCE] ✅ Found {len(top_sources)} sources (curated: {curated_count}, dataset: {dataset_count}) - similarity: {scores_str}")
             else:
                 logger.warning(f"[EVIDENCE] ⚠️ Semantic search found no sources above threshold {min_similarity:.2f}")
-                # Fallback: return top 3 even if below threshold
-                if scored_sources:
-                    top_sources = [source for _, source in scored_sources[:min(3, max_results)]]
-                    logger.info(f"[EVIDENCE] 📊 Returning top {len(top_sources)} sources anyway (best: {scored_sources[0][0]:.3f})")
+                # STRICT MODE: Do not return sources below threshold
+                top_sources = []
             
             return top_sources
             
@@ -534,11 +559,11 @@ class EvidenceDatabase:
         
         # Base threshold by domain (some domains need stricter matching)
         domain_thresholds = {
-            'medical': 0.35,    # Medical needs higher precision
-            'finance': 0.32,    # Financial information needs accuracy  
-            'scientific': 0.35, # Scientific queries need precision
-            'legal': 0.40,      # Legal domain requires high accuracy
-            'general': 0.25,    # General queries can be more lenient
+            'medical': 0.45,    # Medical needs higher precision
+            'finance': 0.45,    # Financial information needs accuracy  
+            'scientific': 0.45, # Scientific queries need precision
+            'legal': 0.50,      # Legal domain requires high accuracy
+            'general': 0.40,    # General queries can be more lenient
         }
         base_threshold = domain_thresholds.get(domain.lower(), 0.30)
         
@@ -868,10 +893,84 @@ class RAGSystem:
         self.citation_manager = CitationManager()
         self.evidence_integrator = EvidenceIntegrator(self.evidence_db, self.citation_manager)
         self.logger = logging.getLogger(__name__)
+        
+        # Initialize Ollama Client for Query Expansion
+        if OllamaClient:
+            self.ollama_client = OllamaClient()
+        else:
+            self.ollama_client = None
+            
+        # Initialize Cross-Encoder for Re-ranking
+        self.cross_encoder = None
+        try:
+            from sentence_transformers import CrossEncoder
+            # Use a lightweight model
+            self.cross_encoder = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
+            self.logger.info("✅ Cross-Encoder loaded for re-ranking")
+        except Exception as e:
+            self.logger.warning(f"Could not load Cross-Encoder: {e}. Re-ranking disabled.")
     
+    def expand_query(self, query: str) -> List[str]:
+        """Generate query variations using LLM"""
+        if not self.ollama_client or not self.ollama_client.is_available():
+            return [query]
+            
+        prompt = f"""Generate 3 alternative search queries for the following user question. 
+        Keep the meaning the same but use synonyms or related technical terms.
+        Output ONLY the 3 queries, one per line. Do not number them.
+        
+        User Question: "{query}"
+        """
+        
+        try:
+            response = self.ollama_client.generate(
+                model="llama3.2", 
+                prompt=prompt,
+                max_tokens=100
+            )
+            if response:
+                variations = [line.strip() for line in response.split('\n') if line.strip()]
+                # Filter out garbage
+                variations = [v for v in variations if len(v) > 5 and not v.startswith("Here are")]
+                return [query] + variations[:3]
+        except Exception as e:
+            self.logger.warning(f"Query expansion failed: {e}")
+            
+        return [query]
+
+    def rerank_results(self, query: str, sources: List[EvidenceSource], top_k: int) -> List[EvidenceSource]:
+        """Rerank results using Cross-Encoder"""
+        if not self.cross_encoder or not sources:
+            return sources[:top_k]
+            
+        try:
+            pairs = [[query, source.content[:500]] for source in sources]
+            scores = self.cross_encoder.predict(pairs)
+            
+            # Combine sources with scores
+            scored_sources = list(zip(sources, scores))
+            scored_sources.sort(key=lambda x: x[1], reverse=True)
+            
+            return [s for s, score in scored_sources[:top_k]]
+            
+        except Exception as e:
+            self.logger.warning(f"Reranking failed: {e}. Returning original order.")
+            return sources[:top_k]
+
+    def _log_missing_evidence(self, query: str, domain: str):
+        """Log queries that returned no evidence"""
+        try:
+            log_path = PROJECT_ROOT / "logs" / "missing_evidence.log"
+            log_path.parent.mkdir(exist_ok=True)
+            with open(log_path, "a") as f:
+                timestamp = datetime.now().isoformat()
+                f.write(f"{timestamp} | {domain} | {query}\n")
+        except Exception as e:
+            self.logger.error(f"Failed to log missing evidence: {e}")
+
     def retrieve_evidence(self, query: str, domain: str = "general", top_k: int = 3) -> List[EvidenceSource]:
         """
-        Retrieve relevant evidence sources for a query
+        Retrieve relevant evidence sources for a query with expansion and re-ranking
         
         Args:
             query: The query to find evidence for
@@ -881,7 +980,37 @@ class RAGSystem:
         Returns:
             List of relevant EvidenceSource objects
         """
-        return self.evidence_db.search_sources(query, domain, max_results=top_k)
+        # 1. Expand Query
+        queries = self.expand_query(query)
+        if len(queries) > 1:
+            self.logger.info(f"Expanded query into {len(queries)} variations")
+        
+        all_results = []
+        seen_ids = set()
+        
+        # 2. Search for each variation
+        # Retrieve more candidates for re-ranking
+        candidates_per_query = top_k * 2 
+        
+        for q in queries:
+            results = self.evidence_db.search_sources(q, domain, max_results=candidates_per_query)
+            for res in results:
+                if res.id not in seen_ids:
+                    all_results.append(res)
+                    seen_ids.add(res.id)
+        
+        # 3. Rerank
+        if all_results:
+            final_results = self.rerank_results(query, all_results, top_k)
+        else:
+            final_results = []
+            
+        # 4. Log if empty
+        if not final_results:
+            self.logger.warning(f"No evidence found for query: '{query}'")
+            self._log_missing_evidence(query, domain)
+            
+        return final_results
     
     def format_evidence_for_prompt(self, sources: List[EvidenceSource]) -> str:
         """

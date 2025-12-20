@@ -33,6 +33,7 @@ from .models import (
 )
 from .services import FairAgentService, QueryProcessor
 from .formatters import ResponseFormatter
+from src.utils.spell_checker import spell_checker
 
 logger = logging.getLogger(__name__)
 
@@ -493,6 +494,15 @@ def process_query_api(request):
             defaults={'user': request.user if request.user.is_authenticated else None}
         )
         
+        # Auto-correct spelling
+        original_query = query_text
+        corrected_query, was_corrected, corrections = spell_checker.correct_text(query_text)
+        
+        if was_corrected:
+            logger.info(f"[SPELL CHECK] Corrected query: '{original_query}' -> '{corrected_query}'")
+            logger.info(f"[SPELL CHECK] Corrections: {corrections}")
+            query_text = corrected_query
+        
         # Classify domain
         domain = FairAgentService.classify_query_domain(query_text)
         
@@ -656,6 +666,12 @@ def process_query_api(request):
                 'safety_score': result.get('safety_score', 0.65),
                 'processing_time': result.get('processing_time'),
                 'status': 'success',
+                'spell_check': {
+                    'was_corrected': was_corrected,
+                    'original_query': original_query,
+                    'corrected_query': corrected_query,
+                    'corrections': corrections
+                },
                 'fair_metrics': {
                     'faithfulness': faithfulness_score,
                     'adaptability': adaptability_score,

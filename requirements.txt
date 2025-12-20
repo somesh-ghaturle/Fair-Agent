@@ -102,4 +102,4 @@ cryptography>=3.4.0
 # Development Environment
 jupyter>=1.0.0
 ipython>=7.25.0
-notebook>=6.4.0
+notebook>=6.4.0pyspellchecker>=0.8.0

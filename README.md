@@ -23,6 +23,7 @@ FAIR-Agent is the **world's first LLM with quantifiable trustworthiness**, desig
 | **Transparency** | Visible Chain-of-Thought | Black Box |
 | **Metrics** | Real-time FAIR Scores | No Trust Metrics |
 | **Privacy** | 100% Local (Ollama/Llama 3.2) | Cloud-based |
+| **Strictness** | **No Evidence = No Answer** | Hallucinates answers |
 
 ---
 
@@ -36,7 +37,7 @@ The system operates on a 9-stage pipeline designed to ensure accuracy and safety
 flowchart LR
     A[👤 User Query] --> B[🏷️ Domain Classification]
     B --> C[🎯 Agent Routing]
-    C --> D[📚 Evidence Retrieval]
+    C --> D[📚 Advanced RAG]
     D --> E[🧠 AI Processing]
     E --> F[⚡ Enhancement Pipeline]
     F --> G[📏 FAIR Evaluation]
@@ -57,7 +58,10 @@ flowchart LR
 ### Workflow Steps
 1.  **User Query**: Received via Django web interface.
 2.  **Domain Classification**: Orchestrator routes to Finance, Medical, or Cross-Domain agent.
-3.  **Evidence Retrieval (RAG)**: Retrieves top-k sources from 53 curated documents + Internet.
+3.  **Advanced RAG**: 
+    *   **Query Expansion**: Generates synonyms to improve recall.
+    *   **Hybrid Search**: Combines Semantic (Vector) and Keyword search.
+    *   **Re-ranking**: Uses Cross-Encoders to select the best evidence.
 4.  **AI Processing**: Local Llama 3.2 model generates raw response.
 5.  **Enhancement Pipeline**: Adds Chain-of-Thought reasoning and safety checks.
 6.  **Standardization**: Formats response into 7 distinct sections.
@@ -132,37 +136,39 @@ flowchart LR
     style K fill:#f0e68c
 ```
 
-#### Stage 4: Evidence Retrieval & Grounding
+#### Stage 4: Advanced Evidence Retrieval (New!)
 ```mermaid
-flowchart LR
-    A[🎯 Agent Query] --> B[📚 RAG System]
-    B --> C[📊 53 Evidence Sources]
+flowchart TD
+    A[🎯 Agent Query] --> B[🔄 Query Expansion]
+    B --> C{🔍 Hybrid Search}
     
-    C --> D[🏥 Medical Sources<br/>14 Curated]
-    C --> E[💰 Financial Sources<br/>21 Curated]
-    C --> F[📖 Dataset Sources<br/>18 Academic]
-    C --> G[🌐 Internet RAG<br/>Real-time]
+    C -->|Semantic Search| D[🧠 Vector Embeddings]
+    C -->|Keyword Search| E[📝 BM25 / Keywords]
     
-    D --> H[🔍 Semantic Search]
-    E --> H
-    F --> H
-    G --> H
+    D --> F[📑 Candidate Pool]
+    E --> F
     
-    H --> I[📑 Relevant Citations]
-    I --> J[⭐ Credibility Scoring]
-    J --> K[📋 Ranked Sources]
+    F --> G[⚖️ Cross-Encoder Re-ranking]
+    G --> H{✅ Evidence Found?}
+    
+    H -->|Yes| I[📚 Top-3 Verified Sources]
+    H -->|No| J[🚫 Strict Refusal Protocol]
+    
+    J --> K[📝 Log Missing Evidence]
+    J --> L[❌ 'No Evidence' Response]
     
     style A fill:#e3f2fd
-    style B fill:#f3e5f5
+    style B fill:#e1bee7
     style C fill:#fff3e0
-    style D fill:#f0f8ff
-    style E fill:#e8f4f8
+    style D fill:#e8f4f8
+    style E fill:#f0f8ff
     style F fill:#f5f5dc
-    style G fill:#e0ffff
-    style H fill:#fff8e1
-    style I fill:#f0fff0
-    style J fill:#ffe4e1
-    style K fill:#e6e6fa
+    style G fill:#ffcc80
+    style H fill:#fff9c4
+    style I fill:#c8e6c9
+    style J fill:#ffcdd2
+    style K fill:#cfd8dc
+    style L fill:#ffab91
 ```
 
 #### Stage 5: AI Model Processing
