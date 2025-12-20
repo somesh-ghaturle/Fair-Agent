@@ -31,8 +31,15 @@ class DatasetInfo:
 class DatasetLoader:
     """Loads and manages datasets from configuration"""
     
-    def __init__(self, config_path: str = "./config/config.yaml"):
-        self.config_path = Path(config_path)
+    def __init__(self, config_path: str = None):
+        if config_path is None:
+            # Try to find config relative to project root
+            current_file = Path(__file__).resolve()
+            project_root = current_file.parent.parent.parent
+            self.config_path = project_root / "config" / "config.yaml"
+        else:
+            self.config_path = Path(config_path)
+            
         self.datasets: Dict[str, List[DatasetInfo]] = {
             'finance': [],
             'medical': []

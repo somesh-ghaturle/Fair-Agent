@@ -981,7 +981,11 @@ class RAGSystem:
             List of relevant EvidenceSource objects
         """
         # 1. Expand Query
-        queries = self.expand_query(query)
+        # OPTIMIZATION: Query expansion adds significant latency (extra LLM call).
+        # For now, we disable it to improve response time.
+        # queries = self.expand_query(query)
+        queries = [query]
+        
         if len(queries) > 1:
             self.logger.info(f"Expanded query into {len(queries)} variations")
         

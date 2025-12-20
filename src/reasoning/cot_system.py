@@ -99,9 +99,29 @@ class FinancialReasoningTemplate:
     @staticmethod
     def get_reasoning_steps(query: str) -> List[str]:
         """Get financial reasoning step templates"""
+        query_lower = query.lower()
         
-        # Detect query type
-        if any(word in query.lower() for word in ['investment', 'invest', 'portfolio', 'stock', 'fund']):
+        # Check for comparison queries (e.g., "pay off mortgage OR invest")
+        is_comparison = any(word in query_lower for word in [' or ', ' vs ', 'versus', 'compare', 'difference', 'better'])
+        
+        # Detect specific topics
+        has_invest = any(word in query_lower for word in ['investment', 'invest', 'portfolio', 'stock', 'fund'])
+        has_debt = any(word in query_lower for word in ['debt', 'loan', 'credit', 'mortgage'])
+        has_retirement = any(word in query_lower for word in ['retirement', 'saving', 'pension', '401k'])
+        
+        # Case 1: Comparison (e.g., Mortgage vs Invest)
+        if is_comparison and ((has_invest and has_debt) or (has_invest and has_retirement)):
+            return [
+                "Let me analyze this financial trade-off systematically:",
+                "First, I'll compare the potential returns versus the cost of debt:",
+                "Next, I'll evaluate the risk factors and liquidity needs:",
+                "Then, I'll consider tax implications and psychological factors:",
+                "I should also run a scenario analysis for both options:",
+                "Finally, I must emphasize that the 'best' choice depends on your specific goals:"
+            ]
+            
+        # Case 2: Investment focus
+        elif has_invest:
             return [
                 "Let me analyze your investment question systematically:",
                 "First, I'll consider your risk tolerance and investment timeline:",
@@ -111,7 +131,8 @@ class FinancialReasoningTemplate:
                 "Finally, I must remind you about the importance of professional advice:"
             ]
         
-        elif any(word in query.lower() for word in ['retirement', 'saving', 'pension', '401k']):
+        # Case 3: Retirement focus
+        elif has_retirement:
             return [
                 "Let me break down retirement planning considerations:",
                 "First, I'll assess your current financial situation:",
@@ -121,7 +142,8 @@ class FinancialReasoningTemplate:
                 "Most importantly, personalized financial planning is crucial:"
             ]
         
-        elif any(word in query.lower() for word in ['debt', 'loan', 'credit', 'mortgage']):
+        # Case 4: Debt/Mortgage focus
+        elif has_debt:
             return [
                 "Let me analyze your debt management question:",
                 "First, I'll assess the type and terms of the debt:",
@@ -131,6 +153,7 @@ class FinancialReasoningTemplate:
                 "Finally, professional financial counseling may be beneficial:"
             ]
         
+        # Default
         else:
             return [
                 "Let me address your financial question step by step:",

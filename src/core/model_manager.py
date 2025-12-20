@@ -107,6 +107,13 @@ class ModelCapabilities:
     def get_model_capabilities(model_type: ModelType) -> Dict[str, float]:
         """Get model capabilities scores for FAIR metrics"""
         capabilities = {
+            ModelType.LLAMA33_LATEST: {
+                'faithfulness': 0.88,
+                'adaptability': 0.92,
+                'interpretability': 0.85,
+                'risk_awareness': 0.88,
+                'domain_knowledge': 0.90
+            },
             ModelType.LLAMA32_LATEST: {
                 'faithfulness': 0.85,
                 'adaptability': 0.90,

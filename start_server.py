@@ -23,15 +23,27 @@ def check_port_available(port):
 def kill_process_on_port(port):
     """Kill any process running on the specified port"""
     try:
+        # Find PID(s) using the port
         result = subprocess.run(['lsof', '-ti', f':{port}'], 
                               capture_output=True, text=True)
+        
         if result.stdout.strip():
-            pid = result.stdout.strip()
-            subprocess.run(['kill', '-9', pid], check=True)
-            print(f"✅ Killed process {pid} on port {port}")
-            time.sleep(2)  # Give time for the port to be released
-            return True
-    except subprocess.CalledProcessError:
+            pids = result.stdout.strip().split('\n')
+            killed_any = False
+            for pid in pids:
+                if pid.strip():
+                    try:
+                        subprocess.run(['kill', '-9', pid.strip()], check=True)
+                        print(f"✅ Killed process {pid.strip()} on port {port}")
+                        killed_any = True
+                    except subprocess.CalledProcessError:
+                        print(f"⚠️ Failed to kill process {pid.strip()}")
+            
+            if killed_any:
+                time.sleep(2)  # Give time for the port to be released
+                return True
+    except Exception as e:
+        print(f"⚠️ Error trying to kill process on port {port}: {e}")
         pass
     return False
 

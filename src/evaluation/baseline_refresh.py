@@ -34,7 +34,14 @@ class BaselineRefreshManager:
         Args:
             config_path: Path to configuration file
         """
-        self.config_path = config_path or "config/config.yaml"
+        if config_path:
+            self.config_path = config_path
+        else:
+            # Try to find config relative to project root
+            current_file = Path(__file__).resolve()
+            project_root = current_file.parent.parent.parent
+            self.config_path = str(project_root / "config" / "config.yaml")
+
         self.config = self._load_config()
         
         # Extract baseline configuration

@@ -62,7 +62,7 @@ class OllamaClient:
             response = requests.post(
                 self.api_endpoint,
                 json=payload,
-                timeout=60
+                timeout=120  # Increased timeout for complex RAG queries
             )
             
             if response.status_code == 200:

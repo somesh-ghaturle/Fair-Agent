@@ -181,7 +181,7 @@ FAIR_AGENT_SETTINGS = {
     'LOG_LEVEL': 'INFO',
     'MAX_WORKERS': 4,
     'CACHE_TIMEOUT': 300,
-    'CONFIG_PATH': os.path.join(BASE_DIR.parent, 'config', 'config.yaml'),
+    'CONFIG_PATH': os.path.join(BASE_DIR.parent, 'config', 'system_config.yaml'),
     'SAFETY_KEYWORDS_PATH': os.path.join(BASE_DIR.parent, 'config', 'safety_keywords.yaml'),
 }
 

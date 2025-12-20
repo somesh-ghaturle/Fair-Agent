@@ -29,31 +29,26 @@ class ResponseStandardizer:
     # Standard response template
     STANDARD_TEMPLATE = """
 ## 📋 Executive Summary
-
 {executive_summary}
 
 ---
 
 ## 🔍 Detailed Analysis
-
 {detailed_analysis}
 
 ---
 
 ## 📚 Evidence Sources
-
 {evidence_sources}
 
 ---
 
 ## 💡 Chain of Thought Reasoning
-
 {reasoning_steps}
 
 ---
 
 ## ✅ Key Takeaways
-
 {key_takeaways}
 
 ---
@@ -63,11 +58,12 @@ class ResponseStandardizer:
 ---
 
 **Confidence Level:** {confidence_score}/10
+
+**Transparency Score:** {transparency_score}%
 """
 
     FINANCE_DISCLAIMER = """
 ## ⚠️ Financial Disclaimer
-
 **This information is for educational purposes only and does not constitute financial advice.**
 
 Key Points:
@@ -82,7 +78,6 @@ Key Points:
 
     MEDICAL_DISCLAIMER = """
 ## ⚠️ Medical Disclaimer
-
 **This information is for educational purposes only and does not constitute medical advice.**
 
 Critical Points:
@@ -158,15 +153,22 @@ Critical Points:
         # Format key takeaways
         takeaways_text = cls._format_key_takeaways(components.get('main_points', []))
         
+        # Calculate transparency score (based on evidence and reasoning)
+        transparency = 50.0  # Base
+        if evidence_sources: transparency += 20.0
+        if components.get('reasoning'): transparency += 20.0
+        if confidence > 0.7: transparency += 10.0
+        
         # Build standardized response
         standardized = cls.STANDARD_TEMPLATE.format(
-            executive_summary=components.get('summary', 'Analysis of your financial question.'),
-            detailed_analysis=components.get('analysis', raw_response[:500]),
-            evidence_sources=evidence_text,
-            reasoning_steps=reasoning_text,
-            key_takeaways=takeaways_text,
-            disclaimer=cls.FINANCE_DISCLAIMER,
-            confidence_score=round(confidence * 10, 1)
+            executive_summary=components.get('summary', 'Analysis of your financial question.').strip(),
+            detailed_analysis=components.get('analysis', raw_response[:500]).strip(),
+            evidence_sources=evidence_text.strip(),
+            reasoning_steps=reasoning_text.strip(),
+            key_takeaways=takeaways_text.strip(),
+            disclaimer=cls.FINANCE_DISCLAIMER.strip(),
+            confidence_score=round(confidence * 10, 1),
+            transparency_score=min(round(transparency, 1), 100.0)
         )
         
         return standardized.strip()
@@ -203,15 +205,22 @@ Critical Points:
         # Format key takeaways
         takeaways_text = cls._format_key_takeaways(components.get('main_points', []))
         
+        # Calculate transparency score (based on evidence and reasoning)
+        transparency = 50.0  # Base
+        if evidence_sources: transparency += 20.0
+        if components.get('reasoning'): transparency += 20.0
+        if confidence > 0.7: transparency += 10.0
+        
         # Build standardized response
         standardized = cls.STANDARD_TEMPLATE.format(
-            executive_summary=components.get('summary', 'Analysis of your health question.'),
-            detailed_analysis=components.get('analysis', raw_response[:500]),
-            evidence_sources=evidence_text,
-            reasoning_steps=reasoning_text,
-            key_takeaways=takeaways_text,
-            disclaimer=cls.MEDICAL_DISCLAIMER,
-            confidence_score=round(confidence * 10, 1)
+            executive_summary=components.get('summary', 'Analysis of your health question.').strip(),
+            detailed_analysis=components.get('analysis', raw_response[:500]).strip(),
+            evidence_sources=evidence_text.strip(),
+            reasoning_steps=reasoning_text.strip(),
+            key_takeaways=takeaways_text.strip(),
+            disclaimer=cls.MEDICAL_DISCLAIMER.strip(),
+            confidence_score=round(confidence * 10, 1),
+            transparency_score=min(round(transparency, 1), 100.0)
         )
         
         return standardized.strip()
@@ -231,6 +240,57 @@ Critical Points:
             'main_points': []
         }
         
+        # Check if response follows the "Step" format (Structured)
+        step_pattern = r'\*\*Step\s+(\d+):\s*([^*]+)\*\*\s*\n(.*?)(?=\n\*\*Step|\Z)'
+        steps_found = re.findall(step_pattern, response, re.DOTALL)
+        
+        if steps_found:
+            # We have a structured response!
+            step_dict = {int(s[0]): (s[1].strip(), s[2].strip()) for s in steps_found}
+            
+            # 1. Summary: Use Step 1 (Understanding) content
+            if 1 in step_dict:
+                components['summary'] = step_dict[1][1]
+            else:
+                components['summary'] = response[:200] + '...'
+            
+            # 2. Analysis: Use Step 2 (Evidence) and Step 3 (Analysis)
+            analysis_parts = []
+            if 2 in step_dict:
+                analysis_parts.append(f"**{step_dict[2][0]}**\n{step_dict[2][1]}")
+            if 3 in step_dict:
+                analysis_parts.append(f"**{step_dict[3][0]}**\n{step_dict[3][1]}")
+            
+            if analysis_parts:
+                components['analysis'] = '\n\n'.join(analysis_parts)
+            else:
+                components['analysis'] = response
+            
+            # 3. Reasoning: Extract titles of the steps as the reasoning flow
+            components['reasoning'] = [f"{title}" for num, (title, content) in step_dict.items()]
+            
+            # 4. Main Points: Extract from Step 4 (Conclusion) or Step 5/6
+            # Look for conclusion/recommendation steps
+            conclusion_step = None
+            for step_num in [4, 5, 6]:
+                if step_num in step_dict:
+                    conclusion_step = step_dict[step_num][1]
+                    break
+            
+            if conclusion_step:
+                # Split conclusion into sentences or bullets
+                # Check for bullets first
+                bullets = re.findall(r'(?:^|\n)[-•*]\s*([^\n]+)', conclusion_step)
+                if bullets:
+                    components['main_points'] = bullets
+                else:
+                    # Split by sentences
+                    components['main_points'] = [s.strip() for s in re.split(r'(?<=[.!?])\s+', conclusion_step) if len(s.strip()) > 10]
+            
+            return components
+
+        # Fallback for Unstructured Response
+        
         # Try to extract executive summary (first paragraph or first 2 sentences)
         paragraphs = [p.strip() for p in response.split('\n\n') if p.strip()]
         if paragraphs:
@@ -245,7 +305,7 @@ Critical Points:
             components['summary'] = response[:200] + '...' if len(response) > 200 else response
             components['analysis'] = response
         
-        # Extract reasoning steps (look for Step 1, Step 2, etc.)
+        # Extract reasoning steps (look for Step 1, Step 2, etc. in unstructured text)
         step_pattern = r'(?:Step\s+\d+|First|Second|Third|Next|Then|Finally)[:\s]([^.\n]+[.])'
         steps = re.findall(step_pattern, response, re.IGNORECASE)
         if steps:
@@ -261,10 +321,11 @@ Critical Points:
                 ]
         
         # Extract main points (bullet points or key statements)
-        bullet_pattern = r'(?:^|\n)[-•*]\s*([^\n]+)'
+        # Improved regex to avoid matching headers like **Step 1** as bullets
+        bullet_pattern = r'(?:^|\n)(?<!\*)([-•*])\s+([^\n]+)'
         bullets = re.findall(bullet_pattern, response)
         if bullets:
-            components['main_points'] = [b.strip() for b in bullets[:5]]
+            components['main_points'] = [b[1].strip() for b in bullets[:5]]
         else:
             # Create main points from key sentences
             sentences = re.split(r'(?<=[.!?])\s+', response)
@@ -277,6 +338,10 @@ Critical Points:
                     if len(important) >= 3:
                         break
             components['main_points'] = important or sentences[:3]
+            
+        # If summary is too short, try to improve it
+        if len(components['summary']) < 50 and len(components['analysis']) > 100:
+             components['summary'] = components['analysis'][:200] + "..."
         
         return components
     
@@ -303,17 +368,23 @@ Critical Points:
                 url = getattr(source, 'url', '')
                 pub_date = getattr(source, 'publication_date', 'N/A')
             
-            source_block = f"""**{i}. {title}**
-- Type: {source_type.replace('_', ' ').title()}
-- Reliability: {reliability:.0%}
-- Published: {pub_date}"""
-            
+            # Format reliability as percentage
+            if isinstance(reliability, (int, float)):
+                rel_str = f"{reliability:.0%}" if reliability <= 1.0 else f"{reliability}%"
+            else:
+                rel_str = str(reliability)
+
+            source_text = f"**{i}. {title}**\n\n"
+            source_text += f"- **Type:** {source_type}\n"
+            source_text += f"- **Reliability:** {rel_str}\n"
+            if pub_date and pub_date != 'N/A':
+                source_text += f"- **Published:** {pub_date}\n"
             if url:
-                source_block += f"\n- Link: [{url}]({url})"
+                source_text += f"- **Link:** [{url}]({url})\n"
             
-            formatted.append(source_block)
-        
-        return '\n\n'.join(formatted)
+            formatted.append(source_text)
+            
+        return "\n".join(formatted)
     
     @classmethod
     def _format_reasoning_steps(cls, steps: List[str]) -> str:
@@ -337,10 +408,10 @@ Critical Points:
         for point in points[:5]:  # Max 5 takeaways
             # Clean up the point
             clean_point = point.strip()
-            if clean_point and not clean_point.startswith('-') and not clean_point.startswith('•'):
+            # Remove existing bullets to ensure consistency
+            clean_point = clean_point.lstrip('-•* ').strip()
+            if clean_point:
                 formatted.append(f"- {clean_point}")
-            else:
-                formatted.append(clean_point)
         
         return '\n'.join(formatted)
     

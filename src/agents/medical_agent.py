@@ -129,10 +129,41 @@ class MedicalAgent:
                     self.logger.info(f"✅ Retrieved {len(evidence_sources)} medical evidence sources")
                 except Exception as e:
                     self.logger.warning(f"Evidence retrieval failed: {e}")
+
+            # STRICT EVIDENCE CHECK: If no evidence found, refuse to answer
+            if not evidence_sources:
+                self.logger.warning("⛔️ No evidence found. Refusing to answer.")
+                
+                # Create a standardized refusal response
+                refusal_text = "I cannot answer this question because no relevant medical documents or evidence were found in the provided context. I am designed to answer based strictly on verified evidence to ensure patient safety."
+                
+                standardized_refusal = ResponseStandardizer.standardize_medical_response(
+                    raw_response=refusal_text,
+                    evidence_sources=[],
+                    confidence=0.0,
+                    question=question
+                )
+                
+                return MedicalResponse(
+                    answer=standardized_refusal,
+                    confidence_score=0.0,
+                    reasoning_steps=["Initiated search for evidence", "Search yielded 0 results", "Strict adherence to evidence-based policy triggered refusal"],
+                    safety_assessment="N/A"
+                )
                         # STRICT MODE: If no evidence is found, return simple refusal immediately
             if not evidence_sources:
+                refusal_text = "I cannot answer this question because my search for evidence yielded 0 results. I am programmed to only provide information that is backed by verified sources."
+                
+                # Standardize the refusal response
+                standardized_refusal = ResponseStandardizer.standardize_medical_response(
+                    raw_response=refusal_text,
+                    evidence_sources=[],
+                    confidence=0.0,
+                    question=question
+                )
+                
                 return MedicalResponse(
-                    answer="I cannot answer this question because my search for evidence yielded 0 results. I am programmed to only provide information that is backed by verified sources.",
+                    answer=standardized_refusal,
                     confidence_score=0.0,
                     reasoning_steps=[
                         "Initiated search for evidence",
@@ -164,7 +195,7 @@ class MedicalAgent:
                 self.logger.warning("Ollama generated response too short")
             
             # Step 4: Enhance response using full system integration
-            enhanced_answer, internet_source_count = self._enhance_with_systems(question, base_answer)
+            enhanced_answer, internet_source_count = self._enhance_with_systems(question, base_answer, evidence_sources)
             
             # Step 5: Add structured format (deduplication handled in method)
             enhanced_answer = self._add_structured_format(enhanced_answer, evidence_sources)
@@ -636,8 +667,16 @@ If experiencing severe symptoms, chest pain, difficulty breathing, sudden severe
     
     def _safe_response(self, message: str) -> MedicalResponse:
         """Return a safe default response for problematic queries"""
+        # Standardize the safe response
+        standardized_safe = ResponseStandardizer.standardize_medical_response(
+            raw_response=message,
+            evidence_sources=[],
+            confidence=0.0,
+            question="Safety Check"
+        )
+        
         return MedicalResponse(
-            answer=message,
+            answer=standardized_safe,
             confidence_score=0.0,
             reasoning_steps=["Professional medical consultation recommended"],
             safety_assessment="Query flagged for safety review",
@@ -749,7 +788,7 @@ If experiencing severe symptoms, chest pain, difficulty breathing, sudden severe
         # Combined faithfulness score (weighted)
         return 0.7 * concept_alignment + 0.3 * evidence_alignment
     
-    def _enhance_with_systems(self, query: str, base_response: str = None) -> tuple:
+    def _enhance_with_systems(self, query: str, base_response: str = None, evidence_sources: List = None) -> tuple:
         """Enhance response using RAG, Internet sources, and fine-tuning
         
         Returns:
@@ -775,7 +814,8 @@ If experiencing severe symptoms, chest pain, difficulty breathing, sudden severe
                     self.logger.warning(f"Medical Internet RAG enhancement failed: {e}")
             
             # 2. Use Evidence database for additional medical context
-            if hasattr(self, 'rag_system'):
+            # OPTIMIZATION: If we already retrieved evidence in Step 1, skip this redundant search
+            if hasattr(self, 'rag_system') and not evidence_sources:
                 try:
                     # Returns tuple: (enhanced_text, improvements)
                     evidence_enhancement, improvements = self.rag_system.enhance_agent_response(
@@ -808,25 +848,26 @@ If experiencing severe symptoms, chest pain, difficulty breathing, sudden severe
             
         except Exception as e:
             self.logger.error(f"Medical system enhancement failed: {e}")
+            # Even in error case, we want to return the template so it can be standardized later
             return self._get_quality_template(query), 0
     
     def _get_quality_template(self, query: str) -> str:
         """Get high-quality template response for medical queries as fallback"""
         # Reuse the existing template response method
-        return self._get_template_response(query) or """
+        template = self._get_template_response(query)
+        if template:
+            return template
+            
+        return """
         Medical information requires careful evaluation by qualified healthcare professionals. 
         For accurate diagnosis, treatment recommendations, and medical advice, please consult 
         with your healthcare provider who can assess your specific situation and medical history.
         
-        General health resources:
-        • Consult licensed healthcare professionals for medical concerns
-        • Follow evidence-based medical guidelines and recommendations
-        • Maintain regular health screenings and preventive care
-        • Keep accurate medical records and medication lists
-        
-        MEDICAL DISCLAIMER: This information is for educational purposes only and does not 
-        constitute medical advice. Always consult with qualified healthcare professionals 
-        for medical concerns, diagnosis, and treatment decisions.
+        Key Considerations:
+        • Individual health factors vary significantly
+        • Symptoms can have multiple potential causes
+        • Treatment effectiveness depends on accurate diagnosis
+        • Professional evaluation ensures patient safety
         """
     
     def _is_low_quality_response(self, response: str) -> bool:

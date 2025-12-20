@@ -119,7 +119,7 @@ class FinanceAgent:
             FinanceResponse with answer, confidence, reasoning, and risk assessment
         """
         try:
-            # Step 1: RETRIEVE EVIDENCE FIRST (NEW - boosts faithfulness)
+            # Step 2: RETRIEVE EVIDENCE FIRST (NEW - boosts faithfulness)
             evidence_sources = []
             if hasattr(self, 'rag_system'):
                 try:
@@ -130,12 +130,42 @@ class FinanceAgent:
                     )
                     self.logger.info(f"✅ Retrieved {len(evidence_sources)} evidence sources")
                 except Exception as e:
-                    self.logger.warning(f"Evidence retrieval failed: {e}")
-            
+                    self.logger.warning(f"Evidence retrieval failed: {e}")            
+            # STRICT EVIDENCE CHECK: If no evidence found, refuse to answer
+            if not evidence_sources:
+                self.logger.warning("⛔️ No evidence found. Refusing to answer.")
+                
+                # Create a standardized refusal response
+                refusal_text = "I cannot answer this question because no relevant financial documents or evidence were found in the provided context. I am designed to answer based strictly on verified evidence to ensure accuracy and safety."
+                
+                standardized_refusal = ResponseStandardizer.standardize_finance_response(
+                    raw_response=refusal_text,
+                    evidence_sources=[],
+                    confidence=0.0,
+                    question=question
+                )
+                
+                return FinanceResponse(
+                    answer=standardized_refusal,
+                    confidence_score=0.0,
+                    reasoning_steps=["Initiated search for evidence", "Search yielded 0 results", "Strict adherence to evidence-based policy triggered refusal"],
+                    risk_assessment="N/A",
+                    numerical_outputs={}
+                )            
             # STRICT MODE: If no evidence is found, return simple refusal immediately
             if not evidence_sources:
+                refusal_text = "I cannot answer this question because my search for evidence yielded 0 results. I am programmed to only provide information that is backed by verified sources."
+                
+                # Standardize the refusal response
+                standardized_refusal = ResponseStandardizer.standardize_finance_response(
+                    raw_response=refusal_text,
+                    evidence_sources=[],
+                    confidence=0.0,
+                    question=question
+                )
+                
                 return FinanceResponse(
-                    answer="I cannot answer this question because my search for evidence yielded 0 results. I am programmed to only provide information that is backed by verified sources.",
+                    answer=standardized_refusal,
                     confidence_score=0.0,
                     reasoning_steps=[
                         "Initiated search for evidence",
@@ -169,7 +199,7 @@ class FinanceAgent:
                 self.logger.warning(f"Model generation failed: {e}")
 
             # Step 4: Enhance response using full system integration (keep existing enhancements)
-            enhanced_answer, internet_source_count = self._enhance_with_systems(question, base_answer)
+            enhanced_answer, internet_source_count = self._enhance_with_systems(question, base_answer, evidence_sources)
             
             # Step 5: Add structured format (deduplication handled in method)
             enhanced_answer = self._add_structured_format(enhanced_answer, evidence_sources)
@@ -206,7 +236,7 @@ class FinanceAgent:
                 numerical_outputs={}
             )
 
-    def _enhance_with_systems(self, query: str, base_response: str = None) -> tuple:
+    def _enhance_with_systems(self, query: str, base_response: str = None, evidence_sources: List = None) -> tuple:
         """Enhance response using RAG, Internet sources, and fine-tuning
         
         Returns:
@@ -232,7 +262,8 @@ class FinanceAgent:
                     self.logger.warning(f"Internet RAG enhancement failed: {e}")
 
             # 2. Use Evidence database for additional context
-            if hasattr(self, 'rag_system'):
+            # OPTIMIZATION: If we already retrieved evidence in Step 1, skip this redundant search
+            if hasattr(self, 'rag_system') and not evidence_sources:
                 try:
                     # Returns tuple: (enhanced_text, improvements)
                     evidence_enhancement, improvements = self.rag_system.enhance_agent_response(
@@ -265,8 +296,51 @@ class FinanceAgent:
 
         except Exception as e:
             self.logger.error(f"System enhancement failed: {e}")
+            # Even in error case, we want to return the template so it can be standardized later
             return self._get_quality_template(query), 0
     
+    def _get_template_response(self, question: str) -> Optional[str]:
+        """Get template response for common finance questions"""
+        question_lower = question.lower()
+        
+        if "what is finance" in question_lower:
+            return """Finance is the field that deals with the management of money, investments, and financial assets. It encompasses several key areas:
+
+**1. Personal Finance**: Managing individual or household financial activities including:
+- Budgeting and expense tracking
+- Saving and emergency funds
+- Investment planning
+- Retirement planning
+- Insurance and risk management
+
+**2. Corporate Finance**: How businesses manage their financial resources:
+- Capital structure decisions
+- Investment analysis and capital budgeting
+- Cash flow management
+- Dividend policies and shareholder value
+
+**3. Investment Finance**: The study and management of financial markets:
+- Stock and bond analysis
+- Portfolio management
+- Risk assessment and diversification
+- Market behavior and pricing
+
+**4. Public Finance**: Government financial management:
+- Taxation policies
+- Government spending and budgeting
+- Public debt management
+- Economic policy implementation
+
+**Key Financial Principles:**
+- Time value of money (money today is worth more than money tomorrow)
+- Risk-return relationship (higher returns typically require taking more risk)
+- Diversification (don't put all eggs in one basket)
+- Compound interest and long-term growth
+
+Finance helps individuals, businesses, and governments make informed decisions about allocating resources, managing risk, and achieving financial objectives."""
+
+        return None
+
     def _get_quality_template(self, query: str) -> str:
         """Get high-quality template response for common queries as fallback"""
         query_lower = query.lower()
@@ -548,42 +622,11 @@ Begin your answer:
         )
         
         # Provide high-quality fallback responses for common finance questions
-        if "what is finance" in question.lower() or is_poor_quality:
+        if is_poor_quality:
             if "what is finance" in question.lower():
-                text = """Finance is the field that deals with the management of money, investments, and financial assets. It encompasses several key areas:
-
-**1. Personal Finance**: Managing individual or household financial activities including:
-- Budgeting and expense tracking
-- Saving and emergency funds
-- Investment planning
-- Retirement planning
-- Insurance and risk management
-
-**2. Corporate Finance**: How businesses manage their financial resources:
-- Capital structure decisions
-- Investment analysis and capital budgeting
-- Cash flow management
-- Dividend policies and shareholder value
-
-**3. Investment Finance**: The study and management of financial markets:
-- Stock and bond analysis
-- Portfolio management
-- Risk assessment and diversification
-- Market behavior and pricing
-
-**4. Public Finance**: Government financial management:
-- Taxation policies
-- Government spending and budgeting
-- Public debt management
-- Economic policy implementation
-
-**Key Financial Principles:**
-- Time value of money (money today is worth more than money tomorrow)
-- Risk-return relationship (higher returns typically require taking more risk)
-- Diversification (don't put all eggs in one basket)
-- Compound interest and long-term growth
-
-Finance helps individuals, businesses, and governments make informed decisions about allocating resources, managing risk, and achieving financial objectives."""
+                # This case is now handled by _get_template_response at the start of query()
+                # But keeping as fallback just in case
+                pass
             elif "investment" in question.lower():
                 text = "Investment refers to allocating money or resources with the expectation of generating income or profit over time. Common investment types include stocks, bonds, real estate, and mutual funds. Key considerations include risk tolerance, time horizon, and diversification."
             elif "budget" in question.lower():
@@ -592,13 +635,17 @@ Finance helps individuals, businesses, and governments make informed decisions a
                 text = "I understand you have a financial question. Finance involves the management of money, investments, and financial planning. For specific financial advice, it's recommended to consult with qualified financial professionals who can provide personalized guidance based on your individual circumstances."
         
         # Create meaningful reasoning steps based on the content
-        reasoning_steps = [
-            "I'll provide a comprehensive explanation of this financial concept",
-            "Let me break down the key components and areas of finance",
-            "I'll explain how this applies to real-world situations",
-            "I'll highlight the most important principles to understand",
-            "This information should help you grasp the fundamentals"
-        ]
+        try:
+            from ..reasoning.cot_system import FinancialReasoningTemplate
+            reasoning_steps = FinancialReasoningTemplate.get_reasoning_steps(question)
+        except ImportError:
+            reasoning_steps = [
+                "I'll provide a comprehensive explanation of this financial concept",
+                "Let me break down the key components and areas of finance",
+                "I'll explain how this applies to real-world situations",
+                "I'll highlight the most important principles to understand",
+                "This information should help you grasp the fundamentals"
+            ]
         
         # Use the structured text as the primary answer
         answer = text
