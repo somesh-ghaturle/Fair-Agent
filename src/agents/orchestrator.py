@@ -18,6 +18,7 @@ import re
 from .finance_agent import FinanceAgent, FinanceResponse
 from .medical_agent import MedicalAgent, MedicalResponse
 from ..observability.telemetry import get_telemetry
+from ..utils.spell_checker import QuerySpellChecker
 
 # Add enhancement modules to path for general query handling
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'safety'))
@@ -76,6 +77,7 @@ class Orchestrator:
         try:
             self.finance_agent = FinanceAgent(**finance_config)
             self.medical_agent = MedicalAgent(**medical_config)
+            self.spell_checker = QuerySpellChecker()
             self.logger.info("Orchestrator initialized successfully")
         except Exception as e:
             self.logger.error(f"Failed to initialize orchestrator: {e}")
@@ -108,6 +110,17 @@ class Orchestrator:
         telemetry.start_trace(trace_id, metadata=metadata)
         
         try:
+            # Spell check
+            corrected_query, was_corrected, corrections = self.spell_checker.correct_text(query)
+            if was_corrected:
+                self.logger.info(f"Spell check corrected query: '{query}' -> '{corrected_query}'")
+                # Update metadata with corrected query info
+                metadata["original_query"] = query
+                metadata["corrections"] = str(corrections)
+                query = corrected_query
+                # Update trace metadata
+                telemetry.update_trace_metadata(trace_id, metadata)
+
             # Classify query domain
             telemetry.start_span("domain_classification")
             domain = force_domain or self._classify_query_domain(query)

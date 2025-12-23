@@ -104,6 +104,12 @@ class TelemetryManager:
         if current_trace_id.get() == tid:
             current_trace_id.set(None)
 
+    def update_trace_metadata(self, trace_id: str, metadata: Dict[str, Any]):
+        """Update metadata for an active trace"""
+        with self._lock:
+            if trace_id in self._traces:
+                self._traces[trace_id].metadata.update(metadata)
+
     def start_span(self, name: str, metadata: Optional[Dict] = None, trace_id: Optional[str] = None) -> Optional[Span]:
         """Start a span within a trace"""
         tid = trace_id or current_trace_id.get()

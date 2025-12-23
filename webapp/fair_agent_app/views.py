@@ -1083,14 +1083,15 @@ class DashboardView(TemplateView):
         
         # Calculate summary stats
         total_traces = TraceLog.objects.count()
-        avg_duration = TraceLog.objects.aggregate(Avg('duration_ms'))['duration_ms__avg'] or 0
+        avg_duration_ms = TraceLog.objects.aggregate(Avg('duration_ms'))['duration_ms__avg'] or 0
+        avg_duration_sec = avg_duration_ms / 1000.0
         
         # Get recent errors (spans with status='error')
         error_spans = SpanLog.objects.filter(status='error').order_by('-start_time')[:10]
         
         context['traces'] = enriched_traces
         context['total_traces'] = total_traces
-        context['avg_duration'] = round(avg_duration, 2)
+        context['avg_duration_sec'] = round(avg_duration_sec, 2)
         context['recent_errors'] = error_spans
         
         return context

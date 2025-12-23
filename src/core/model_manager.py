@@ -29,6 +29,7 @@ class ModelType(Enum):
     LLAMA32_LATEST = "llama3.2:latest"
     MISTRAL_LATEST = "mistral:latest"
     PHI3_LATEST = "phi3:latest"
+    PHI4_LATEST = "phi4:latest"
     CODELLAMA_LATEST = "codellama:latest"
     LLAMA_7B = "llama:7b"
     LLAMA_7B_CHAT = "llama:7b-chat"
@@ -49,7 +50,7 @@ class ModelRegistry:
             logger.warning(f"Could not fetch available models: {e}")
         
         # Fallback to common model names if API unavailable
-        return ["llama3.2:latest", "mistral:latest", "phi3:latest"]
+        return ["llama3.2:latest", "mistral:latest", "phi3:latest", "phi4:latest"]
     
     @classmethod  
     def get_default_model(cls) -> str:
@@ -59,7 +60,7 @@ class ModelRegistry:
         # Preference order for default model selection
         preferred_models = [
             "llama3.2:latest", "llama3.1:latest", "llama3:latest",
-            "mistral:latest", "phi3:latest"
+            "mistral:latest", "phi4:latest", "phi3:latest"
         ]
         
         for preferred in preferred_models:
@@ -76,7 +77,7 @@ class ModelRegistry:
         
         domain_preferences = {
             'medical': ["llama3.2:latest", "mistral:latest"],  # Medical reasoning
-            'finance': ["llama3.2:latest", "phi3:latest"],    # Financial analysis
+            'finance': ["llama3.2:latest", "phi4:latest", "phi3:latest"],    # Financial analysis
             'general': ["llama3.2:latest", "mistral:latest"]  # General purpose
         }
         
@@ -107,13 +108,6 @@ class ModelCapabilities:
     def get_model_capabilities(model_type: ModelType) -> Dict[str, float]:
         """Get model capabilities scores for FAIR metrics"""
         capabilities = {
-            ModelType.LLAMA33_LATEST: {
-                'faithfulness': 0.88,
-                'adaptability': 0.92,
-                'interpretability': 0.85,
-                'risk_awareness': 0.88,
-                'domain_knowledge': 0.90
-            },
             ModelType.LLAMA32_LATEST: {
                 'faithfulness': 0.85,
                 'adaptability': 0.90,
@@ -134,6 +128,13 @@ class ModelCapabilities:
                 'interpretability': 0.75,
                 'risk_awareness': 0.78,
                 'domain_knowledge': 0.82
+            },
+            ModelType.PHI4_LATEST: {
+                'faithfulness': 0.85,
+                'adaptability': 0.88,
+                'interpretability': 0.80,
+                'risk_awareness': 0.82,
+                'domain_knowledge': 0.86
             },
             ModelType.LLAMA_7B: {
                 'faithfulness': 0.75,

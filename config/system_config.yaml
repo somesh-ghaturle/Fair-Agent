@@ -3,11 +3,12 @@
 
 # Model Selection Configuration
 model_selection:
-  # Available models: llama3.2:latest, mistral:latest, phi3:latest
+  # Available models: llama3.2:latest, mistral:latest, phi3:latest, phi4:latest
   enabled_models:
     - "llama3.2:latest"
     - "mistral:latest"
     - "phi3:latest"
+    - "phi4:latest"
   
   # Default models for each domain
   default_finance_model: "llama3.2:latest"

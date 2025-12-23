@@ -95,6 +95,11 @@ class TraceLog(models.Model):
     def __str__(self):
         return f"Trace {self.trace_id} ({self.duration_ms}ms)"
 
+    @property
+    def duration_sec(self):
+        """Duration in seconds"""
+        return self.duration_ms / 1000.0
+
 
 class SpanLog(models.Model):
     """Model to store individual spans within a trace"""

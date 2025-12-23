@@ -22,37 +22,136 @@ FAIR-Agent is the **world's first LLM with quantifiable trustworthiness**, desig
 | **Citations** | 100% Citation Rate | < 5% Citation Rate |
 | **Transparency** | Visible Chain-of-Thought | Black Box |
 | **Metrics** | Real-time FAIR Scores | No Trust Metrics |
-| **Privacy** | 100% Local (Ollama/Llama 3.2) | Cloud-based |
+| **Privacy** | 100% Local (Ollama/Llama 3.3) | Cloud-based |
 | **Strictness** | **No Evidence = No Answer** | Hallucinates answers |
 
 ---
 
 ## 🏗️ System Architecture
 
-The system operates on a 9-stage pipeline designed to ensure accuracy and safety.
+The system operates on a comprehensive pipeline designed to ensure accuracy, safety, and observability.
 
-### Complete System Workflow
+### Complete System Architecture
 
 ```mermaid
-flowchart LR
-    A[👤 User Query] --> B[🏷️ Domain Classification]
-    B --> C[🎯 Agent Routing]
-    C --> D[📚 Advanced RAG]
-    D --> E[🧠 AI Processing]
-    E --> F[⚡ Enhancement Pipeline]
-    F --> G[📏 FAIR Evaluation]
-    G --> H[📤 Response Delivery]
-    H --> I[🔄 Baseline Auto-Refresh]
+flowchart TD
+    classDef user fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef frontend fill:#bbf,stroke:#333,stroke-width:2px;
+    classDef core fill:#bfb,stroke:#333,stroke-width:2px;
+    classDef rag fill:#fbb,stroke:#333,stroke-width:2px;
+    classDef ai fill:#ddf,stroke:#333,stroke-width:2px;
+    classDef obs fill:#ddd,stroke:#333,stroke-width:2px;
+
+    subgraph User_Layer [User Interaction Layer]
+        User((User)):::user
+        Browser["Web Browser / UI<br/>(HTML/JS/CSS)"]:::frontend
+    end
+
+    subgraph Web_Layer [Web Application Layer]
+        Django["Django Server<br/>(WSGI/ASGI)"]:::frontend
+        Views["View Logic<br/>(views.py)"]:::frontend
+        API["REST API Endpoints<br/>(/api/query)"]:::frontend
+        Session["Session Manager<br/>(DB/Cache)"]:::frontend
+    end
+
+    subgraph Core_Layer [Core Orchestration Layer]
+        Orchestrator["Orchestrator System<br/>(orchestrator.py)"]:::core
+        Classifier["Domain Classifier<br/>(Regex/Keyword)"]:::core
+        Router{Router}:::core
+        Aggregator["Response Aggregator<br/>(JSON Builder)"]:::core
+        Safety["Safety & Ethics Filter<br/>(Pattern Matcher)"]:::core
+    end
+
+    subgraph Agent_Layer [Domain Agents]
+        FinAgent["Finance Agent<br/>(finance_agent.py)"]:::core
+        MedAgent["Medical Agent<br/>(medical_agent.py)"]:::core
+        CrossAgent["Cross-Domain Logic<br/>(Synthesis)"]:::core
+        PromptEng["Prompt Engineer<br/>(Template Builder)"]:::core
+    end
+
+    subgraph RAG_Layer ["RAG & Knowledge Layer"]
+        QueryEnc["Query Encoder<br/>(all-MiniLM-L6-v2)"]:::rag
+        VectorDB[("Embeddings Cache<br/>.npz Files")]:::rag
+        DocStore[("Evidence Sources<br/>YAML/JSON")]:::rag
+        HybridSearch["Hybrid Search Engine<br/>(Semantic + Keyword)"]:::rag
+        ReRanker["Cross-Encoder Re-ranker<br/>(ms-marco-MiniLM)"]:::rag
+        ContextWindow["Context Window Manager<br/>(Token Limiter)"]:::rag
+    end
+
+    subgraph Inference_Layer [Inference Layer]
+        Ollama["Ollama API Client<br/>(HTTP/JSON)"]:::ai
+        LlamaService["Ollama Service<br/>(Localhost:11434)"]:::ai
+        Model[["Llama 3.3/3.2 Model<br/>(GGUF Quantized)"]]:::ai
+    end
+
+    subgraph Obs_Layer ["Observability & Evaluation"]
+        Telemetry["Telemetry Manager<br/>(telemetry.py)"]:::obs
+        Tracer["Trace Storage<br/>(logs/telemetry + DB)"]:::obs
+        Metrics["Metrics Store<br/>(Latency/Tokens)"]:::obs
+        Evaluator["Offline Evaluator<br/>(evaluate.py)"]:::obs
+        Benchmarks[("Benchmark Datasets<br/>FinQA/MedMCQA")]:::obs
+        
+        %% Metrics Details
+        M_Faith["Faithfulness<br/>(faithfulness.py)"]:::obs
+        M_Safe["Safety<br/>(safety.py)"]:::obs
+        M_Adapt["Adaptability<br/>(adaptability.py)"]:::obs
+        M_Interp["Interpretability<br/>(interpretability.py)"]:::obs
+    end
+
+    %% Flows
+    User -->|1. Submit Query| Browser
+    Browser -->|2. HTTP POST| Django
+    Django -->|3. Route Request| Views
+    Views -->|4. API Call| API
+    API -->|5. Process| Orchestrator
+
+    %% Orchestration Flow
+    Orchestrator -->|6. Classify| Classifier
+    Classifier -->|Domain Tag| Router
+    Router -->|Finance| FinAgent
+    Router -->|Medical| MedAgent
+    Router -->|Both| CrossAgent
+
+    %% RAG Flow
+    FinAgent & MedAgent -->|7. Retrieve Context| HybridSearch
+    HybridSearch -->|Encode Query| QueryEnc
+    QueryEnc -->|Vector Search| VectorDB
+    HybridSearch -->|Keyword Search| DocStore
+    VectorDB & DocStore -->|Candidates| ReRanker
+    ReRanker -->|Top K Evidence| ContextWindow
+    ContextWindow -->|Formatted Context| PromptEng
+
+    %% Inference Flow
+    PromptEng -->|8. Construct Prompt| FinAgent & MedAgent
+    FinAgent & MedAgent -->|9. Send Prompt| Ollama
+    Ollama -->|Generate| LlamaService
+    LlamaService -->|Inference| Model
+    Model -->|Tokens| LlamaService
+    LlamaService -->|Response Stream| Ollama
+    Ollama -->|Text| FinAgent & MedAgent
+
+    %% Response Flow
+    FinAgent & MedAgent -->|10. Raw Response| Safety
+    Safety -->|Validated Response| Aggregator
+    Aggregator -->|Final Output| Orchestrator
+    Orchestrator -->|JSON Response| API
+    API -->|Return Data| Views
+    Views -->|Render Template| Browser
+    Browser -->|Display| User
+
+    %% Observability Flow
+    Orchestrator -.->|Start Trace| Telemetry
+    FinAgent & MedAgent -.->|Span| Telemetry
+    Ollama -.->|Latency/Tokens| Telemetry
+    Telemetry -->|Store| Tracer & Metrics
+    Evaluator -.->|Read| Metrics
+    Evaluator -.->|Compare| Benchmarks
     
-    style A fill:#e3f2fd
-    style B fill:#f3e5f5
-    style C fill:#e8f5e8
-    style I fill:#fff3e0
-    style D fill:#fff3e0
-    style E fill:#f1f8e9
-    style F fill:#fff8e1
-    style G fill:#ffebee
-    style H fill:#f9fbe7
+    %% Metrics Calculation Flow
+    Evaluator -.->|Calculate| M_Faith
+    Evaluator -.->|Calculate| M_Safe
+    Evaluator -.->|Calculate| M_Adapt
+    Evaluator -.->|Calculate| M_Interp
 ```
 
 ### Workflow Steps
@@ -62,11 +161,11 @@ flowchart LR
     *   **Query Expansion**: Generates synonyms to improve recall.
     *   **Hybrid Search**: Combines Semantic (Vector) and Keyword search.
     *   **Re-ranking**: Uses Cross-Encoders to select the best evidence.
-4.  **AI Processing**: Local Llama 3.2 model generates raw response.
+4.  **AI Processing**: Local Llama 3.3/3.2 model generates raw response.
 5.  **Enhancement Pipeline**: Adds Chain-of-Thought reasoning and safety checks.
 6.  **Standardization**: Formats response into 7 distinct sections.
 7.  **FAIR Evaluation**: Calculates real-time scores (F, A, I, R).
-8.  **Baseline Comparison**: Compares against dynamically calculated baselines.
+8.  **Observability**: Distributed tracing tracks execution flow and performance.
 9.  **Response Delivery**: Streamed to user with full transparency.
 
 ### Detailed Pipeline Breakdown
@@ -349,6 +448,12 @@ graph TB
         LOGS[(Logging System<br/>Performance Monitoring)]
     end
 ```
+
+### 📊 New Features (Dec 2025)
+- **System Dashboard**: Real-time telemetry visualization including trace execution, latency metrics, and error tracking.
+- **Publication Page**: Integrated research abstract viewer for SARD 2025.
+- **Enhanced UI**: Improved architecture diagrams and responsive design.
+- **Strict Evidence Protocol**: "No Evidence = No Answer" policy to eliminate hallucinations.
 
 ### Tech Stack
 *   **Backend**: Python 3.13, Django 4.2.7

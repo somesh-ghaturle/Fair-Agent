@@ -4,19 +4,6 @@
 
 {% block content %}
 <div class="container-fluid">
-    <!-- Project Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-0 bg-transparent">
-                <div class="card-body text-center py-4">
-                    <h1 class="display-6 mb-2 fw-bold"><i class="fas fa-brain me-2"></i>FAIR-Agent</h1>
-                    <h4 class="mb-2 text-secondary">Faithful, Adaptive, Interpretable, and Risk-Aware Agentic LLMs</h4>
-                    <p class="mb-0 text-muted">Multi-Agent Framework for Finance and Medicine • CS668 Analytics Capstone Fall 2025</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Live FAIR Metrics Dashboard -->
     <div class="row mb-4" id="metricsRow" style="display: none;">
         <div class="col-12">
@@ -104,12 +91,10 @@
                                 <i class="fas fa-brain me-2"></i>Select AI Model:
                             </label>
                             <select id="modelSelect" class="form-select form-select-lg">
-                                <option value="llama3.3:latest" selected>Llama 3.3 (New & Recommended)</option>
-                                <option value="llama3.2:latest">Llama 3.2 (Stable)</option>
-                                
-                                <!-- RECOMMENDED FOR MEDICAL/FINANCE -->
-                                
-                                
+                                <option value="llama3.2:latest" selected>Llama 3.2 (Stable & Recommended)</option>
+                                <option value="phi4:latest">Phi-4 (Microsoft)</option>
+                                <option value="mistral:latest">Mistral (High Performance)</option>
+                                <option value="llama3.3:latest">Llama 3.3 (New)</option>
                                 <!-- POPULAR GENERAL PURPOSE -->
                                 <optgroup label="🌟 Popular General Purpose">
                                     <option value="llama3.1:8b" disabled>Llama 3.1 8B - 4.7GB 📥 Download</option>
@@ -182,6 +167,7 @@
                             <li><i class="fas fa-check text-primary me-2"></i>Evidence-based RAG system</li>
                             <li><i class="fas fa-check text-primary me-2"></i>Chain-of-thought reasoning</li>
                             <li><i class="fas fa-check text-primary me-2"></i>Safety disclaimers & guidance</li>
+                            <li><i class="fas fa-check text-primary me-2"></i>Full Model Tracing & Telemetry</li>
                         </ul>
                     </div>
                     
