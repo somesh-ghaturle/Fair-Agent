@@ -34,4 +34,7 @@ urlpatterns = [
     path('datasets/list/', views.list_datasets_api, name='list_datasets'),
     path('datasets/info/<str:domain>/<str:dataset_name>/', views.dataset_info_api, name='dataset_info'),
     path('datasets/stats/', views.dataset_stats_api, name='dataset_stats'),
+    
+    # Memory System APIs
+    path('memory/search/', views.search_memory_api, name='search_memory'),
 ]

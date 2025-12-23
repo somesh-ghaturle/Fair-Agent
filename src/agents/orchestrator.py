@@ -20,6 +20,14 @@ from .medical_agent import MedicalAgent, MedicalResponse
 from ..observability.telemetry import get_telemetry
 from ..utils.spell_checker import QuerySpellChecker
 
+# Import Memory Systems
+try:
+    from ..memory.vector_store import VectorStore
+    from ..memory.knowledge_graph import KnowledgeGraph
+except ImportError:
+    VectorStore = None
+    KnowledgeGraph = None
+
 # Add enhancement modules to path for general query handling
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'safety'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'reasoning'))
@@ -78,6 +86,11 @@ class Orchestrator:
             self.finance_agent = FinanceAgent(**finance_config)
             self.medical_agent = MedicalAgent(**medical_config)
             self.spell_checker = QuerySpellChecker()
+            
+            # Initialize Memory Systems
+            self.vector_store = VectorStore() if VectorStore else None
+            self.knowledge_graph = KnowledgeGraph() if KnowledgeGraph else None
+            
             self.logger.info("Orchestrator initialized successfully")
         except Exception as e:
             self.logger.error(f"Failed to initialize orchestrator: {e}")
@@ -121,6 +134,37 @@ class Orchestrator:
                 # Update trace metadata
                 telemetry.update_trace_metadata(trace_id, metadata)
 
+            # Retrieve Memory Context
+            memory_context = ""
+            if self.vector_store:
+                try:
+                    similar_traces = self.vector_store.find_similar_traces(query)
+                    if similar_traces:
+                        memory_context += "\nRelated Past Queries:\n"
+                        for t in similar_traces:
+                            # Extract just the Q/A part if possible, or use full content
+                            content = t.get('content', '')
+                            memory_context += f"- {content[:200]}...\n"
+                except Exception as e:
+                    self.logger.warning(f"Failed to retrieve vector memory: {e}")
+            
+            if self.knowledge_graph:
+                try:
+                    # Simple keyword extraction for KG search
+                    keywords = [w for w in query.split() if len(w) > 3]
+                    kg_context = self.knowledge_graph.search_graph(keywords)
+                    if kg_context:
+                        memory_context += "\nKnowledge Graph Context:\n" + "\n".join(kg_context[:5]) + "\n"
+                except Exception as e:
+                    self.logger.warning(f"Failed to retrieve KG context: {e}")
+
+            # Add memory context to request context
+            if context is None:
+                context = {}
+            if memory_context:
+                context['memory_context'] = memory_context
+                self.logger.info("Added memory context to query")
+
             # Classify query domain
             telemetry.start_span("domain_classification")
             domain = force_domain or self._classify_query_domain(query)
@@ -138,6 +182,17 @@ class Orchestrator:
                 result = self._handle_unknown_query(query, context)
             telemetry.end_span("agent_execution")
             
+            # Save to Memory
+            try:
+                if self.vector_store:
+                    self.vector_store.add_trace(query, result.primary_answer, {"domain": str(domain), "trace_id": trace_id})
+                
+                if self.knowledge_graph:
+                    # Learn from the interaction
+                    self.knowledge_graph.extract_and_learn(f"{query} {result.primary_answer}")
+            except Exception as e:
+                self.logger.warning(f"Failed to save to memory: {e}")
+
             return result
                 
         except Exception as e:

@@ -122,6 +122,82 @@ medical_sources:
     domain: "medical"
     keywords: ["opioid", "pain", "prescription", "addiction", "overdose", "chronic pain", "medication", "narcotics", "painkillers", "management", "treatment", "naloxone", "morphine", "oxycodone", "hydrocodone", "codeine", "fentanyl", "drug", "medicine", "pill", "abuse", "dependence", "withdrawal", "painkiller", "hurt", "ache", "aching", "sore", "injury", "back pain", "arthritis"]
 
+  - id: "med_015"
+    title: "Asthma Management and Prevention - GINA Guidelines"
+    content: |
+      Asthma management focuses on symptom control and risk reduction. Inhaled corticosteroids (ICS) are the cornerstone 
+      of treatment for persistent asthma. Short-acting beta-agonists (SABA) are used for quick relief, but overuse 
+      indicates poor control. GINA recommends ICS-formoterol as the preferred reliever for adults and adolescents. 
+      Triggers include allergens, smoke, pollution, and respiratory infections. Action plans help patients manage 
+      exacerbations. Biologic therapies are available for severe eosinophilic asthma. Regular monitoring of lung 
+      function (spirometry) is essential.
+    source_type: "clinical_guideline"
+    url: "https://ginasthma.org/gina-reports/"
+    publication_date: "2023-05-01"
+    reliability_score: 0.95
+    domain: "medical"
+    keywords: ["asthma", "respiratory", "inhaler", "corticosteroid", "breathing", "lung", "wheezing", "GINA", "allergy", "airway", "inflammation", "bronchoconstriction", "attack", "exacerbation", "pulmonary", "medicine", "treatment"]
+
+  - id: "med_016"
+    title: "Osteoporosis Screening and Treatment Guidelines"
+    content: |
+      Osteoporosis is a silent disease characterized by low bone mass and deterioration of bone tissue. Screening 
+      with DXA scan is recommended for women aged 65+ and men aged 70+, or younger with risk factors (fracture history, 
+      steroid use, smoking, alcohol). Calcium (1000-1200mg) and Vitamin D (800-1000 IU) are foundational. 
+      Pharmacologic treatment (bisphosphonates, denosumab, anabolics) is indicated for those with hip/vertebral 
+      fractures or T-score ≤-2.5. Weight-bearing and muscle-strengthening exercises reduce fall and fracture risk.
+    source_type: "clinical_guideline"
+    url: "https://www.bonehealthandosteoporosis.org/"
+    publication_date: "2023-01-01"
+    reliability_score: 0.94
+    domain: "medical"
+    keywords: ["osteoporosis", "bone", "fracture", "density", "calcium", "vitamin d", "screening", "DXA", "scan", "elderly", "women", "menopause", "skeleton", "weak bones", "fall prevention", "treatment", "medication"]
+
+  - id: "med_017"
+    title: "Migraine Diagnosis and Management"
+    content: |
+      Migraine is a neurological disease characterized by moderate to severe throbbing headache, often with nausea, 
+      vomiting, and sensitivity to light/sound. Acute treatment includes NSAIDs, triptans, and gepants. Preventive 
+      therapy is recommended for frequent or disabling attacks (beta-blockers, topiramate, CGRP monoclonal antibodies). 
+      Lifestyle modifications include regular sleep, hydration, and stress management. Overuse of acute medication 
+      can lead to medication-overuse headache. Diagnosis is based on clinical history and ICHD-3 criteria.
+    source_type: "clinical_guideline"
+    url: "https://americanheadachesociety.org/"
+    publication_date: "2023-06-15"
+    reliability_score: 0.93
+    domain: "medical"
+    keywords: ["migraine", "headache", "neurology", "pain", "nausea", "aura", "triptan", "prevention", "treatment", "brain", "chronic", "episodic", "trigger", "medication", "relief"]
+
+  - id: "med_018"
+    title: "Chronic Kidney Disease (CKD) Evaluation and Management"
+    content: |
+      CKD is defined as kidney structure or function abnormalities for >3 months. Staging is based on GFR and 
+      albuminuria categories (CGA staging). Management includes blood pressure control (ACEi/ARB preferred for 
+      proteinuria), diabetes management (SGLT2 inhibitors show renal benefit), and cardiovascular risk reduction. 
+      Dietary modifications (sodium, protein, potassium, phosphorus restriction) depend on stage. Avoid nephrotoxins 
+      (NSAIDs, contrast dye). Preparation for renal replacement therapy (dialysis, transplant) begins in advanced stages.
+    source_type: "clinical_guideline"
+    url: "https://kdigo.org/guidelines/"
+    publication_date: "2024-03-01"
+    reliability_score: 0.96
+    domain: "medical"
+    keywords: ["kidney", "renal", "CKD", "dialysis", "nephrology", "creatinine", "GFR", "albumin", "urine", "failure", "disease", "chronic", "filtration", "blood pressure", "diabetes", "diet"]
+
+  - id: "med_019"
+    title: "Major Depressive Disorder in Adults"
+    content: |
+      Depression is a common but serious mood disorder. Diagnosis requires 5+ symptoms for 2 weeks (must include 
+      depressed mood or anhedonia). Treatment options include psychotherapy (CBT, IPT), pharmacotherapy (SSRIs, 
+      SNRIs, atypicals), or combination. Response typically takes 4-8 weeks. Maintenance treatment prevents relapse. 
+      Screen for suicide risk at every visit. Treatment-resistant depression may require augmentation or interventional 
+      treatments (TMS, ECT, esketamine). Collaborative care models improve outcomes.
+    source_type: "clinical_guideline"
+    url: "https://www.psychiatry.org/psychiatrists/practice/clinical-practice-guidelines"
+    publication_date: "2023-10-01"
+    reliability_score: 0.95
+    domain: "medical"
+    keywords: ["depression", "mental health", "mood", "psychiatry", "antidepressant", "therapy", "SSRI", "sadness", "suicide", "treatment", "diagnosis", "disorder", "major depression", "MDD", "emotional"]
+
 finance_sources:
   - id: "fin_001"
     title: "Portfolio Diversification Principles - Modern Portfolio Theory"
@@ -580,13 +656,94 @@ finance_sources:
     domain: "medical"
     keywords: ["smoking", "tobacco", "quit smoking", "smoking cessation", "cigarettes", "nicotine", "lung cancer", "COPD", "vaping", "e-cigarettes", "addiction", "quitting", "stop smoking", "smoke", "smoker", "tobacco use", "nicotine replacement", "patch", "gum", "withdrawal", "cancer risk", "lung disease", "breathing"]
 
+  - id: "fin_022"
+    title: "Estate Planning Essentials - Wills and Trusts"
+    content: |
+      Estate planning ensures asset distribution according to wishes and incapacity protection. Key documents: 
+      Will (distributes assets, names guardians), Durable Power of Attorney (financial decisions), Healthcare 
+      Proxy (medical decisions), Living Will (end-of-life wishes). Revocable Living Trusts avoid probate, provide 
+      privacy, and allow incapacity planning. Beneficiary designations on accounts (POD/TOD) override wills. 
+      Estate taxes apply only to very large estates (federal exemption >$13M in 2024), but state taxes may apply. 
+      Regular review recommended every 3-5 years or after major life events (marriage, birth, divorce).
+    source_type: "legal_financial_planning"
+    url: "https://www.americanbar.org/groups/real_property_trust_estate/resources/estate_planning/"
+    publication_date: "2023-09-01"
+    reliability_score: 0.94
+    domain: "finance"
+    keywords: ["estate planning", "will", "trust", "inheritance", "probate", "power of attorney", "beneficiary", "assets", "heirs", "death", "incapacity", "legal", "planning", "wealth transfer", "taxes"]
+
+  - id: "fin_023"
+    title: "Behavioral Economics - Nudge Theory in Finance"
+    content: |
+      Nudge theory suggests positive reinforcement and indirect suggestions can influence motives and decision-making. 
+      In finance, "nudges" like automatic enrollment in 401(k) plans significantly increase participation rates. 
+      "Save More Tomorrow" programs commit future raises to savings, bypassing loss aversion. Default choices are 
+      powerful because inertia leads people to stick with the status quo. Framing effects (presenting options 
+      differently) impact choices. Understanding these mechanisms helps individuals design their own environments 
+      for better financial outcomes (e.g., automating transfers, removing friction for saving, adding friction for spending).
+    source_type: "academic_research"
+    url: "https://www.behavioraleconomics.com/"
+    publication_date: "2023-05-15"
+    reliability_score: 0.91
+    domain: "finance"
+    keywords: ["behavioral economics", "nudge", "psychology", "decision making", "automation", "savings", "401k", "default", "choice architecture", "thaler", "sunstein", "influence", "habits", "spending"]
+
+  - id: "fin_024"
+    title: "Options Trading Risks and Mechanics"
+    content: |
+      Options are derivatives giving the right, but not obligation, to buy (call) or sell (put) assets at a specific 
+      price by a specific date. They offer leverage and hedging capabilities but carry significant risks. Buying 
+      options involves limited risk (premium paid) but time decay (theta) works against the buyer. Selling options 
+      can involve unlimited risk (naked calls). Most retail traders lose money on options. Strategies range from 
+      conservative (covered calls, protective puts) to speculative (buying OTM calls). Greeks (Delta, Gamma, Theta, 
+      Vega) measure sensitivity to price, time, and volatility. Not suitable for inexperienced investors.
+    source_type: "investment_education"
+    url: "https://www.optionseducation.org/"
+    publication_date: "2023-11-01"
+    reliability_score: 0.90
+    domain: "finance"
+    keywords: ["options", "trading", "derivatives", "call", "put", "leverage", "risk", "hedging", "speculation", "premium", "expiration", "strike price", "volatility", "greeks", "investing", "market"]
+
+  - id: "fin_025"
+    title: "Emerging Markets Investing Opportunities and Risks"
+    content: |
+      Emerging markets (EM) offer higher growth potential due to younger demographics, industrialization, and 
+      expanding middle classes. However, they carry higher risks: political instability, currency volatility, 
+      weaker regulatory frameworks, and lower liquidity. China, India, Brazil, and Taiwan are major EM components. 
+      Diversification into EM can enhance portfolio returns but increases volatility. Currency risk can be hedged 
+      or unhedged. Corporate governance standards may lag developed markets. EM assets often have lower correlation 
+      with developed markets, providing diversification benefits. Recommended allocation typically 5-15% of equity portfolio.
+    source_type: "investment_analysis"
+    url: "https://www.msci.com/emerging-markets"
+    publication_date: "2023-08-20"
+    reliability_score: 0.89
+    domain: "finance"
+    keywords: ["emerging markets", "international investing", "growth", "risk", "currency", "global", "diversification", "china", "india", "brazil", "developing economies", "stocks", "portfolio", "volatility"]
+
+  - id: "fin_026"
+    title: "Financial Ratios for Corporate Analysis"
+    content: |
+      Financial ratios allow comparison of companies across size and industry. Liquidity ratios (Current, Quick) 
+      measure ability to meet short-term obligations. Solvency ratios (Debt-to-Equity, Interest Coverage) measure 
+      long-term viability and leverage. Profitability ratios (Gross Margin, Operating Margin, ROE, ROA) measure 
+      efficiency in generating returns. Efficiency ratios (Inventory Turnover, Days Sales Outstanding) measure 
+      operational effectiveness. Valuation ratios (P/E, EV/EBITDA) measure market price relative to fundamentals. 
+      Trend analysis (over time) and peer analysis (vs competitors) provide context. No single ratio tells the 
+      whole story; they must be interpreted together.
+    source_type: "financial_textbook"
+    url: "https://www.cfainstitute.org/"
+    publication_date: "2024-01-05"
+    reliability_score: 0.93
+    domain: "finance"
+    keywords: ["financial ratios", "fundamental analysis", "accounting", "corporate finance", "profitability", "liquidity", "solvency", "efficiency", "valuation", "stocks", "analysis", "balance sheet", "income statement", "cash flow"]
+
 # Evidence source metadata
 metadata:
-  version: "2.0.0"
-  last_updated: "2025-10-08"
-  total_sources: 30
-  medical_sources_count: 14
-  finance_sources_count: 16
+  version: "2.1.0"
+  last_updated: "2025-12-23"
+  total_sources: 45
+  medical_sources_count: 19
+  finance_sources_count: 26
   min_reliability_score: 0.85
   citation_format: "simple"
   

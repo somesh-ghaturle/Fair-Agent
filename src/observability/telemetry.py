@@ -14,6 +14,7 @@ from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
+from src.memory.vector_store import VectorStore
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +69,14 @@ class TelemetryManager:
         self._counters: Dict[str, int] = {}
         self._lock = threading.Lock()
         
+        # Initialize Vector Store for unified storage
+        try:
+            self.vector_store = VectorStore()
+        except Exception as e:
+            logger.error(f"Failed to initialize VectorStore in Telemetry: {e}")
+            self.vector_store = None
+        
+        # 
         # Auto-save thread could be added here
         
     def start_trace(self, trace_id: str, metadata: Optional[Dict] = None) -> Trace:
@@ -235,6 +244,38 @@ class TelemetryManager:
                 pass
             except Exception as db_err:
                 logger.error(f"Failed to save trace to DB: {db_err}")
+
+            # 3. Save to Vector Store (Unified Storage)
+            if self.vector_store:
+                try:
+                    # Extract query and response from metadata if available
+                    query_text = trace.metadata.get('query', trace.metadata.get('query_text', ''))
+                    response_text = trace.metadata.get('response', trace.metadata.get('primary_answer', ''))
+                    
+                    # Prepare metadata for vector store (flatten complex objects)
+                    vector_metadata = {
+                        "trace_id": trace.trace_id,
+                        "timestamp": trace.start_time,
+                        "duration_ms": trace.duration_ms,
+                        "status": "success" if not any(s.status == "error" for s in trace.spans) else "error",
+                        "domain": trace.metadata.get('domain', 'unknown'),
+                        "type": "telemetry_trace"
+                    }
+                    
+                    # Add flattened metadata from trace
+                    for k, v in trace.metadata.items():
+                        if isinstance(v, (str, int, float, bool)):
+                            vector_metadata[k] = v
+                        else:
+                            vector_metadata[k] = str(v)
+                            
+                    self.vector_store.add_telemetry(vector_metadata)
+                    logger.debug(f"Saved trace {trace.trace_id} to Vector Store Telemetry Collection")
+                except Exception as vs_err:
+                    logger.error(f"Failed to save trace to Vector Store: {vs_err}")
+                
+        except Exception as e:
+            logger.error(f"Failed to save trace: {e}")
                 
         except Exception as e:
             logger.error(f"Failed to save trace: {e}")

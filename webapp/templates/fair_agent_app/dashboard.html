@@ -46,6 +46,13 @@
         border-radius: 4px;
         position: relative;
     }
+    
+    .memory-card {
+        background-color: #1a2634;
+        border: 1px solid #2c3e50;
+    }
+    .memory-status-active { color: #2ecc71; }
+    .memory-status-error { color: #e74c3c; }
 </style>
 {% endblock %}
 
@@ -92,6 +99,78 @@
                         <div class="metric-label">Recent Errors</div>
                     </div>
                     <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Memory Systems Status -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="dashboard-card memory-card">
+                <h5 class="text-white mb-3"><i class="fas fa-database me-2"></i>Vector Store (ChromaDB)</h5>
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="small text-muted">Status</div>
+                        <div class="h5 {% if 'Active' in memory_stats.vector_store.status %}memory-status-active{% else %}memory-status-error{% endif %}">
+                            {{ memory_stats.vector_store.status }}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="small text-muted">Total Documents</div>
+                        <div class="h4 text-white">{{ memory_stats.vector_store.count }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="dashboard-card memory-card">
+                <h5 class="text-white mb-3"><i class="fas fa-project-diagram me-2"></i>Knowledge Graph (NetworkX)</h5>
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="small text-muted">Status</div>
+                        <div class="h5 {% if 'Active' in memory_stats.knowledge_graph.status %}memory-status-active{% else %}memory-status-error{% endif %}">
+                            {{ memory_stats.knowledge_graph.status }}
+                        </div>
+                    </div>
+                    <div class="me-3">
+                        <div class="small text-muted">Nodes</div>
+                        <div class="h4 text-white">{{ memory_stats.knowledge_graph.nodes }}</div>
+                    </div>
+                    <div>
+                        <div class="small text-muted">Edges</div>
+                        <div class="h4 text-white">{{ memory_stats.knowledge_graph.edges }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Memory Inspector -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-dark border-secondary">
+                <div class="card-header border-secondary d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-white"><i class="fas fa-search me-2"></i>Memory Inspector</h5>
+                </div>
+                <div class="card-body">
+                    <div class="input-group mb-3">
+                        <input type="text" id="memorySearchInput" class="form-control bg-dark text-white border-secondary" placeholder="Search memory (e.g., 'inflation', 'diabetes')...">
+                        <button class="btn btn-primary" type="button" id="memorySearchBtn">Search</button>
+                    </div>
+                    <div id="memorySearchResults" style="display:none;">
+                        <h6 class="text-muted border-bottom border-secondary pb-2">Results</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-info small">Vector Store Matches</h6>
+                                <div id="vectorResults" class="small text-white-50"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-warning small">Knowledge Graph Context</h6>
+                                <div id="graphResults" class="small text-white-50"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -268,4 +347,68 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchBtn = document.getElementById('memorySearchBtn');
+        const searchInput = document.getElementById('memorySearchInput');
+        const resultsDiv = document.getElementById('memorySearchResults');
+        const vectorResults = document.getElementById('vectorResults');
+        const graphResults = document.getElementById('graphResults');
+
+        if (searchBtn) {
+            searchBtn.addEventListener('click', function() {
+                const query = searchInput.value.trim();
+                if (!query) return;
+
+                // Show loading
+                vectorResults.innerHTML = '<div class="spinner-border spinner-border-sm text-light" role="status"></div> Searching...';
+                graphResults.innerHTML = '<div class="spinner-border spinner-border-sm text-light" role="status"></div> Searching...';
+                resultsDiv.style.display = 'block';
+
+                fetch('{% url "fair_agent_api:search_memory" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ query: query })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Render Vector Results
+                        if (data.results.vector && data.results.vector.length > 0) {
+                            vectorResults.innerHTML = data.results.vector.map(item => 
+                                `<div class="mb-2 p-2 border border-secondary rounded bg-dark">
+                                    <div class="text-white">${item.content}</div>
+                                    <div class="text-muted small mt-1">Distance: ${item.score.toFixed(4)}</div>
+                                </div>`
+                            ).join('');
+                        } else {
+                            vectorResults.innerHTML = '<div class="text-muted fst-italic">No matches found.</div>';
+                        }
+
+                        // Render Graph Results
+                        if (data.results.graph && data.results.graph.length > 0) {
+                            graphResults.innerHTML = '<ul class="list-unstyled">' + 
+                                data.results.graph.map(item => `<li class="mb-1 text-white"><i class="fas fa-project-diagram me-2 text-warning"></i>${item}</li>`).join('') + 
+                                '</ul>';
+                        } else {
+                            graphResults.innerHTML = '<div class="text-muted fst-italic">No related concepts found.</div>';
+                        }
+                    } else {
+                        vectorResults.innerHTML = `<div class="text-danger">Error: ${data.message}</div>`;
+                        graphResults.innerHTML = '';
+                    }
+                })
+                .catch(error => {
+                    vectorResults.innerHTML = `<div class="text-danger">Error: ${error}</div>`;
+                });
+            });
+        }
+    });
+</script>
 {% endblock %}

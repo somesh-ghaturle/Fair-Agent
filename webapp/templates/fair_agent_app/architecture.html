@@ -141,7 +141,8 @@
 
                             subgraph RAG_Layer ["RAG & Knowledge Layer"]
                                 QueryEnc["Query Encoder<br/>(all-MiniLM-L6-v2)"]:::rag
-                                VectorDB[("Embeddings Cache<br/>.npz Files")]:::rag
+                                VectorDB[("ChromaDB Vector Store<br/>(Persistent)")]:::rag
+                                KnowledgeGraph[("Knowledge Graph<br/>(NetworkX)")]:::rag
                                 DocStore[("Evidence Sources<br/>YAML/JSON")]:::rag
                                 HybridSearch["Hybrid Search Engine<br/>(Semantic + Keyword)"]:::rag
                                 ReRanker["Cross-Encoder Re-ranker<br/>(ms-marco-MiniLM)"]:::rag
@@ -186,8 +187,9 @@
                             FinAgent & MedAgent -->|7. Retrieve Context| HybridSearch
                             HybridSearch -->|Encode Query| QueryEnc
                             QueryEnc -->|Vector Search| VectorDB
+                            HybridSearch -->|Graph Search| KnowledgeGraph
                             HybridSearch -->|Keyword Search| DocStore
-                            VectorDB & DocStore -->|Candidates| ReRanker
+                            VectorDB & KnowledgeGraph & DocStore -->|Candidates| ReRanker
                             ReRanker -->|Top K Evidence| ContextWindow
                             ContextWindow -->|Formatted Context| PromptEng
 

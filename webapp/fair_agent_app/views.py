@@ -330,32 +330,65 @@ class DatasetsView(TemplateView):
         
         # Load dataset Q&A sources
         dataset_qa_sources = []
-        finqa_path = base_dir / 'data' / 'datasets' / 'finqa' / 'finance_qa.jsonl'
         
-        if finqa_path.exists():
+        # Helper to count lines in a file
+        def count_lines(file_path):
+            if not file_path.exists():
+                return 0
             try:
-                with open(finqa_path, 'r') as f:
-                    for idx, line in enumerate(f):
-                        try:
-                            data = json.loads(line)
-                            dataset_qa_sources.append({
-                                'id': f"dataset_fin_{idx:04d}",
-                                'title': f"Finance Q&A: {data['question'][:60]}...",
-                                'content': f"Q: {data['question']}\n\nA: {data['answer']}",
-                                'source_type': 'qa_dataset',
-                                'reliability_score': 0.75,
-                                'domain': 'finance',
-                                'publication_date': '2024-10-05'
-                            })
-                        except json.JSONDecodeError:
-                            continue
-            except Exception as e:
-                logger.error(f"Error loading dataset Q&A sources: {e}")
+                # Use wc -l for speed if on unix, else python count
+                import subprocess
+                result = subprocess.run(['wc', '-l', str(file_path)], capture_output=True, text=True)
+                return int(result.stdout.split()[0])
+            except Exception:
+                # Fallback to python count
+                count = 0
+                with open(file_path, 'r') as f:
+                    for _ in f: count += 1
+                return count
+
+        # Define datasets to check
+        datasets_info = [
+            {'name': 'FinQA', 'path': base_dir / 'data' / 'datasets' / 'finqa' / 'finance_qa.jsonl', 'domain': 'finance'},
+            {'name': 'ConvFinQA', 'path': base_dir / 'data' / 'datasets' / 'convfinqa' / 'convfinqa.jsonl', 'domain': 'finance'},
+            {'name': 'TAT-QA', 'path': base_dir / 'data' / 'datasets' / 'tatqa' / 'tatqa.jsonl', 'domain': 'finance'},
+            {'name': 'MedMCQA', 'path': base_dir / 'data' / 'datasets' / 'medmcqa' / 'medical_qa.jsonl', 'domain': 'medical'},
+            {'name': 'PubMedQA', 'path': base_dir / 'data' / 'datasets' / 'pubmedqa' / 'medical_qa.jsonl', 'domain': 'medical'},
+        ]
         
+        total_dataset_count = 0
+        dataset_counts = {}
+        
+        for ds in datasets_info:
+            count = count_lines(ds['path'])
+            dataset_counts[ds['name']] = count
+            total_dataset_count += count
+            
+            # Add a sample source for display if it exists
+            if count > 0 and len(dataset_qa_sources) < 5: # Limit samples
+                 try:
+                    with open(ds['path'], 'r') as f:
+                        line = f.readline()
+                        if line:
+                            data = json.loads(line)
+                            q_text = data.get('question', 'Question')
+                            a_text = str(data.get('answer', 'Answer'))
+                            dataset_qa_sources.append({
+                                'id': f"sample_{ds['name']}",
+                                'title': f"{ds['name']} Sample: {q_text[:60]}...",
+                                'content': f"Q: {q_text}\n\nA: {a_text}",
+                                'source_type': 'qa_dataset',
+                                'reliability_score': 0.85,
+                                'domain': ds['domain'],
+                                'publication_date': '2024'
+                            })
+                 except Exception: pass
+
         context['dataset_qa_sources'] = dataset_qa_sources
-        context['total_sources'] = curated_count + len(dataset_qa_sources)
+        context['total_sources'] = curated_count + total_dataset_count
         context['curated_count'] = curated_count
-        context['dataset_qa_count'] = len(dataset_qa_sources)
+        context['dataset_qa_count'] = total_dataset_count
+        context['dataset_counts'] = dataset_counts
         
         # Dataset information
         datasets_dir = base_dir / 'data' / 'datasets'
@@ -363,6 +396,7 @@ class DatasetsView(TemplateView):
             {
                 'name': 'MedMCQA',
                 'domain': 'medical',
+                'count': dataset_counts.get('MedMCQA', 0),
                 'description': 'Medical multiple choice question answering dataset for medical entrance exams',
                 'links': [
                     {'text': '🤗 HuggingFace Dataset', 'url': 'https://huggingface.co/datasets/openlifescienceai/medmcqa'},
@@ -373,6 +407,7 @@ class DatasetsView(TemplateView):
             {
                 'name': 'PubMedQA',
                 'domain': 'medical',
+                'count': dataset_counts.get('PubMedQA', 0),
                 'description': 'Biomedical question answering using PubMed abstracts',
                 'links': [
                     {'text': '🤗 HuggingFace Dataset', 'url': 'https://huggingface.co/datasets/qiaojin/PubMedQA'},
@@ -383,6 +418,7 @@ class DatasetsView(TemplateView):
             {
                 'name': 'MIMIC-IV',
                 'domain': 'medical',
+                'count': 0, # Not downloaded
                 'description': 'Medical Information Mart for Intensive Care - clinical database',
                 'links': [
                     {'text': '📊 PhysioNet Repository', 'url': 'https://physionet.org/content/mimiciv/2.2/'},
@@ -393,6 +429,7 @@ class DatasetsView(TemplateView):
             {
                 'name': 'FinQA',
                 'domain': 'finance',
+                'count': dataset_counts.get('FinQA', 0),
                 'description': 'Financial question answering with numerical reasoning',
                 'links': [
                     {'text': '📊 Dataset Repository', 'url': 'https://github.com/czyssrs/FinQA'},
@@ -403,6 +440,7 @@ class DatasetsView(TemplateView):
             {
                 'name': 'TAT-QA',
                 'domain': 'finance',
+                'count': dataset_counts.get('TAT-QA', 0),
                 'description': 'Table-and-text question answering for financial documents',
                 'links': [
                     {'text': '📊 Dataset Repository', 'url': 'https://github.com/NExTplusplus/TAT-QA'},
@@ -413,6 +451,7 @@ class DatasetsView(TemplateView):
             {
                 'name': 'ConvFinQA',
                 'domain': 'finance',
+                'count': dataset_counts.get('ConvFinQA', 0),
                 'description': 'Conversational financial question answering',
                 'links': [
                     {'text': '📊 Dataset Repository', 'url': 'https://github.com/czyssrs/ConvFinQA'},
@@ -1089,9 +1128,37 @@ class DashboardView(TemplateView):
         # Get recent errors (spans with status='error')
         error_spans = SpanLog.objects.filter(status='error').order_by('-start_time')[:10]
         
+        # Get Memory Stats
+        try:
+            from .services import FairAgentService
+            memory_stats = FairAgentService.get_memory_stats()
+        except Exception as e:
+            memory_stats = {"error": str(e)}
+
         context['traces'] = enriched_traces
         context['total_traces'] = total_traces
         context['avg_duration_sec'] = round(avg_duration_sec, 2)
         context['recent_errors'] = error_spans
+        context['memory_stats'] = memory_stats
         
         return context
+
+@csrf_exempt
+def search_memory_api(request):
+    """API to search memory systems"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            query = data.get('query', '')
+            system = data.get('system', 'all')
+            
+            from .services import FairAgentService
+            results = FairAgentService.search_memory(query, system)
+            
+            return JsonResponse({
+                'status': 'success',
+                'results': results
+            })
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)

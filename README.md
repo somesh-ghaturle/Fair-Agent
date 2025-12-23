@@ -18,7 +18,7 @@ FAIR-Agent is the **world's first LLM with quantifiable trustworthiness**, desig
 ### Key Differentiators
 | Feature | FAIR-Agent | Standard LLMs (GPT-4, etc.) |
 |---------|-----------|-----------------------------|
-| **Evidence** | 53 Curated Sources (SEC, CDC, etc.) | Unknown training data |
+| **Evidence** | 63 Curated Sources (SEC, CDC, etc.) | Unknown training data |
 | **Citations** | 100% Citation Rate | < 5% Citation Rate |
 | **Transparency** | Visible Chain-of-Thought | Black Box |
 | **Metrics** | Real-time FAIR Scores | No Trust Metrics |
@@ -30,6 +30,8 @@ FAIR-Agent is the **world's first LLM with quantifiable trustworthiness**, desig
 ## 🏗️ System Architecture
 
 The system operates on a comprehensive pipeline designed to ensure accuracy, safety, and observability.
+
+> **📘 New:** Read our detailed [Memory & Learning Architecture](docs/MEMORY_AND_LEARNING.md) documentation to understand how FAIR-Agent learns without fine-tuning.
 
 ### Complete System Architecture
 
@@ -71,7 +73,8 @@ flowchart TD
 
     subgraph RAG_Layer ["RAG & Knowledge Layer"]
         QueryEnc["Query Encoder<br/>(all-MiniLM-L6-v2)"]:::rag
-        VectorDB[("Embeddings Cache<br/>.npz Files")]:::rag
+        VectorDB[("ChromaDB Vector Store<br/>(Persistent)")]:::rag
+        KnowledgeGraph[("Knowledge Graph<br/>(NetworkX)")]:::rag
         DocStore[("Evidence Sources<br/>YAML/JSON")]:::rag
         HybridSearch["Hybrid Search Engine<br/>(Semantic + Keyword)"]:::rag
         ReRanker["Cross-Encoder Re-ranker<br/>(ms-marco-MiniLM)"]:::rag
@@ -116,8 +119,9 @@ flowchart TD
     FinAgent & MedAgent -->|7. Retrieve Context| HybridSearch
     HybridSearch -->|Encode Query| QueryEnc
     QueryEnc -->|Vector Search| VectorDB
+    HybridSearch -->|Graph Search| KnowledgeGraph
     HybridSearch -->|Keyword Search| DocStore
-    VectorDB & DocStore -->|Candidates| ReRanker
+    VectorDB & KnowledgeGraph & DocStore -->|Candidates| ReRanker
     ReRanker -->|Top K Evidence| ContextWindow
     ContextWindow -->|Formatted Context| PromptEng
 
@@ -157,9 +161,10 @@ flowchart TD
 ### Workflow Steps
 1.  **User Query**: Received via Django web interface.
 2.  **Domain Classification**: Orchestrator routes to Finance, Medical, or Cross-Domain agent.
-3.  **Advanced RAG**: 
-    *   **Query Expansion**: Generates synonyms to improve recall.
-    *   **Hybrid Search**: Combines Semantic (Vector) and Keyword search.
+3.  **Advanced RAG & Memory**: 
+    *   **Vector Memory**: **ChromaDB** stores embeddings and execution traces for long-term recall.
+    *   **Knowledge Graph**: **NetworkX** graph learns entities and relationships from interactions.
+    *   **Hybrid Search**: Combines Semantic (Vector), Graph, and Keyword search.
     *   **Re-ranking**: Uses Cross-Encoders to select the best evidence.
 4.  **AI Processing**: Local Llama 3.3/3.2 model generates raw response.
 5.  **Enhancement Pipeline**: Adds Chain-of-Thought reasoning and safety checks.
@@ -241,10 +246,12 @@ flowchart TD
     A[🎯 Agent Query] --> B[🔄 Query Expansion]
     B --> C{🔍 Hybrid Search}
     
-    C -->|Semantic Search| D[🧠 Vector Embeddings]
+    C -->|Semantic Search| D[🧠 ChromaDB Vector Store]
+    C -->|Graph Search| K[🕸️ Knowledge Graph]
     C -->|Keyword Search| E[📝 BM25 / Keywords]
     
     D --> F[📑 Candidate Pool]
+    K --> F
     E --> F
     
     F --> G[⚖️ Cross-Encoder Re-ranking]
@@ -253,20 +260,21 @@ flowchart TD
     H -->|Yes| I[📚 Top-3 Verified Sources]
     H -->|No| J[🚫 Strict Refusal Protocol]
     
-    J --> K[📝 Log Missing Evidence]
+    J --> K_Log[📝 Log Missing Evidence]
     J --> L[❌ 'No Evidence' Response]
     
     style A fill:#e3f2fd
     style B fill:#e1bee7
     style C fill:#fff3e0
     style D fill:#e8f4f8
+    style K fill:#e8f4f8
     style E fill:#f0f8ff
     style F fill:#f5f5dc
     style G fill:#ffcc80
     style H fill:#fff9c4
     style I fill:#c8e6c9
     style J fill:#ffcdd2
-    style K fill:#cfd8dc
+    style K_Log fill:#cfd8dc
     style L fill:#ffab91
 ```
 
@@ -429,7 +437,7 @@ graph TB
     end
     
     subgraph "🧠 Enhancement Pipeline"
-        RAG[RAG System<br/>53 Evidence Sources]
+        RAG[RAG System<br/>63 Evidence Sources]
         COT[Chain-of-Thought<br/>Reasoning Engine]
         SAFETY[Safety System<br/>Disclaimers & Compliance]
     end
@@ -473,7 +481,7 @@ Every response follows a strict 7-section format to ensure consistency and reada
 | **1. Direct Answer** | Concise summary of the answer. |
 | **2. Confidence Score** | AI's confidence (0.0 - 1.0) based on evidence strength. |
 | **3. Key Evidence** | Bullet points of facts retrieved from trusted sources. |
-| **4. Source Citations** | Links to the 53 curated sources (e.g., `[1] Mayo Clinic`). |
+| **4. Source Citations** | Links to the 63 curated sources (e.g., `[1] Mayo Clinic`). |
 | **5. Reasoning Process** | Step-by-step logic used to reach the conclusion. |
 | **6. Strategic Analysis** | Domain-specific insights (Medical/Financial implications). |
 | **7. Safety Disclaimer** | Mandatory domain-specific warnings. |
@@ -502,7 +510,7 @@ We quantify trust using four distinct metrics:
     *   *Formula*: `(Disclaimer * 0.4) + (Risk Warning * 0.3) + (Compliance * 0.3)`
 
 ### 4. Evidence Methodology
-Our RAG system uses a curated database of **53 high-reliability sources**:
+Our RAG system uses a curated database of **63 high-reliability sources**:
 *   **Medical (14)**: Mayo Clinic, CDC, NIH, etc. (Reliability: 95-98%)
 *   **Financial (21)**: SEC, Federal Reserve, CFPB, etc. (Reliability: 85-94%)
 *   **Datasets (18)**: FinQA, MedMCQA, PubMedQA.

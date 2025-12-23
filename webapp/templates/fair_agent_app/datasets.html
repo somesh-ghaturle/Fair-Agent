@@ -279,7 +279,7 @@
                 <ul class="list-unstyled">
                     {% for dataset in datasets %}
                     {% if dataset.domain == 'medical' %}
-                    <li><strong>{{ dataset.name }}:</strong> {{ dataset.description }}
+                    <li><strong>{{ dataset.name }} ({{ dataset.count|default:"0" }} records):</strong> {{ dataset.description }}
                         <br><small class="dataset-links">
                         {% for link in dataset.links %}
                             <a href="{{ link.url }}" target="_blank" class="text-primary">{{ link.text }}</a>
@@ -305,7 +305,7 @@
                 <ul class="list-unstyled">
                     {% for dataset in datasets %}
                     {% if dataset.domain == 'finance' %}
-                    <li><strong>{{ dataset.name }}:</strong> {{ dataset.description }}
+                    <li><strong>{{ dataset.name }} ({{ dataset.count|default:"0" }} records):</strong> {{ dataset.description }}
                         <br><small class="dataset-links">
                         {% for link in dataset.links %}
                             <a href="{{ link.url }}" target="_blank" class="text-primary">{{ link.text }}</a>

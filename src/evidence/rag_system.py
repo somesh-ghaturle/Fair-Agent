@@ -31,6 +31,14 @@ except ImportError:
     logger.warning("Could not import OllamaClient. Query expansion will be disabled.")
     OllamaClient = None
 
+# Import VectorStore
+try:
+    from src.memory.vector_store import VectorStore
+except ImportError:
+    logger = logging.getLogger(__name__)
+    logger.warning("Could not import VectorStore. Using legacy cache.")
+    VectorStore = None
+
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -96,6 +104,13 @@ class EvidenceDatabase:
         # Initialize semantic search model
         self.semantic_model = None
         self.source_embeddings: Dict[str, np.ndarray] = {}
+        
+        # Initialize Vector Store
+        self.vector_store = VectorStore() if VectorStore else None
+        
+        # Track content hashes for deduplication
+        self.seen_content_hashes = set()
+        
         self._init_semantic_search()
         
         self._load_evidence_sources()
@@ -110,6 +125,14 @@ class EvidenceDatabase:
         except Exception as e:
             logger.warning(f"[EVIDENCE] ⚠️ Could not load semantic model: {e}. Using keyword matching fallback.")
             self.semantic_model = None
+            
+    def _is_duplicate(self, content: str) -> bool:
+        """Check if content is a duplicate based on hash"""
+        content_hash = hashlib.md5(content.encode()).hexdigest()
+        if content_hash in self.seen_content_hashes:
+            return True
+        self.seen_content_hashes.add(content_hash)
+        return False
     
     def _load_evidence_sources(self):
         """Load evidence sources from YAML configuration file"""
@@ -125,10 +148,14 @@ class EvidenceDatabase:
                 # Load medical sources
                 if 'medical_sources' in config:
                     for source_data in config['medical_sources']:
+                        content = source_data['content'].strip()
+                        if self._is_duplicate(content):
+                            continue
+                            
                         source = EvidenceSource(
                             id=source_data['id'],
                             title=source_data['title'],
-                            content=source_data['content'].strip(),
+                            content=content,
                             source_type=source_data['source_type'],
                             url=source_data.get('url'),
                             publication_date=source_data.get('publication_date'),
@@ -140,10 +167,14 @@ class EvidenceDatabase:
                 # Load finance sources
                 if 'finance_sources' in config:
                     for source_data in config['finance_sources']:
+                        content = source_data['content'].strip()
+                        if self._is_duplicate(content):
+                            continue
+
                         source = EvidenceSource(
                             id=source_data['id'],
                             title=source_data['title'],
-                            content=source_data['content'].strip(),
+                            content=content,
                             source_type=source_data['source_type'],
                             url=source_data.get('url'),
                             publication_date=source_data.get('publication_date'),
@@ -184,75 +215,149 @@ class EvidenceDatabase:
         """Load additional evidence from dataset files for broader coverage"""
         try:
             loaded_count = 0
+            skipped_duplicates = 0
             
-            # Load FinQA dataset
+            # 1. Load FinQA dataset
             finqa_path = self.dataset_dir / "finqa" / "finance_qa.jsonl"
             if finqa_path.exists():
                 with open(finqa_path, 'r') as f:
                     for idx, line in enumerate(f):
                         try:
                             data = json.loads(line)
-                            source_id = f"dataset_fin_{idx:04d}"
-                            
-                            # Create evidence source from Q&A pair
+                            content = f"Q: {data['question']}\n\nA: {data['answer']}"
+                            if self._is_duplicate(content):
+                                skipped_duplicates += 1
+                                continue
+                                
+                            source_id = f"dataset_finqa_{idx:04d}"
                             source = EvidenceSource(
                                 id=source_id,
-                                title=f"Finance Q&A: {data['question'][:60]}...",
-                                content=f"Q: {data['question']}\n\nA: {data['answer']}",
+                                title=f"FinQA: {data['question'][:60]}...",
+                                content=content,
                                 source_type="qa_dataset",
-                                url=None,
-                                publication_date="2024-10-05",
-                                reliability_score=0.75,  # Lower than curated, but still useful
+                                reliability_score=0.85,
                                 domain="finance"
                             )
-                            
                             self.sources[source_id] = source
                             self.dataset_source_ids.add(source_id)
-                            
-                            if 'finance' not in self.domain_index:
-                                self.domain_index['finance'] = []
+                            if 'finance' not in self.domain_index: self.domain_index['finance'] = []
                             self.domain_index['finance'].append(source_id)
-                            
                             loaded_count += 1
-                        except json.JSONDecodeError:
-                            continue
-                
-                logger.info(f"📚 Loaded {loaded_count} finance Q&A pairs from dataset")
+                        except json.JSONDecodeError: continue
             
-            # Load PubMedQA dataset (if available as JSONL)
-            pubmed_jsonl = self.dataset_dir / "pubmedqa" / "medical_qa.jsonl"
-            if pubmed_jsonl.exists():
-                med_count = 0
-                with open(pubmed_jsonl, 'r') as f:
+            # 2. Load ConvFinQA dataset
+            convfinqa_path = self.dataset_dir / "convfinqa" / "convfinqa.jsonl"
+            if convfinqa_path.exists():
+                with open(convfinqa_path, 'r') as f:
                     for idx, line in enumerate(f):
                         try:
                             data = json.loads(line)
-                            source_id = f"dataset_med_{idx:04d}"
-                            
+                            content = f"Q: {data['question']}\n\nA: {data['answer']}"
+                            if self._is_duplicate(content):
+                                skipped_duplicates += 1
+                                continue
+
+                            source_id = f"dataset_convfin_{idx:04d}"
                             source = EvidenceSource(
                                 id=source_id,
-                                title=f"Medical Q&A: {data.get('question', 'Medical Query')[:60]}...",
-                                content=f"Q: {data.get('question', '')}\n\nA: {data.get('answer', '')}",
+                                title=f"ConvFinQA: {data['question'][:60]}...",
+                                content=content,
                                 source_type="qa_dataset",
-                                url=None,
-                                publication_date="2024-10-05",
-                                reliability_score=0.75,
-                                domain="medical"
+                                reliability_score=0.85,
+                                domain="finance"
                             )
-                            
                             self.sources[source_id] = source
                             self.dataset_source_ids.add(source_id)
-                            
-                            if 'medical' not in self.domain_index:
-                                self.domain_index['medical'] = []
+                            if 'finance' not in self.domain_index: self.domain_index['finance'] = []
+                            self.domain_index['finance'].append(source_id)
+                            loaded_count += 1
+                        except json.JSONDecodeError: continue
+
+            # 3. Load TAT-QA dataset
+            tatqa_path = self.dataset_dir / "tatqa" / "tatqa.jsonl"
+            if tatqa_path.exists():
+                with open(tatqa_path, 'r') as f:
+                    for idx, line in enumerate(f):
+                        try:
+                            data = json.loads(line)
+                            content = f"Q: {data['question']}\n\nA: {data['answer']}"
+                            if self._is_duplicate(content):
+                                skipped_duplicates += 1
+                                continue
+
+                            source_id = f"dataset_tatqa_{idx:04d}"
+                            source = EvidenceSource(
+                                id=source_id,
+                                title=f"TAT-QA: {data['question'][:60]}...",
+                                content=content,
+                                source_type="qa_dataset",
+                                reliability_score=0.85,
+                                domain="finance"
+                            )
+                            self.sources[source_id] = source
+                            self.dataset_source_ids.add(source_id)
+                            if 'finance' not in self.domain_index: self.domain_index['finance'] = []
+                            self.domain_index['finance'].append(source_id)
+                            loaded_count += 1
+                        except json.JSONDecodeError: continue
+
+            # 4. Load PubMedQA
+            pubmed_path = self.dataset_dir / "pubmedqa" / "medical_qa.jsonl"
+            if pubmed_path.exists():
+                with open(pubmed_path, 'r') as f:
+                    for idx, line in enumerate(f):
+                        try:
+                            data = json.loads(line)
+                            content = f"Q: {data.get('question', '')}\n\nA: {data.get('answer', '')}"
+                            if self._is_duplicate(content):
+                                skipped_duplicates += 1
+                                continue
+
+                            source_id = f"dataset_pubmed_{idx:04d}"
+                            source = EvidenceSource(
+                                id=source_id,
+                                title=f"PubMedQA: {data.get('question', '')[:60]}...",
+                                content=content,
+                                source_type="qa_dataset",
+                                reliability_score=0.90,
+                                domain="medical"
+                            )
+                            self.sources[source_id] = source
+                            self.dataset_source_ids.add(source_id)
+                            if 'medical' not in self.domain_index: self.domain_index['medical'] = []
                             self.domain_index['medical'].append(source_id)
-                            
-                            med_count += 1
-                        except json.JSONDecodeError:
-                            continue
-                
-                if med_count > 0:
-                    logger.info(f"📚 Loaded {med_count} medical Q&A pairs from dataset")
+                            loaded_count += 1
+                        except json.JSONDecodeError: continue
+
+            # 5. Load MedMCQA
+            medmcqa_path = self.dataset_dir / "medmcqa" / "medical_qa.jsonl"
+            if medmcqa_path.exists():
+                with open(medmcqa_path, 'r') as f:
+                    for idx, line in enumerate(f):
+                        try:
+                            data = json.loads(line)
+                            content = f"Q: {data.get('question', '')}\n\nA: {data.get('answer', '')}"
+                            if self._is_duplicate(content):
+                                skipped_duplicates += 1
+                                continue
+
+                            source_id = f"dataset_medmcqa_{idx:04d}"
+                            source = EvidenceSource(
+                                id=source_id,
+                                title=f"MedMCQA: {data.get('question', '')[:60]}...",
+                                content=content,
+                                source_type="qa_dataset",
+                                reliability_score=0.90,
+                                domain="medical"
+                            )
+                            self.sources[source_id] = source
+                            self.dataset_source_ids.add(source_id)
+                            if 'medical' not in self.domain_index: self.domain_index['medical'] = []
+                            self.domain_index['medical'].append(source_id)
+                            loaded_count += 1
+                        except json.JSONDecodeError: continue
+
+            logger.info(f"📚 Loaded total {loaded_count} Q&A pairs from datasets (Skipped {skipped_duplicates} duplicates)")
             
             if loaded_count > 0:
                 logger.info(f"✅ Total dataset sources loaded: {len(self.dataset_source_ids)}")
@@ -371,55 +476,110 @@ class EvidenceDatabase:
         logger.info(f"Loaded {len(all_sources)} evidence sources")
     
     def _compute_embeddings(self):
-        """Compute embeddings for all evidence sources for semantic search with batching"""
+        """Compute embeddings for all evidence sources for semantic search with batching (Background)"""
         if not self.semantic_model:
             return
         
-        try:
-            logger.info("[EVIDENCE] Computing embeddings for semantic search...")
-            
-            # Process in batches to avoid memory issues and broken pipes
-            BATCH_SIZE = 10
-            source_items = list(self.sources.items())
-            total_sources = len(source_items)
-            
-            for i in range(0, total_sources, BATCH_SIZE):
-                batch = source_items[i:i+BATCH_SIZE]
-                batch_texts = []
-                batch_ids = []
+        import threading
+        
+        def _embedding_task():
+            try:
+                logger.info("[EVIDENCE] Starting background embedding computation...")
                 
-                for source_id, source in batch:
-                    # Combine title and content for better matching
-                    text = f"{source.title}. {source.content}"
-                    batch_texts.append(text)
-                    batch_ids.append(source_id)
+                # Identify which sources need embeddings
+                sources_to_process = list(self.sources.items())
                 
-                try:
-                    # Encode batch at once (more efficient than one-by-one)
-                    embeddings = self.semantic_model.encode(batch_texts, convert_to_numpy=True, show_progress_bar=False)
+                # Process in batches to avoid memory issues and broken pipes
+                BATCH_SIZE = 50
+                total_sources = len(sources_to_process)
+                
+                processed_count = 0
+                skipped_count = 0
+                
+                for i in range(0, total_sources, BATCH_SIZE):
+                    batch = sources_to_process[i:i+BATCH_SIZE]
+                    batch_ids = [s[0] for s in batch]
                     
-                    # Store embeddings
-                    for source_id, embedding in zip(batch_ids, embeddings):
-                        self.source_embeddings[source_id] = embedding
-                    
-                    logger.debug(f"[EVIDENCE] Processed batch {i//BATCH_SIZE + 1}/{(total_sources + BATCH_SIZE - 1)//BATCH_SIZE}")
-                    
-                except Exception as batch_error:
-                    logger.warning(f"[EVIDENCE] Error in batch {i//BATCH_SIZE + 1}, falling back to individual encoding: {batch_error}")
-                    # Fallback: encode one by one for this batch
-                    for source_id, text in zip(batch_ids, batch_texts):
+                    # Check which IDs are missing from Vector Store to avoid re-computation
+                    ids_to_compute = batch_ids
+                    if self.vector_store:
                         try:
-                            embedding = self.semantic_model.encode(text, convert_to_numpy=True, show_progress_bar=False)
+                            # Check existence in Vector Store
+                            existing = self.vector_store.evidence_collection.get(ids=batch_ids, include=[])
+                            existing_ids = set(existing['ids'])
+                            ids_to_compute = [bid for bid in batch_ids if bid not in existing_ids]
+                            skipped_count += len(existing_ids)
+                        except Exception:
+                            # If check fails, assume we need to compute
+                            pass
+                    
+                    if not ids_to_compute:
+                        continue
+
+                    # Prepare texts for missing IDs
+                    batch_texts = []
+                    final_batch_ids = []
+                    
+                    for source_id in ids_to_compute:
+                        source = self.sources[source_id]
+                        # Combine title and content for better matching
+                        text = f"{source.title}. {source.content}"
+                        batch_texts.append(text)
+                        final_batch_ids.append(source_id)
+                    
+                    try:
+                        # Encode batch at once
+                        embeddings = self.semantic_model.encode(batch_texts, convert_to_numpy=True, show_progress_bar=False)
+                        
+                        # Store embeddings in memory (only for computed ones)
+                        for source_id, embedding in zip(final_batch_ids, embeddings):
                             self.source_embeddings[source_id] = embedding
-                        except Exception as single_error:
-                            logger.error(f"[EVIDENCE] Failed to encode {source_id}: {single_error}")
-                            continue
-            
-            logger.info(f"[EVIDENCE] ✅ Computed embeddings for {len(self.source_embeddings)} sources")
-            
-        except Exception as e:
-            logger.error(f"[EVIDENCE] Error computing embeddings: {e}")
-            logger.warning("[EVIDENCE] ⚠️ Continuing without embeddings - will use keyword search fallback")
+                        
+                        # Store in Vector DB if available
+                        if self.vector_store:
+                            metadatas = []
+                            for source_id in final_batch_ids:
+                                source = self.sources[source_id]
+                                metadatas.append({
+                                    "id": source.id,
+                                    "title": source.title,
+                                    "source_type": source.source_type,
+                                    "domain": source.domain,
+                                    "is_curated": source_id in self.curated_source_ids
+                                })
+                            
+                            self.vector_store.add_evidence(
+                                documents=batch_texts,
+                                metadatas=metadatas,
+                                ids=final_batch_ids,
+                                embeddings=[e.tolist() for e in embeddings]
+                            )
+                        
+                        processed_count += len(final_batch_ids)
+                        if processed_count > 0 and processed_count % 5000 == 0:
+                            logger.info(f"[EVIDENCE] Computed {processed_count} new embeddings...")
+
+                    except Exception as batch_error:
+                        logger.warning(f"[EVIDENCE] Error in batch {i//BATCH_SIZE + 1}: {batch_error}")
+                        # Fallback: encode one by one for this batch
+                        for source_id, text in zip(final_batch_ids, batch_texts):
+                            try:
+                                embedding = self.semantic_model.encode(text, convert_to_numpy=True, show_progress_bar=False)
+                                self.source_embeddings[source_id] = embedding
+                            except Exception:
+                                continue
+                
+                logger.info(f"[EVIDENCE] ✅ Embedding sync complete. Computed: {processed_count}, Skipped (already in DB): {skipped_count}")
+                
+            except Exception as e:
+                logger.error(f"[EVIDENCE] Error computing embeddings: {e}")
+                logger.warning("[EVIDENCE] ⚠️ Continuing without embeddings - will use keyword search fallback")
+
+        # Start the thread
+        thread = threading.Thread(target=_embedding_task)
+        thread.daemon = True
+        thread.start()
+        logger.info("[EVIDENCE] Embedding computation started in background thread")
     
     def _compute_embeddings_with_cache(self):
         """Compute embeddings with disk caching for fast startup"""
@@ -482,7 +642,10 @@ class EvidenceDatabase:
         results = []
         
         # 1. Try Semantic Search first
-        if self.semantic_model and self.source_embeddings:
+        if self.vector_store:
+            logger.info(f"[EVIDENCE] Using Vector Store search for query: '{query[:30]}...'")
+            results = self._vector_store_search(query, domain, max_results)
+        elif self.semantic_model and self.source_embeddings:
             results = self._semantic_search(query, domain_source_ids, max_results, domain)
         
         # 2. Hybrid Fallback: If semantic search yields few results, try keyword search
@@ -502,6 +665,27 @@ class EvidenceDatabase:
             logger.info(f"[EVIDENCE] Combined results count: {len(results)}")
             
         return results[:max_results]
+
+    def _vector_store_search(self, query: str, domain: str, max_results: int) -> List[EvidenceSource]:
+        """Search using Vector Store"""
+        try:
+            # Query vector store
+            # We request more results to allow for domain filtering
+            results = self.vector_store.query_evidence([query], n_results=max_results * 3)
+            
+            found_sources = []
+            if results['ids']:
+                for i, source_id in enumerate(results['ids'][0]):
+                    if source_id in self.sources:
+                        source = self.sources[source_id]
+                        # Filter by domain if specific domain requested
+                        if domain == "general" or source.domain == domain:
+                            found_sources.append(source)
+            
+            return found_sources[:max_results]
+        except Exception as e:
+            logger.error(f"Vector store search failed: {e}")
+            return []
     
     def _semantic_search(self, query: str, source_ids: List[str], max_results: int, domain: str = "general") -> List[EvidenceSource]:
         """Perform semantic similarity search using embeddings with prioritization"""

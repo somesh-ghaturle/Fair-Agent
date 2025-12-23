@@ -125,6 +125,75 @@ class FairAgentService:
     def is_initialized(cls) -> bool:
         """Check if the service is initialized"""
         return cls._initialized
+
+    @classmethod
+    def get_memory_stats(cls) -> Dict[str, Any]:
+        """Get statistics from the memory systems (Vector Store & Knowledge Graph)"""
+        stats = {
+            "vector_store": {"status": "Not Initialized", "count": 0},
+            "knowledge_graph": {"status": "Not Initialized", "nodes": 0, "edges": 0}
+        }
+        
+        if not cls._initialized or not cls._orchestrator:
+            return stats
+            
+        # Vector Store Stats
+        if hasattr(cls._orchestrator, 'vector_store') and cls._orchestrator.vector_store:
+            try:
+                vs = cls._orchestrator.vector_store
+                count = 0
+                if vs.trace_collection:
+                    count += vs.trace_collection.count()
+                if vs.evidence_collection:
+                    count += vs.evidence_collection.count()
+                stats["vector_store"] = {"status": "Active", "count": count}
+            except Exception as e:
+                stats["vector_store"]["status"] = f"Error: {str(e)}"
+
+        # Knowledge Graph Stats
+        if hasattr(cls._orchestrator, 'knowledge_graph') and cls._orchestrator.knowledge_graph:
+            try:
+                kg = cls._orchestrator.knowledge_graph
+                stats["knowledge_graph"] = {
+                    "status": "Active", 
+                    "nodes": kg.graph.number_of_nodes(),
+                    "edges": kg.graph.number_of_edges()
+                }
+            except Exception as e:
+                stats["knowledge_graph"]["status"] = f"Error: {str(e)}"
+                
+        return stats
+
+    @classmethod
+    def search_memory(cls, query: str, system: str = "all") -> Dict[str, Any]:
+        """Search the memory systems"""
+        results = {"vector": [], "graph": []}
+        
+        if not cls._initialized or not cls._orchestrator:
+            return results
+            
+        # Search Vector Store
+        if system in ["all", "vector"] and hasattr(cls._orchestrator, 'vector_store') and cls._orchestrator.vector_store:
+            try:
+                traces = cls._orchestrator.vector_store.find_similar_traces(query, n_results=5)
+                results["vector"] = [
+                    {"content": t.get("content", "")[:200] + "...", "score": t.get("distance", 0)} 
+                    for t in traces
+                ]
+            except Exception as e:
+                logger.error(f"Vector search failed: {e}")
+
+        # Search Knowledge Graph
+        if system in ["all", "graph"] and hasattr(cls._orchestrator, 'knowledge_graph') and cls._orchestrator.knowledge_graph:
+            try:
+                # Extract keywords (simple split for now)
+                keywords = [w for w in query.split() if len(w) > 3]
+                graph_context = cls._orchestrator.knowledge_graph.search_graph(keywords)
+                results["graph"] = graph_context
+            except Exception as e:
+                logger.error(f"Graph search failed: {e}")
+                
+        return results
     
     @classmethod
     def _ensure_baseline_scores_available(cls):

@@ -1,0 +1,24 @@
+{
+  "directed": true,
+  "multigraph": true,
+  "graph": {},
+  "nodes": [
+    {
+      "type": "concept",
+      "id": "Inflation"
+    },
+    {
+      "type": "concept",
+      "id": "Purchasing Power"
+    }
+  ],
+  "edges": [
+    {
+      "relation": "decreases",
+      "weight": 1.0,
+      "source": "Inflation",
+      "target": "Purchasing Power",
+      "key": 0
+    }
+  ]
+}
