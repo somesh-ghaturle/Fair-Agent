@@ -12,6 +12,16 @@ from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
 from enum import Enum
 from datetime import datetime
+import sys
+import os
+
+# Add utils to path for OllamaClient
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
+try:
+    from ollama_client import OllamaClient
+except ImportError:
+    # Fallback for relative import
+    from ..utils.ollama_client import OllamaClient
 
 logger = logging.getLogger(__name__)
 
@@ -360,6 +370,14 @@ class ChainOfThoughtGenerator:
         self.financial_template = FinancialReasoningTemplate()
         self.quality_evaluator = ReasoningQualityEvaluator()
         self.logger = logging.getLogger(__name__)
+        
+        # Initialize Ollama client for dynamic generation
+        try:
+            self.ollama_client = OllamaClient()
+            self.has_llm = self.ollama_client.is_available()
+        except Exception as e:
+            self.logger.warning(f"Failed to initialize Ollama client for CoT: {e}")
+            self.has_llm = False
     
     def generate_reasoning_chain(
         self, 
@@ -369,7 +387,36 @@ class ChainOfThoughtGenerator:
     ) -> ReasoningChain:
         """Generate chain-of-thought reasoning for a response"""
         
-        # Get domain-specific reasoning template
+        # Try to use LLM for dynamic reasoning first
+        if self.has_llm:
+            try:
+                thought_steps = self._generate_reasoning_with_llm(query, response, domain)
+                if thought_steps:
+                    # Calculate overall metrics
+                    overall_confidence = sum(step.confidence for step in thought_steps) / len(thought_steps)
+                    
+                    # Create reasoning chain
+                    chain = ReasoningChain(
+                        query=query,
+                        domain=domain,
+                        thought_steps=thought_steps,
+                        final_conclusion=response,
+                        overall_confidence=overall_confidence,
+                        reasoning_transparency=0.0,
+                        logical_consistency=0.0
+                    )
+                    
+                    # Evaluate reasoning quality
+                    quality_metrics = self.quality_evaluator.evaluate_reasoning_chain(chain)
+                    chain.reasoning_transparency = quality_metrics['overall_quality']
+                    chain.logical_consistency = quality_metrics['logical_flow']
+                    
+                    return chain
+            except Exception as e:
+                self.logger.error(f"LLM reasoning generation failed: {e}")
+                # Fallback to template-based generation
+        
+        # Fallback: Get domain-specific reasoning template
         if domain == "medical":
             step_templates = self.medical_template.get_reasoning_steps(query)
         elif domain == "finance":
@@ -409,6 +456,77 @@ class ChainOfThoughtGenerator:
         
         return chain
     
+    def _generate_reasoning_with_llm(self, query: str, response: str, domain: str) -> Optional[List[ThoughtStep]]:
+        """Generate reasoning steps using LLM"""
+        
+        prompt = f"""
+        Analyze the following {domain} query and response. 
+        Break down the reasoning process that leads to this response into 3-5 clear, logical steps.
+        
+        Query: {query}
+        Response: {response}
+        
+        Format your output as a numbered list of steps. Each step should be a single sentence describing a part of the reasoning process.
+        Do not include introductory text or "Here are the steps". Just the numbered list.
+        
+        Example format:
+        1. Analyzed the user's request regarding [topic].
+        2. Identified key factors such as [factor 1] and [factor 2].
+        3. Evaluated the evidence from [source type].
+        4. Synthesized the findings to conclude [conclusion].
+        """
+        
+        try:
+            generated_text = self.ollama_client.generate(
+                model="llama3.2:latest",
+                prompt=prompt,
+                max_tokens=256,
+                temperature=0.3
+            )
+            
+            if not generated_text:
+                return None
+                
+            # Parse the generated text into steps
+            steps = []
+            lines = generated_text.strip().split('\n')
+            step_num = 1
+            
+            for line in lines:
+                line = line.strip()
+                # Match numbered lines (e.g., "1. Step description")
+                if re.match(r'^\d+\.', line):
+                    content = re.sub(r'^\d+\.\s*', '', line)
+                    
+                    # Determine step type based on content/position
+                    if step_num == 1:
+                        step_type = ReasoningStep.PROBLEM_ANALYSIS
+                    elif step_num == len(lines):
+                        step_type = ReasoningStep.CONCLUSION
+                    elif "evaluate" in content.lower() or "assess" in content.lower():
+                        step_type = ReasoningStep.EVALUATION
+                    elif "gather" in content.lower() or "identify" in content.lower():
+                        step_type = ReasoningStep.INFORMATION_GATHERING
+                    else:
+                        step_type = ReasoningStep.SYNTHESIS
+                        
+                    step = ThoughtStep(
+                        step_number=step_num,
+                        step_type=step_type,
+                        thought=content,
+                        evidence=None,
+                        confidence=0.85, # Higher confidence for LLM generated steps
+                        reasoning_quality=0.8
+                    )
+                    steps.append(step)
+                    step_num += 1
+            
+            return steps if steps else None
+            
+        except Exception as e:
+            self.logger.error(f"Error in _generate_reasoning_with_llm: {e}")
+            return None
+
     def _generate_thought_steps(
         self, 
         query: str, 

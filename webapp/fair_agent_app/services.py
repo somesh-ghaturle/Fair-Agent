@@ -255,6 +255,8 @@ class FairAgentService:
                 response_data['evidence_boost'] = getattr(result.finance_response, 'evidence_boost', 0.0)
                 response_data['reasoning_boost'] = getattr(result.finance_response, 'reasoning_boost', 0.0)
                 response_data['internet_boost'] = getattr(result.finance_response, 'internet_boost', 0.0)
+                # Extract execution steps (Actual Workflow)
+                response_data['reasoning_steps'] = getattr(result.finance_response, 'reasoning_steps', [])
                 logger.info(f"[SERVICES] ✅ Extracted Finance boosts: S={response_data['safety_boost']:.2f}, E={response_data['evidence_boost']:.2f}, R={response_data['reasoning_boost']:.2f}, I={response_data['internet_boost']:.2f}")
             elif result.medical_response:
                 logger.info(f"[SERVICES] DEBUG - medical_response type: {type(result.medical_response)}")
@@ -263,6 +265,8 @@ class FairAgentService:
                 response_data['evidence_boost'] = getattr(result.medical_response, 'evidence_boost', 0.0)
                 response_data['reasoning_boost'] = getattr(result.medical_response, 'reasoning_boost', 0.0)
                 response_data['internet_boost'] = getattr(result.medical_response, 'internet_boost', 0.0)
+                # Extract execution steps (Actual Workflow)
+                response_data['reasoning_steps'] = getattr(result.medical_response, 'reasoning_steps', [])
                 logger.info(f"[SERVICES] ✅ Extracted Medical boosts: S={response_data['safety_boost']:.2f}, E={response_data['evidence_boost']:.2f}, R={response_data['reasoning_boost']:.2f}, I={response_data['internet_boost']:.2f}")
             else:
                 # Fallback if no specific response - log warning
@@ -271,6 +275,7 @@ class FairAgentService:
                 response_data['evidence_boost'] = 0.0
                 response_data['reasoning_boost'] = 0.0
                 response_data['internet_boost'] = 0.0
+                response_data['reasoning_steps'] = []
             
             # Add FAIR metrics if available
             if hasattr(result, 'fair_metrics'):

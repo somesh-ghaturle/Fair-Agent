@@ -147,6 +147,13 @@ fair_agent:
     calibration_error_threshold: 0.1  # ECE under 0.1
     risk_domains: ["medical_safety", "financial_risk", "ethical_concerns"]
 
+# Evaluation Configuration
+evaluation:
+  baseline:
+    auto_calculate: false
+    recalculate_interval_days: 7
+    queries_per_domain: 5
+
 # Benchmarking Configuration
 benchmarking:
   baseline_models:

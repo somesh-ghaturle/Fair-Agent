@@ -666,6 +666,7 @@ def process_query_api(request):
                 'safety_score': result.get('safety_score', 0.65),
                 'processing_time': result.get('processing_time'),
                 'status': 'success',
+                'reasoning_steps': result.get('reasoning_steps', []),  # Pass execution steps to frontend
                 'spell_check': {
                     'was_corrected': was_corrected,
                     'original_query': original_query,
@@ -1036,3 +1037,7 @@ def dataset_stats_api(request):
             'error': str(e),
             'status': 'error'
         }, status=500)
+
+class ArchitectureView(TemplateView):
+    """View for system architecture diagram"""
+    template_name = 'fair_agent_app/architecture.html'

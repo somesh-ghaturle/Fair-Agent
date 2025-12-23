@@ -9,6 +9,7 @@ and cross-domain reasoning tasks.
 import logging
 import sys
 import os
+import uuid
 from typing import Dict, List, Optional, Union, Any
 from enum import Enum
 from dataclasses import dataclass
@@ -16,6 +17,7 @@ import re
 
 from .finance_agent import FinanceAgent, FinanceResponse
 from .medical_agent import MedicalAgent, MedicalResponse
+from ..observability.telemetry import get_telemetry
 
 # Add enhancement modules to path for general query handling
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'safety'))
@@ -96,28 +98,41 @@ class Orchestrator:
         Returns:
             OrchestratedResponse with processed results
         """
+        telemetry = get_telemetry()
+        trace_id = str(uuid.uuid4())
+        telemetry.start_trace(trace_id, metadata={"query": query})
+        
         try:
             # Classify query domain
+            telemetry.start_span("domain_classification")
             domain = force_domain or self._classify_query_domain(query)
+            telemetry.end_span("domain_classification", metadata={"domain": str(domain)})
             
             # Route and process based on domain
+            telemetry.start_span("agent_execution", metadata={"domain": str(domain)})
             if domain == QueryDomain.FINANCE:
-                return self._handle_finance_query(query, context)
+                result = self._handle_finance_query(query, context)
             elif domain == QueryDomain.MEDICAL:
-                return self._handle_medical_query(query, context)
+                result = self._handle_medical_query(query, context)
             elif domain == QueryDomain.CROSS_DOMAIN:
-                return self._handle_cross_domain_query(query, context)
+                result = self._handle_cross_domain_query(query, context)
             else:
-                return self._handle_unknown_query(query, context)
+                result = self._handle_unknown_query(query, context)
+            telemetry.end_span("agent_execution")
+            
+            return result
                 
         except Exception as e:
             self.logger.error(f"Error processing query: {e}")
+            telemetry.increment_counter("orchestrator_errors")
             return OrchestratedResponse(
                 primary_answer="Error processing query",
                 domain=QueryDomain.UNKNOWN,
                 confidence_score=0.0,
                 routing_explanation=f"Error: {str(e)}"
             )
+        finally:
+            telemetry.end_trace(trace_id)
     
     def _classify_query_domain(self, query: str) -> QueryDomain:
         """
@@ -278,7 +293,7 @@ class Orchestrator:
             # Apply FAIR enhancements to the general response
             # Import enhancement systems
             from disclaimer_system import ResponseEnhancer
-            from cot_system import ChainOfThoughtIntegrator
+            from cot_system import ChainOfThoughtIntegrator, ChainOfThoughtGenerator
             
             # Apply safety enhancements
             enhancer = ResponseEnhancer()
@@ -295,18 +310,19 @@ class Orchestrator:
             else:
                 safety_boost = 0.0
             
-            # Apply reasoning enhancements
-            reasoning_system = ChainOfThoughtIntegrator()
-            reasoning_enhanced_response, reasoning_improvements = reasoning_system.enhance_response_with_reasoning(
-                enhanced_response,
-                query,
-                "general"
-            )
+            # Define actual execution steps for general queries (instead of generated reasoning)
+            execution_steps = [
+                f"Classified query as General/Unknown domain: '{query}'",
+                "Generated general response template",
+                "Applied safety enhancements and disclaimers",
+                "Formatted response for display"
+            ]
             
-            # Safely extract reasoning boost values
-            interp_improvement = reasoning_improvements.get('interpretability_improvement', 0.0) if isinstance(reasoning_improvements, dict) else 0.0
-            logic_improvement = reasoning_improvements.get('logical_flow_improvement', 0.0) if isinstance(reasoning_improvements, dict) else 0.0
-            reasoning_boost = float(interp_improvement) + float(logic_improvement)
+            # Use the enhanced response directly
+            reasoning_enhanced_response = enhanced_response
+            
+            # Set default reasoning boost for general queries
+            reasoning_boost = 0.1
             
             # CALIBRATION IMPROVEMENT: For general queries with no evidence, use conservative confidence
             # Base confidence should be lower and not boosted heavily without supporting evidence
@@ -327,12 +343,7 @@ class Orchestrator:
             general_finance_response = FinanceResponse(
                 answer=reasoning_enhanced_response,
                 confidence_score=final_confidence,  # Use calculated confidence instead of fixed 0.75
-                reasoning_steps=[
-                    "Identified as general knowledge query",
-                    "Generated domain-neutral response",
-                    "Applied FAIR safety and reasoning enhancements",
-                    "Provided educational information without domain bias"
-                ],
+                reasoning_steps=execution_steps, # Use actual execution steps
                 risk_assessment="General informational query - no specific risks identified",
                 numerical_outputs={},
                 safety_boost=safety_boost,

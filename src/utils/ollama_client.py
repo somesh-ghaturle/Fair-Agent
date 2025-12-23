@@ -6,7 +6,13 @@ Provides interface to Ollama models for faster local inference
 import requests
 import json
 import logging
+import time
 from typing import Optional, Dict, Any
+try:
+    from src.observability.telemetry import get_telemetry
+except ImportError:
+    # Fallback for when imported as top-level module
+    from observability.telemetry import get_telemetry
 
 class OllamaClient:
     """Client for interacting with Ollama API"""
@@ -21,6 +27,7 @@ class OllamaClient:
         self.base_url = base_url
         self.logger = logging.getLogger(__name__)
         self.api_endpoint = f"{base_url}/api/generate"
+        self.telemetry = get_telemetry()
         
     def generate(
         self,
@@ -45,6 +52,13 @@ class OllamaClient:
         Returns:
             Generated text or None if error
         """
+        self.telemetry.start_span("ollama_generate", metadata={
+            "model": model,
+            "max_tokens": max_tokens,
+            "temperature": temperature
+        })
+        start_time = time.time()
+        
         try:
             payload = {
                 "model": model,
@@ -66,6 +80,7 @@ class OllamaClient:
             )
             
             if response.status_code == 200:
+                result_text = ""
                 if stream:
                     # Handle streaming response
                     full_text = ""
@@ -74,23 +89,43 @@ class OllamaClient:
                             data = json.loads(line)
                             if 'response' in data:
                                 full_text += data['response']
-                    return full_text
+                    result_text = full_text
                 else:
                     # Handle non-streaming response
                     data = response.json()
-                    return data.get('response', '')
+                    result_text = data.get('response', '')
+                
+                # Record metrics
+                duration = time.time() - start_time
+                self.telemetry.record_metric("llm_latency", duration)
+                self.telemetry.increment_counter("llm_requests_total")
+                
+                # Estimate tokens (rough approximation: 4 chars per token)
+                estimated_tokens = len(result_text) / 4
+                self.telemetry.record_metric("llm_tokens_generated", estimated_tokens)
+                
+                self.telemetry.end_span("ollama_generate", status="success")
+                return result_text
             else:
                 self.logger.error(f"Ollama API error: {response.status_code} - {response.text}")
+                self.telemetry.increment_counter("llm_errors")
+                self.telemetry.end_span("ollama_generate", status="error", error=f"HTTP {response.status_code}")
                 return None
                 
         except requests.exceptions.Timeout:
             self.logger.error("Ollama API timeout")
+            self.telemetry.increment_counter("llm_timeouts")
+            self.telemetry.end_span("ollama_generate", status="error", error="Timeout")
             return None
         except requests.exceptions.ConnectionError:
             self.logger.error("Cannot connect to Ollama - is it running? (ollama serve)")
+            self.telemetry.increment_counter("llm_connection_errors")
+            self.telemetry.end_span("ollama_generate", status="error", error="ConnectionError")
             return None
         except Exception as e:
             self.logger.error(f"Ollama generation error: {str(e)}")
+            self.telemetry.increment_counter("llm_errors")
+            self.telemetry.end_span("ollama_generate", status="error", error=str(e))
             return None
     
     def is_available(self) -> bool:

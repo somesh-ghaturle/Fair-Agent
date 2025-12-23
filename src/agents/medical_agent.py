@@ -19,7 +19,7 @@ import os
 try:
     from ..safety.disclaimer_system import ResponseEnhancer
     from ..evidence.rag_system import RAGSystem
-    from ..reasoning.cot_system import ChainOfThoughtIntegrator
+    from ..reasoning.cot_system import ChainOfThoughtIntegrator, ChainOfThoughtGenerator
     from ..data_sources.internet_rag import InternetRAGSystem
     from ..utils.ollama_client import OllamaClient
     from .response_standardizer import ResponseStandardizer
@@ -92,6 +92,10 @@ class MedicalAgent:
         self.ollama_client = OllamaClient()
         if not self.ollama_client.is_available():
             raise RuntimeError("Ollama is required but not available. Please start Ollama service.")
+            
+        # Initialize enhancement systems
+        self.rag_system = RAGSystem()
+        self.internet_rag = InternetRAGSystem()
         
         self.logger.info(f"✅ Medical Agent using Ollama model: {self.model_name}")
     
@@ -112,46 +116,36 @@ class MedicalAgent:
         Returns:
             MedicalResponse with answer, confidence, reasoning, and safety assessment
         """
+        # Initialize execution trace
+        execution_steps = []
+        execution_steps.append(f"Received medical query: '{question}'")
+        
         try:
             # Safety check for harmful queries
             if safety_check and self._is_harmful_query(question):
+                execution_steps.append("Safety check failed: Query flagged as potentially harmful")
                 return self._safe_response("Query requires professional medical consultation")
+            execution_steps.append("Safety check passed: Query deemed safe for processing")
             
             # Step 1: RETRIEVE EVIDENCE FIRST (NEW - boosts faithfulness)
             evidence_sources = []
             if hasattr(self, 'rag_system'):
                 try:
+                    execution_steps.append("Initiating evidence retrieval from RAG system")
                     evidence_sources = self.rag_system.retrieve_evidence(
                         query=question,
                         domain="medical",
                         top_k=3
                     )
                     self.logger.info(f"✅ Retrieved {len(evidence_sources)} medical evidence sources")
+                    execution_steps.append(f"Retrieved {len(evidence_sources)} verified medical evidence sources")
                 except Exception as e:
                     self.logger.warning(f"Evidence retrieval failed: {e}")
+                    execution_steps.append(f"Evidence retrieval failed: {str(e)}")
 
-            # STRICT EVIDENCE CHECK: If no evidence found, refuse to answer
+            # STRICT MODE: If no evidence is found, return simple refusal immediately
             if not evidence_sources:
-                self.logger.warning("⛔️ No evidence found. Refusing to answer.")
-                
-                # Create a standardized refusal response
-                refusal_text = "I cannot answer this question because no relevant medical documents or evidence were found in the provided context. I am designed to answer based strictly on verified evidence to ensure patient safety."
-                
-                standardized_refusal = ResponseStandardizer.standardize_medical_response(
-                    raw_response=refusal_text,
-                    evidence_sources=[],
-                    confidence=0.0,
-                    question=question
-                )
-                
-                return MedicalResponse(
-                    answer=standardized_refusal,
-                    confidence_score=0.0,
-                    reasoning_steps=["Initiated search for evidence", "Search yielded 0 results", "Strict adherence to evidence-based policy triggered refusal"],
-                    safety_assessment="N/A"
-                )
-                        # STRICT MODE: If no evidence is found, return simple refusal immediately
-            if not evidence_sources:
+                execution_steps.append("Strict mode check: No evidence found")
                 refusal_text = "I cannot answer this question because my search for evidence yielded 0 results. I am programmed to only provide information that is backed by verified sources."
                 
                 # Standardize the refusal response
@@ -162,26 +156,30 @@ class MedicalAgent:
                     question=question
                 )
                 
+                execution_steps.append("Action: Refused to answer due to lack of evidence")
+                
                 return MedicalResponse(
                     answer=standardized_refusal,
                     confidence_score=0.0,
-                    reasoning_steps=[
-                        "Initiated search for evidence",
-                        "Search yielded 0 results",
-                        "Strict adherence to evidence-based policy triggered refusal"
-                    ],
+                    reasoning_steps=execution_steps,
                     safety_assessment="High Risk: No verified medical evidence available.",
                     medical_evidence=[],
                     uncertainty_indicators=["No evidence found"]
                 )
+            
+            execution_steps.append("Strict mode check passed: Evidence available")
+            
             # Step 2: Construct prompt WITH EVIDENCE (NEW - forces citations)
             prompt = self._construct_prompt_with_evidence(question, evidence_sources, context)
+            execution_steps.append("Constructed evidence-based prompt for LLM")
             
             # Step 3: Generate response using Ollama
             base_answer = None
             
             # Use Ollama model
             self.logger.info(f"Generating evidence-based medical response using Ollama ({self.model_name})")
+            execution_steps.append(f"Generating response using Ollama model: {self.model_name}")
+            
             generated_text = self.ollama_client.generate(
                 model=self.model_name,
                 prompt=prompt,
@@ -191,15 +189,21 @@ class MedicalAgent:
             )
             if generated_text and len(generated_text.strip()) > 20:
                 base_answer = generated_text
+                execution_steps.append("Received valid response from LLM")
             else:
                 self.logger.warning("Ollama generated response too short")
+                execution_steps.append("Warning: LLM response was too short or empty")
             
             # Step 4: Enhance response using full system integration
+            execution_steps.append("Applying system enhancements (Safety, Internet RAG)")
             enhanced_answer, internet_source_count = self._enhance_with_systems(question, base_answer, evidence_sources)
+            if internet_source_count > 0:
+                execution_steps.append(f"Integrated {internet_source_count} additional sources from Internet RAG")
             
             # Step 5: Add structured format (deduplication handled in method)
             enhanced_answer = self._add_structured_format(enhanced_answer, evidence_sources)
             enhanced_answer = self._add_medical_disclaimer(enhanced_answer)
+            execution_steps.append("Applied structured formatting and medical disclaimers")
             
             # Step 5.5: STANDARDIZE THE RESPONSE FORMAT (NEW)
             # This ensures every response follows the same professional structure
@@ -212,13 +216,15 @@ class MedicalAgent:
                 confidence=final_confidence,
                 question=question
             )
+            execution_steps.append("Standardized response format")
             
             # Step 6: Parse and structure the enhanced response
             structured_response = self._parse_medical_response(
                 standardized_answer,  # Use standardized instead of enhanced
                 question,
                 safety_check,
-                internet_source_count
+                internet_source_count,
+                execution_steps=execution_steps
             )
             
             return structured_response
@@ -515,7 +521,8 @@ If experiencing severe symptoms, chest pain, difficulty breathing, sudden severe
         generated_text: str, 
         question: str,
         safety_check: bool = True,
-        internet_source_count: int = 0
+        internet_source_count: int = 0,
+        execution_steps: Optional[List[str]] = None
     ) -> MedicalResponse:
         """Parse the generated response into structured format"""
         # Clean up the generated text
@@ -531,7 +538,11 @@ If experiencing severe symptoms, chest pain, difficulty breathing, sudden severe
         # Use the full text as the primary answer
         answer = text
         
-        reasoning_steps = lines[:5] if len(lines) > 1 else [answer]
+        # Use execution steps if available, otherwise fallback
+        if execution_steps:
+            reasoning_steps = execution_steps
+        else:
+            reasoning_steps = lines[:5] if len(lines) > 1 else [answer]
         
         # Extract medical evidence and uncertainty indicators
         medical_evidence = self._extract_medical_evidence(generated_text)
@@ -566,16 +577,38 @@ If experiencing severe symptoms, chest pain, difficulty breathing, sudden severe
         
         # Step 3: Enhance with structured reasoning chains
         try:
-            from ..reasoning.cot_system import ChainOfThoughtIntegrator
-            reasoning_system = ChainOfThoughtIntegrator()
-            final_enhanced_answer, reasoning_improvements = reasoning_system.enhance_response_with_reasoning(
-                evidence_enhanced_answer, question, "medical"
+            from ..reasoning.cot_system import ChainOfThoughtIntegrator, ChainOfThoughtGenerator
+            
+            # If we have execution steps, we use them as the "reasoning chain"
+            # But we might still want to enhance the text with a narrative explanation
+            
+            # Generate dynamic reasoning chain for narrative purposes
+            cot_generator = ChainOfThoughtGenerator()
+            reasoning_chain = cot_generator.generate_reasoning_chain(
+                question, evidence_enhanced_answer, "medical"
             )
+            
+            # If we don't have execution steps, use the generated ones
+            if not execution_steps:
+                reasoning_steps = [step.thought for step in reasoning_chain.thought_steps]
+            
+            # Format the response using the integrator
+            reasoning_system = ChainOfThoughtIntegrator()
+            final_enhanced_answer = reasoning_system._format_reasoning_response(reasoning_chain)
+            
+            reasoning_improvements = {
+                'interpretability_improvement': reasoning_chain.reasoning_transparency * 0.5
+            }
+            
             self.logger.info(f"Applied reasoning enhancements: {reasoning_improvements.get('interpretability_improvement', 0.0):.2f}")
+            
         except Exception as e:
             self.logger.error(f"Reasoning enhancement failed: {e}")
             final_enhanced_answer = evidence_enhanced_answer
             reasoning_improvements = {"interpretability_improvement": 0.0}
+            # Fallback to manual steps if generation fails and no execution steps
+            if not reasoning_steps:
+                reasoning_steps = lines[:5] if len(lines) > 1 else [answer]
         
         # Calculate combined confidence score (simplified for debugging)
         base_confidence = confidence_score
@@ -644,7 +677,7 @@ If experiencing severe symptoms, chest pain, difficulty breathing, sudden severe
         return MedicalResponse(
             answer=fair_enhanced_answer,
             confidence_score=enhanced_confidence,
-            reasoning_steps=reasoning_steps[:5],
+            reasoning_steps=reasoning_steps, # Use full list of steps
             safety_assessment=safety_assessment,
             medical_evidence=medical_evidence,
             uncertainty_indicators=uncertainty_indicators,

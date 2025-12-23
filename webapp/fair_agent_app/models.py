@@ -83,6 +83,35 @@ class QueryRecord(models.Model):
         return self.additional_data.get(key, default)
 
 
+class TraceLog(models.Model):
+    """Model to store system execution traces"""
+    trace_id = models.CharField(max_length=100, unique=True)
+    start_time = models.FloatField()
+    end_time = models.FloatField(null=True, blank=True)
+    duration_ms = models.FloatField(default=0.0)
+    metadata = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Trace {self.trace_id} ({self.duration_ms}ms)"
+
+
+class SpanLog(models.Model):
+    """Model to store individual spans within a trace"""
+    trace = models.ForeignKey(TraceLog, on_delete=models.CASCADE, related_name='spans')
+    name = models.CharField(max_length=200)
+    start_time = models.FloatField()
+    end_time = models.FloatField(null=True, blank=True)
+    duration_ms = models.FloatField(default=0.0)
+    status = models.CharField(max_length=50, default="running")
+    error_message = models.TextField(null=True, blank=True)
+    metadata = models.JSONField(default=dict)
+
+    def __str__(self):
+        return f"Span {self.name} - {self.status}"
+
+
+
 class EvaluationMetrics(models.Model):
     """Model to store detailed evaluation metrics for queries"""
     

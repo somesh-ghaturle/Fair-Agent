@@ -21,9 +21,11 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 # Import OllamaClient for Query Expansion
 import sys
-sys.path.append(str(PROJECT_ROOT / "src" / "utils"))
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.append(str(PROJECT_ROOT))
+
 try:
-    from ollama_client import OllamaClient
+    from src.utils.ollama_client import OllamaClient
 except ImportError:
     logger = logging.getLogger(__name__)
     logger.warning("Could not import OllamaClient. Query expansion will be disabled.")

@@ -682,6 +682,22 @@ document.addEventListener('DOMContentLoaded', function() {
                                     ${formattedAnswer}
                                 </div>
                                 
+                                ${data.reasoning_steps && data.reasoning_steps.length > 0 ? `
+                                <div class="mt-3 pt-3 border-top border-secondary">
+                                    <h6 class="text-muted mb-2"><i class="fas fa-list-ol me-2"></i>Execution Steps (Actual Workflow):</h6>
+                                    <div class="bg-dark p-3 rounded border border-secondary">
+                                        <ul class="list-unstyled mb-0 small text-light" style="font-family: monospace;">
+                                            ${data.reasoning_steps.map((step, index) => `
+                                                <li class="mb-1">
+                                                    <span class="text-primary me-2">${index + 1}.</span>
+                                                    ${step}
+                                                </li>
+                                            `).join('')}
+                                        </ul>
+                                    </div>
+                                </div>
+                                ` : ''}
+                                
                                 ${data.fair_metrics ? `
                                 <div class="mt-3 pt-3 border-top border-secondary">
                                     <h6 class="text-muted mb-2"><i class="fas fa-chart-line me-2"></i>Enhancement Boosts Applied:</h6>

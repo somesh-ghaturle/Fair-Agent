@@ -1,0 +1,545 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}System Architecture - FAIR-Agent{% endblock %}
+
+{% block extra_css %}
+<style>
+    .architecture-container {
+        background-color: var(--card-bg);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+    }
+    
+    .diagram-container {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        overflow-x: auto;
+        display: flex;
+        justify-content: center;
+        min-height: 1000px; /* Significantly increased height */
+    }
+    
+    .mermaid {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .component-card {
+        background-color: var(--bg-dark);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 1.5rem;
+        height: 100%;
+        transition: transform 0.3s ease;
+    }
+    
+    .component-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary-color);
+    }
+    
+    .component-icon {
+        font-size: 2rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+    
+    .flow-step {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-left: 3px solid var(--primary-color);
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .tech-badge {
+        font-size: 0.8rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        background-color: rgba(255, 255, 255, 0.1);
+        margin-right: 0.5rem;
+        color: #aaa;
+    }
+    
+    .metric-card {
+        background-color: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .metric-title {
+        color: var(--primary-color);
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-white">
+                <i class="fas fa-project-diagram me-2"></i>System Architecture
+            </h2>
+            <p class="text-muted">End-to-end architecture of the FAIR-Agent system</p>
+        </div>
+    </div>
+
+    <!-- Architecture Diagram -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="architecture-container">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="text-white mb-0">System Data Flow & Component Interaction</h4>
+                    <button id="downloadBtn" class="btn btn-primary btn-sm" onclick="downloadSVG()">
+                        <i class="fas fa-download me-2"></i>Download Diagram
+                    </button>
+                </div>
+                <div class="diagram-container">
+                    <div class="mermaid" id="mermaidDiagram">
+                        %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffcc00', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#fff', 'fontSize': '16px'}}}%%
+                        flowchart TD
+                            classDef user fill:#f9f,stroke:#333,stroke-width:2px;
+                            classDef frontend fill:#bbf,stroke:#333,stroke-width:2px;
+                            classDef core fill:#bfb,stroke:#333,stroke-width:2px;
+                            classDef rag fill:#fbb,stroke:#333,stroke-width:2px;
+                            classDef ai fill:#ddf,stroke:#333,stroke-width:2px;
+                            classDef obs fill:#ddd,stroke:#333,stroke-width:2px;
+
+                            subgraph User_Layer [User Interaction Layer]
+                                User((User)):::user
+                                Browser["Web Browser / UI<br/>(HTML/JS/CSS)"]:::frontend
+                            end
+
+                            subgraph Web_Layer [Web Application Layer]
+                                Django["Django Server<br/>(WSGI/ASGI)"]:::frontend
+                                Views["View Logic<br/>(views.py)"]:::frontend
+                                API["REST API Endpoints<br/>(/api/query)"]:::frontend
+                                Session["Session Manager<br/>(DB/Cache)"]:::frontend
+                            end
+
+                            subgraph Core_Layer [Core Orchestration Layer]
+                                Orchestrator["Orchestrator System<br/>(orchestrator.py)"]:::core
+                                Classifier["Domain Classifier<br/>(Regex/Keyword)"]:::core
+                                Router{Router}:::core
+                                Aggregator["Response Aggregator<br/>(JSON Builder)"]:::core
+                                Safety["Safety & Ethics Filter<br/>(Pattern Matcher)"]:::core
+                            end
+
+                            subgraph Agent_Layer [Domain Agents]
+                                FinAgent["Finance Agent<br/>(finance_agent.py)"]:::core
+                                MedAgent["Medical Agent<br/>(medical_agent.py)"]:::core
+                                CrossAgent["Cross-Domain Logic<br/>(Synthesis)"]:::core
+                                PromptEng["Prompt Engineer<br/>(Template Builder)"]:::core
+                            end
+
+                            subgraph RAG_Layer ["RAG & Knowledge Layer"]
+                                QueryEnc["Query Encoder<br/>(all-MiniLM-L6-v2)"]:::rag
+                                VectorDB[("Embeddings Cache<br/>.npz Files")]:::rag
+                                DocStore[("Evidence Sources<br/>YAML/JSON")]:::rag
+                                HybridSearch["Hybrid Search Engine<br/>(Semantic + Keyword)"]:::rag
+                                ReRanker["Cross-Encoder Re-ranker<br/>(ms-marco-MiniLM)"]:::rag
+                                ContextWindow["Context Window Manager<br/>(Token Limiter)"]:::rag
+                            end
+
+                            subgraph Inference_Layer [Inference Layer]
+                                Ollama["Ollama API Client<br/>(HTTP/JSON)"]:::ai
+                                LlamaService["Ollama Service<br/>(Localhost:11434)"]:::ai
+                                Model[["Llama 3.2 Model<br/>(GGUF Quantized)"]]:::ai
+                            end
+
+                            subgraph Obs_Layer ["Observability & Evaluation"]
+                                Telemetry["Telemetry Manager<br/>(telemetry.py)"]:::obs
+                                Tracer["Trace Collector<br/>(JSON Logs)"]:::obs
+                                Metrics["Metrics Store<br/>(Latency/Tokens)"]:::obs
+                                Evaluator["Offline Evaluator<br/>(evaluate.py)"]:::obs
+                                Benchmarks[("Benchmark Datasets<br/>FinQA/MedMCQA")]:::obs
+                                
+                                %% Metrics Details
+                                M_Faith["Faithfulness<br/>(faithfulness.py)"]:::obs
+                                M_Safe["Safety<br/>(safety.py)"]:::obs
+                                M_Adapt["Adaptability<br/>(adaptability.py)"]:::obs
+                                M_Interp["Interpretability<br/>(interpretability.py)"]:::obs
+                            end
+
+                            %% Flows
+                            User -->|1. Submit Query| Browser
+                            Browser -->|2. HTTP POST| Django
+                            Django -->|3. Route Request| Views
+                            Views -->|4. API Call| API
+                            API -->|5. Process| Orchestrator
+
+                            %% Orchestration Flow
+                            Orchestrator -->|6. Classify| Classifier
+                            Classifier -->|Domain Tag| Router
+                            Router -->|Finance| FinAgent
+                            Router -->|Medical| MedAgent
+                            Router -->|Both| CrossAgent
+
+                            %% RAG Flow
+                            FinAgent & MedAgent -->|7. Retrieve Context| HybridSearch
+                            HybridSearch -->|Encode Query| QueryEnc
+                            QueryEnc -->|Vector Search| VectorDB
+                            HybridSearch -->|Keyword Search| DocStore
+                            VectorDB & DocStore -->|Candidates| ReRanker
+                            ReRanker -->|Top K Evidence| ContextWindow
+                            ContextWindow -->|Formatted Context| PromptEng
+
+                            %% Inference Flow
+                            PromptEng -->|8. Construct Prompt| FinAgent & MedAgent
+                            FinAgent & MedAgent -->|9. Send Prompt| Ollama
+                            Ollama -->|Generate| LlamaService
+                            LlamaService -->|Inference| Model
+                            Model -->|Tokens| LlamaService
+                            LlamaService -->|Response Stream| Ollama
+                            Ollama -->|Text| FinAgent & MedAgent
+
+                            %% Response Flow
+                            FinAgent & MedAgent -->|10. Raw Response| Safety
+                            Safety -->|Validated Response| Aggregator
+                            Aggregator -->|Final Output| Orchestrator
+                            Orchestrator -->|JSON Response| API
+                            API -->|Return Data| Views
+                            Views -->|Render Template| Browser
+                            Browser -->|Display| User
+
+                            %% Observability Flow
+                            Orchestrator -.->|Start Trace| Telemetry
+                            FinAgent & MedAgent -.->|Span| Telemetry
+                            Ollama -.->|Latency/Tokens| Telemetry
+                            Telemetry -->|Store| Tracer & Metrics
+                            Evaluator -.->|Read| Metrics
+                            Evaluator -.->|Compare| Benchmarks
+                            
+                            %% Metrics Calculation Flow
+                            Evaluator -.->|Calculate| M_Faith
+                            Evaluator -.->|Calculate| M_Safe
+                            Evaluator -.->|Calculate| M_Adapt
+                            Evaluator -.->|Calculate| M_Interp
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Evaluation Metrics Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3 class="text-white mb-4">Evaluation Metrics & Methodology</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="metric-card">
+                        <div class="metric-title"><i class="fas fa-check-circle me-2"></i>Faithfulness</div>
+                        <p class="text-white-50 mb-2">
+                            Measures how accurately the generated response reflects the retrieved evidence without hallucination.
+                        </p>
+                        <ul class="text-white-50 small">
+                            <li><strong>Method:</strong> Token Overlap & Semantic Similarity (BERTScore)</li>
+                            <li><strong>Target:</strong> > 0.85 Cosine Similarity</li>
+                            <li><strong>Implementation:</strong> <code>src/evaluation/faithfulness.py</code></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="metric-card">
+                        <div class="metric-title"><i class="fas fa-shield-alt me-2"></i>Safety</div>
+                        <p class="text-white-50 mb-2">
+                            Ensures responses do not contain harmful advice, bias, or toxic content.
+                        </p>
+                        <ul class="text-white-50 small">
+                            <li><strong>Method:</strong> Keyword Filtering & Sentiment Analysis</li>
+                            <li><strong>Checks:</strong> Medical Disclaimer Presence, Financial Advice Warning</li>
+                            <li><strong>Implementation:</strong> <code>src/evaluation/safety.py</code></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="metric-card">
+                        <div class="metric-title"><i class="fas fa-random me-2"></i>Adaptability</div>
+                        <p class="text-white-50 mb-2">
+                            Evaluates the system's ability to switch contexts (Finance <-> Medical) and handle cross-domain queries.
+                        </p>
+                        <ul class="text-white-50 small">
+                            <li><strong>Method:</strong> Domain Classification Accuracy</li>
+                            <li><strong>Test Set:</strong> Mixed-domain synthetic queries</li>
+                            <li><strong>Implementation:</strong> <code>src/evaluation/adaptability.py</code></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="metric-card">
+                        <div class="metric-title"><i class="fas fa-lightbulb me-2"></i>Interpretability</div>
+                        <p class="text-white-50 mb-2">
+                            Assesses the clarity of reasoning and the presence of citations in the response.
+                        </p>
+                        <ul class="text-white-50 small">
+                            <li><strong>Method:</strong> Citation Count & Reasoning Chain Analysis</li>
+                            <li><strong>Requirement:</strong> At least 1 citation per claim</li>
+                            <li><strong>Implementation:</strong> <code>src/evaluation/interpretability.py</code></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Observability: Tracing & Metrics Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3 class="text-white mb-4">Observability: Tracing & Metrics</h3>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="metric-card">
+                        <div class="metric-title"><i class="fas fa-route me-2"></i>Distributed Tracing</div>
+                        <p class="text-white-50 mb-2">
+                            End-to-end request tracking using unique Trace IDs and hierarchical Spans.
+                        </p>
+                        <ul class="text-white-50 small">
+                            <li><strong>Trace Context:</strong> Propagated via <code>contextvars</code></li>
+                            <li><strong>Spans:</strong> Orchestrator, Agents, RAG, LLM Inference</li>
+                            <li><strong>Storage:</strong> JSON-based trace logs in <code>logs/telemetry/</code></li>
+                            <li><strong>Implementation:</strong> <code>src/observability/telemetry.py</code></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric-card">
+                        <div class="metric-title"><i class="fas fa-stopwatch me-2"></i>LLM Performance Metrics</div>
+                        <p class="text-white-50 mb-2">
+                            Real-time monitoring of Large Language Model performance and resource usage.
+                        </p>
+                        <ul class="text-white-50 small">
+                            <li><strong>Latency:</strong> Time-to-first-token (TTFT) & Total Generation Time</li>
+                            <li><strong>Throughput:</strong> Tokens per second (TPS)</li>
+                            <li><strong>Token Usage:</strong> Prompt tokens vs. Completion tokens</li>
+                            <li><strong>Implementation:</strong> <code>src/utils/ollama_client.py</code></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric-card">
+                        <div class="metric-title"><i class="fas fa-desktop me-2"></i>System Monitoring</div>
+                        <p class="text-white-50 mb-2">
+                            Operational health checks and error rate tracking.
+                        </p>
+                        <ul class="text-white-50 small">
+                            <li><strong>Error Rates:</strong> Failed queries, Timeout exceptions</li>
+                            <li><strong>Cache Hit Rate:</strong> RAG embedding cache efficiency</li>
+                            <li><strong>Domain Distribution:</strong> Finance vs. Medical query ratio</li>
+                            <li><strong>Dashboard:</strong> Visualized in Admin Console</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Process Flow -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3 class="text-white mb-4">Detailed Request Processing Flow</h3>
+            
+            <div class="flow-step">
+                <h5 class="text-white">1. Request Initiation & Routing</h5>
+                <p class="text-muted mb-2">
+                    The user submits a query via the web interface. The Django backend receives the request and forwards it to the <strong>Orchestrator</strong>.
+                    The Orchestrator uses a keyword-based <strong>Domain Classifier</strong> to determine if the query is Financial, Medical, or Cross-Domain.
+                </p>
+                <div>
+                    <span class="tech-badge">Django</span>
+                    <span class="tech-badge">Python</span>
+                    <span class="tech-badge">Regex</span>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <h5 class="text-white">2. Retrieval Augmented Generation (RAG)</h5>
+                <p class="text-muted mb-2">
+                    The active Agent (Finance or Medical) initiates the RAG process.
+                    <br>
+                    a. <strong>Query Encoding:</strong> The query is converted to a vector using <code>all-MiniLM-L6-v2</code>.
+                    <br>
+                    b. <strong>Hybrid Search:</strong> We perform both semantic search (cosine similarity) against the <code>.npz</code> embeddings cache and keyword search against the document store.
+                    <br>
+                    c. <strong>Re-ranking:</strong> Top candidates are re-ranked using a Cross-Encoder to ensure high relevance.
+                </p>
+                <div>
+                    <span class="tech-badge">SentenceTransformers</span>
+                    <span class="tech-badge">NumPy</span>
+                    <span class="tech-badge">FAISS (Logic)</span>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <h5 class="text-white">3. Prompt Construction & Inference</h5>
+                <p class="text-muted mb-2">
+                    The Agent constructs a prompt including:
+                    <ul>
+                        <li>System instructions (Role, Tone, Constraints)</li>
+                        <li>Retrieved Evidence (Context)</li>
+                        <li>User Query</li>
+                    </ul>
+                    This prompt is sent to the <strong>Ollama</strong> service running the <strong>Llama 3.2</strong> model.
+                </p>
+                <div>
+                    <span class="tech-badge">Ollama</span>
+                    <span class="tech-badge">Llama 3.2</span>
+                    <span class="tech-badge">Prompt Engineering</span>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <h5 class="text-white">4. Response Processing & Safety</h5>
+                <p class="text-muted mb-2">
+                    The raw LLM response is passed through a <strong>Safety Filter</strong> to check for harmful content or hallucinations.
+                    The <strong>Response Aggregator</strong> formats the final output, adding citations and confidence scores.
+                </p>
+                <div>
+                    <span class="tech-badge">Regex Validation</span>
+                    <span class="tech-badge">JSON Formatting</span>
+                </div>
+            </div>
+            
+            <div class="flow-step">
+                <h5 class="text-white">5. Observability & Evaluation</h5>
+                <p class="text-muted mb-2">
+                    Throughout the process, the <strong>Telemetry Manager</strong> records traces (execution paths) and metrics (latency, token counts).
+                    The <strong>Evaluator</strong> runs periodically to benchmark system performance against baseline datasets (FinQA, MedMCQA).
+                </p>
+                <div>
+                    <span class="tech-badge">OpenTelemetry Concepts</span>
+                    <span class="tech-badge">Custom Metrics</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Component Details -->
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="component-card">
+                <i class="fas fa-globe component-icon"></i>
+                <h5 class="text-white">Web Interface</h5>
+                <p class="text-muted">
+                    Built with Django 4.2, providing a responsive UI for user interaction. 
+                    Handles HTTP requests, session management, and real-time updates via AJAX.
+                </p>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="component-card">
+                <i class="fas fa-brain component-icon"></i>
+                <h5 class="text-white">Orchestrator</h5>
+                <p class="text-muted">
+                    Central intelligence that classifies queries and routes them to specialized agents.
+                    Manages cross-domain reasoning and synthesizes final responses.
+                </p>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="component-card">
+                <i class="fas fa-search component-icon"></i>
+                <h5 class="text-white">RAG System</h5>
+                <p class="text-muted">
+                    Retrieval-Augmented Generation system using SentenceTransformers (all-MiniLM-L6-v2).
+                    Features hybrid search, caching, and dynamic similarity thresholds.
+                </p>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="component-card">
+                <i class="fas fa-microchip component-icon"></i>
+                <h5 class="text-white">LLM Inference</h5>
+                <p class="text-muted">
+                    Powered by Ollama running Llama 3.2 locally.
+                    Ensures data privacy and low-latency inference without external API dependencies.
+                </p>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="component-card">
+                <i class="fas fa-chart-line component-icon"></i>
+                <h5 class="text-white">Observability</h5>
+                <p class="text-muted">
+                    Comprehensive telemetry system tracking request traces, latency metrics, and token usage.
+                    Enables performance monitoring and debugging.
+                </p>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="component-card">
+                <i class="fas fa-ruler-combined component-icon"></i>
+                <h5 class="text-white">Evaluation</h5>
+                <p class="text-muted">
+                    Automated evaluation pipeline measuring Faithfulness, Adaptability, Interpretability, and Safety.
+                    Includes baseline comparisons and regression testing.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mermaid JS -->
+<script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ 
+        startOnLoad: true,
+        theme: 'default',
+        securityLevel: 'loose',
+    });
+</script>
+
+<script>
+    function downloadSVG() {
+        const svg = document.querySelector('.mermaid svg');
+        if (!svg) {
+            alert('Diagram is still rendering. Please try again in a moment.');
+            return;
+        }
+        
+        // Get the SVG content
+        const serializer = new XMLSerializer();
+        let source = serializer.serializeToString(svg);
+        
+        // Add XML namespaces if missing
+        if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
+            source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+        }
+        
+        // Add white background for better visibility when downloaded
+        // Mermaid SVGs often have transparent backgrounds
+        const styleMatch = source.match(/style="([^"]*)"/);
+        if (styleMatch) {
+            const style = styleMatch[1];
+            if (!style.includes('background-color')) {
+                source = source.replace(/style="([^"]*)"/, 'style="$1; background-color: white;"');
+            }
+        } else {
+            source = source.replace(/^<svg/, '<svg style="background-color: white;"');
+        }
+
+        // Create blob and download link
+        const blob = new Blob([source], {type: 'image/svg+xml;charset=utf-8'});
+        const url = URL.createObjectURL(blob);
+        
+        const downloadLink = document.createElement("a");
+        downloadLink.href = url;
+        downloadLink.download = "fair_agent_architecture.svg";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        URL.revokeObjectURL(url);
+    }
+</script>
+{% endblock %}
