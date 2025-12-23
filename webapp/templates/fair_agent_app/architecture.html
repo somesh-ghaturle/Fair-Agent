@@ -43,7 +43,7 @@
     }
     
     .component-icon {
-        font-size: 2rem;
+        font-size: 3.5rem;
         color: var(--primary-color);
         margin-bottom: 1rem;
     }
@@ -103,14 +103,14 @@
                 </div>
                 <div class="diagram-container">
                     <div class="mermaid" id="mermaidDiagram">
-                        %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffcc00', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#fff', 'fontSize': '16px'}}}%%
+                        %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffcc00', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#fff', 'fontSize': '20px'}, 'flowchart': {'nodeSpacing': 50, 'rankSpacing': 50, 'curve': 'basis'}}}%%
                         flowchart TD
-                            classDef user fill:#f9f,stroke:#333,stroke-width:2px;
-                            classDef frontend fill:#bbf,stroke:#333,stroke-width:2px;
-                            classDef core fill:#bfb,stroke:#333,stroke-width:2px;
-                            classDef rag fill:#fbb,stroke:#333,stroke-width:2px;
-                            classDef ai fill:#ddf,stroke:#333,stroke-width:2px;
-                            classDef obs fill:#ddd,stroke:#333,stroke-width:2px;
+                            classDef user fill:#f9f,stroke:#333,stroke-width:4px,font-size:24px,font-weight:bold;
+                            classDef frontend fill:#bbf,stroke:#333,stroke-width:3px,font-size:20px;
+                            classDef core fill:#bfb,stroke:#333,stroke-width:3px,font-size:20px;
+                            classDef rag fill:#fbb,stroke:#333,stroke-width:3px,font-size:20px;
+                            classDef ai fill:#ddf,stroke:#333,stroke-width:3px,font-size:20px;
+                            classDef obs fill:#ddd,stroke:#333,stroke-width:3px,font-size:20px;
 
                             subgraph User_Layer [User Interaction Layer]
                                 User((User)):::user
@@ -156,7 +156,7 @@
 
                             subgraph Obs_Layer ["Observability & Evaluation"]
                                 Telemetry["Telemetry Manager<br/>(telemetry.py)"]:::obs
-                                Tracer["Trace Collector<br/>(JSON Logs)"]:::obs
+                                Tracer["Trace Storage<br/>(logs/telemetry + DB)"]:::obs
                                 Metrics["Metrics Store<br/>(Latency/Tokens)"]:::obs
                                 Evaluator["Offline Evaluator<br/>(evaluate.py)"]:::obs
                                 Benchmarks[("Benchmark Datasets<br/>FinQA/MedMCQA")]:::obs
@@ -276,11 +276,11 @@
                     <div class="metric-card">
                         <div class="metric-title"><i class="fas fa-lightbulb me-2"></i>Interpretability</div>
                         <p class="text-white-50 mb-2">
-                            Assesses the clarity of reasoning and the presence of citations in the response.
+                            Assesses transparency via (a) evidence/citations and (b) the captured execution-step workflow trace.
                         </p>
                         <ul class="text-white-50 small">
-                            <li><strong>Method:</strong> Citation Count & Reasoning Chain Analysis</li>
-                            <li><strong>Requirement:</strong> At least 1 citation per claim</li>
+                            <li><strong>Method:</strong> Citation Count & Execution-Step Trace Coverage</li>
+                            <li><strong>Requirement:</strong> Include Evidence Sources and an "Execution Steps (Actual Workflow)" trace when available</li>
                             <li><strong>Implementation:</strong> <code>src/evaluation/interpretability.py</code></li>
                         </ul>
                     </div>
@@ -398,7 +398,8 @@
                 <h5 class="text-white">4. Response Processing & Safety</h5>
                 <p class="text-muted mb-2">
                     The raw LLM response is passed through a <strong>Safety Filter</strong> to check for harmful content or hallucinations.
-                    The <strong>Response Aggregator</strong> formats the final output, adding citations and confidence scores.
+                    The <strong>Response Standardizer/Aggregator</strong> formats the final output into consistent sections and includes:
+                    (a) evidence sources, (b) an "Execution Steps (Actual Workflow)" trace, and (c) a domain disclaimer placed at the end.
                 </p>
                 <div>
                     <span class="tech-badge">Regex Validation</span>

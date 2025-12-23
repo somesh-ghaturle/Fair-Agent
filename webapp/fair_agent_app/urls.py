@@ -15,6 +15,8 @@ urlpatterns = [
     path('simple/', views.SimpleQueryView.as_view(), name='simple_query'),
     path('datasets/', views.DatasetsView.as_view(), name='datasets'),
     path('architecture/', views.ArchitectureView.as_view(), name='architecture'),
+    path('publication/', views.PublicationView.as_view(), name='publication'),
+    path('dashboard/', views.DashboardView.as_view(), name='dashboard'),
     
     # HTTPS redirect helper
     path('https-info/', https_views.https_redirect_info, name='https_info'),

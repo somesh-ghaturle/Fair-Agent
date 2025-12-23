@@ -154,7 +154,7 @@ class FinanceAgent:
                     raw_response=refusal_text,
                     evidence_sources=[],
                     confidence=0.0,
-                    question=question
+                    question=question,
                 )
                 
                 return FinanceResponse(
@@ -215,7 +215,7 @@ class FinanceAgent:
                 raw_response=enhanced_answer,
                 evidence_sources=evidence_sources,
                 confidence=final_confidence,
-                question=question
+                question=question,
             )
 
             # Step 6: Parse and structure the enhanced response
@@ -678,6 +678,16 @@ Begin your answer:
         enhanced_answer = answer
         safety_improvements = {"overall_safety_improvement": 0.40}  # Already applied earlier
         self.logger.info(f"Safety enhancements already applied in _enhance_with_systems")
+
+        # If the response already follows our standardized template, do not let later
+        # enhancement passes rewrite the answer structure (it can reintroduce duplicated
+        # sections/disclaimers). We still compute the improvement scores for metrics.
+        is_standardized = (
+            "## 📋 Executive Summary" in enhanced_answer
+            and "## 🔍 Detailed Analysis" in enhanced_answer
+            and "## 📚 Evidence Sources" in enhanced_answer
+            and "## ✅ Key Takeaways" in enhanced_answer
+        )
         
         # Step 2: Enhance with evidence citations and source integration
         try:
@@ -687,6 +697,8 @@ Begin your answer:
                 enhanced_answer, question, "finance"
             )
             self.logger.info(f"Applied evidence enhancements: {evidence_improvements.get('faithfulness_improvement', 0.0):.2f}")
+            if is_standardized:
+                evidence_enhanced_answer = enhanced_answer
         except Exception as e:
             self.logger.error(f"Evidence enhancement failed: {e}")
             evidence_enhanced_answer = enhanced_answer

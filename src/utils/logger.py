@@ -62,7 +62,19 @@ def setup_logging(
     
     # Create system logger
     logger = logging.getLogger('fair_agent')
-    logger.info("Logging system initialized")
+
+    # Reduce noise from common third-party libraries unless running in DEBUG.
+    if level > logging.DEBUG:
+        for noisy_name in [
+            'sentence_transformers',
+            'transformers',
+            'torch',
+            'urllib3',
+            'httpx',
+        ]:
+            logging.getLogger(noisy_name).setLevel(logging.WARNING)
+
+    logger.debug("Logging system initialized")
     
     return logger
 

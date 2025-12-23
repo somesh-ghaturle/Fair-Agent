@@ -92,13 +92,41 @@ document.getElementById('queryForm').addEventListener('submit', function(e) {
     })
     .then(response => response.json())
     .then(data => {
+        const answerHtml = data.formatted_answer || data.answer || 'No response generated';
+        const domain = (data.domain || 'general').toString();
+        const confidence = typeof data.confidence === 'number' ? data.confidence : null;
+        const steps = Array.isArray(data.reasoning_steps) ? data.reasoning_steps : [];
+
         resultsContent.innerHTML = `
             <h6 class="text-secondary">Query: "${query}"</h6>
+
             <div class="alert border border-success text-white rounded-0 bg-card">
                 <strong class="text-success">Response:</strong><br>
-                ${data.primary_answer || 'No response generated'}
+                ${answerHtml}
             </div>
-            <small class="text-muted">Confidence: ${data.confidence_score || 'N/A'}</small>
+
+            <div class="d-flex gap-2 align-items-center mb-2">
+                <span class="badge bg-${domain === 'finance' ? 'success' : domain === 'medical' ? 'info' : 'secondary'}">${domain.toUpperCase()}</span>
+                <small class="text-muted">
+                    Confidence: ${confidence === null ? 'N/A' : Math.round(confidence * 100) + '%'}
+                </small>
+            </div>
+
+            ${(steps.length > 0) ? `
+            <div class="mt-3 pt-3 border-top border-secondary">
+                <h6 class="text-muted mb-2"><i class="fas fa-list-ol me-2"></i>Execution Steps (Actual Workflow):</h6>
+                <div class="bg-dark p-3 rounded border border-secondary">
+                    <ul class="list-unstyled mb-0 small text-light" style="font-family: monospace;">
+                        ${steps.map((step, index) => `
+                            <li class="mb-1">
+                                <span class="text-primary me-2">${index + 1}.</span>
+                                ${step}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            </div>
+            ` : ''}
         `;
         resultsCard.style.display = 'block';
     })

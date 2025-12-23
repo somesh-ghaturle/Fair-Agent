@@ -43,52 +43,109 @@ class ResponseStandardizer:
 
 ---
 
-## 💡 Chain of Thought Reasoning
-{reasoning_steps}
-
----
-
 ## ✅ Key Takeaways
 {key_takeaways}
 
 ---
 
 {disclaimer}
-
----
-
-**Confidence Level:** {confidence_score}/10
-
-**Transparency Score:** {transparency_score}%
 """
 
     FINANCE_DISCLAIMER = """
 ## ⚠️ Financial Disclaimer
-**This information is for educational purposes only and does not constitute financial advice.**
+**This information is for educational purposes only and does not constitute financial, legal, or tax advice.**
 
 Key Points:
-- Individual financial situations vary significantly
-- Consult a licensed financial advisor before making investment decisions
-- Past performance does not guarantee future results
-- All investments carry risk, including potential loss of principal
-- Tax implications vary by jurisdiction and personal circumstances
 
-**Professional consultation is strongly recommended for all financial decisions.**
+- Assumptions may be incomplete or incorrect if your situation differs from what was provided
+- Market conditions change; verify any figures, rates, or rules using current, authoritative sources
+- Consult a licensed financial professional before making investment decisions
+- Consult a qualified tax professional for tax implications; rules vary by jurisdiction and can change
+- All investments carry risk, including potential loss of principal
+- Past performance does not guarantee future results
+- Diversification does not ensure a profit or protect against loss
+
+**If you share your goals, time horizon, risk tolerance, income/tax bracket (jurisdiction), and current holdings, the guidance can be made more specific.**
 """
 
     MEDICAL_DISCLAIMER = """
 ## ⚠️ Medical Disclaimer
-**This information is for educational purposes only and does not constitute medical advice.**
+**This information is for educational purposes only and does not constitute medical advice, diagnosis, or treatment.**
 
 Critical Points:
+
 - This is NOT a substitute for professional medical advice, diagnosis, or treatment
 - Always consult qualified healthcare providers for medical decisions
-- Emergency situations require immediate medical attention (call 911)
-- Individual health conditions vary significantly
-- Treatment outcomes depend on many personal factors
+- Seek urgent/emergency care immediately for severe symptoms (e.g., chest pain, trouble breathing, fainting, severe bleeding, sudden weakness, confusion)
+- Medication dosing, interactions, allergies, pregnancy status, kidney/liver function, and comorbidities can change what is safe
+- Do not start/stop/change prescribed medications based on this information without clinician guidance
 
 **Never delay or disregard professional medical advice based on information provided here.**
 """
+
+    @staticmethod
+    def _extract_and_remove_disclaimer(text: str) -> tuple[str, str]:
+        """Extract disclaimer block(s) and remove them from the body.
+
+        The system may inject disclaimers in multiple formats (and sometimes
+        not strictly at the end). To keep responses consistent, we:
+        - remove any disclaimer sections from the body
+        - return ONE selected disclaimer to render at the end
+        """
+        if not text:
+            return text, ""
+
+        # Match common disclaimer headers used across the codebase.
+        # Stop at the next H2 header or end of text.
+        pattern = (
+            r"(?:^|\n)##\s*⚠️\s*(?:"
+            r"Financial\s+Disclaimer|"
+            r"Important\s+Financial\s+Disclaimer|"
+            r"Medical\s+Disclaimer|"
+            r"CRITICAL\s+MEDICAL\s+DISCLAIMER"
+            r")\b.*?(?=(?:\n##\s)|\Z)"
+        )
+
+        matches = [m.group(0).strip() for m in re.finditer(pattern, text, flags=re.DOTALL)]
+        if not matches:
+            return text, ""
+
+        # Prefer the most informative disclaimer (heuristic: longest block).
+        selected = max(matches, key=len)
+        # If the captured block includes trailing markdown separators, drop them.
+        selected = re.sub(r"(?:\n---\s*)+\Z", "", selected, flags=re.DOTALL).strip()
+
+        body = re.sub(pattern, "\n", text, flags=re.DOTALL).rstrip()
+        # Clean up excessive separators left behind.
+        body = re.sub(r"\n---\n\s*(?:\n---\n\s*)+", "\n---\n", body, flags=re.DOTALL).rstrip()
+        return body, selected
+
+    @staticmethod
+    def _strip_execution_steps_section(text: str) -> str:
+        """Remove an embedded Execution Steps section from the answer text.
+
+        Execution steps are still returned separately as `reasoning_steps` and shown
+        in the UI. Keeping them out of the answer prevents duplicate display.
+        """
+        if not text:
+            return text
+
+        # Remove from an Execution Steps header up to the next markdown H2 header or end.
+        # This is intentionally flexible because the block can be produced by different
+        # components (LLM output, older templates, etc.).
+        pattern = (
+            r"(?:^|\n)"  # start or newline
+            r"##\s*(?:🧭\s*)?Execution\s+Steps"  # header with optional emoji
+            r"(?:\s*\(Actual\s+Workflow\))?"  # optional suffix
+            r"\s*:?[ \t]*\n"  # optional colon
+            r".*?"  # body
+            r"(?=(?:\n##\s)|\Z)"  # stop before next H2 or end
+        )
+
+        stripped = re.sub(pattern, "\n", text, flags=re.DOTALL)
+        # Tidy up any doubled separators left behind.
+        stripped = re.sub(r"\n---\n\s*\n---\n", "\n---\n", stripped, flags=re.DOTALL)
+        return stripped
 
     @staticmethod
     def extract_confidence_from_response(response: str) -> float:
@@ -127,7 +184,8 @@ Critical Points:
         raw_response: str,
         evidence_sources: List = None,
         confidence: float = 0.0,
-        question: str = ""
+        question: str = "",
+        execution_steps: Optional[List[str]] = None,
     ) -> str:
         """
         Standardize a finance response to follow the template
@@ -141,6 +199,9 @@ Critical Points:
         Returns:
             Standardized formatted response
         """
+        raw_response = cls._strip_chain_of_thought_section(raw_response)
+        raw_response = cls._strip_execution_steps_section(raw_response)
+        raw_response, extracted_disclaimer = cls._extract_and_remove_disclaimer(raw_response)
         # Parse the raw response into components
         components = cls._parse_response_components(raw_response, question)
         
@@ -160,18 +221,18 @@ Critical Points:
         if confidence > 0.7: transparency += 10.0
         
         # Build standardized response
+        disclaimer = extracted_disclaimer.strip() if extracted_disclaimer else cls.FINANCE_DISCLAIMER.strip()
         standardized = cls.STANDARD_TEMPLATE.format(
             executive_summary=components.get('summary', 'Analysis of your financial question.').strip(),
             detailed_analysis=components.get('analysis', raw_response[:500]).strip(),
             evidence_sources=evidence_text.strip(),
-            reasoning_steps=reasoning_text.strip(),
             key_takeaways=takeaways_text.strip(),
-            disclaimer=cls.FINANCE_DISCLAIMER.strip(),
-            confidence_score=round(confidence * 10, 1),
-            transparency_score=min(round(transparency, 1), 100.0)
+            disclaimer=disclaimer,
         )
         
-        return standardized.strip()
+        standardized = standardized.strip()
+        # Final safety pass: ensure we never embed the process trace inside the answer.
+        return cls._strip_execution_steps_section(standardized).strip()
     
     @classmethod
     def standardize_medical_response(
@@ -179,7 +240,8 @@ Critical Points:
         raw_response: str,
         evidence_sources: List = None,
         confidence: float = 0.0,
-        question: str = ""
+        question: str = "",
+        execution_steps: Optional[List[str]] = None,
     ) -> str:
         """
         Standardize a medical response to follow the template
@@ -193,6 +255,9 @@ Critical Points:
         Returns:
             Standardized formatted response
         """
+        raw_response = cls._strip_chain_of_thought_section(raw_response)
+        raw_response = cls._strip_execution_steps_section(raw_response)
+        raw_response, extracted_disclaimer = cls._extract_and_remove_disclaimer(raw_response)
         # Parse the raw response into components
         components = cls._parse_response_components(raw_response, question)
         
@@ -212,18 +277,18 @@ Critical Points:
         if confidence > 0.7: transparency += 10.0
         
         # Build standardized response
+        disclaimer = extracted_disclaimer.strip() if extracted_disclaimer else cls.MEDICAL_DISCLAIMER.strip()
         standardized = cls.STANDARD_TEMPLATE.format(
             executive_summary=components.get('summary', 'Analysis of your health question.').strip(),
             detailed_analysis=components.get('analysis', raw_response[:500]).strip(),
             evidence_sources=evidence_text.strip(),
-            reasoning_steps=reasoning_text.strip(),
             key_takeaways=takeaways_text.strip(),
-            disclaimer=cls.MEDICAL_DISCLAIMER.strip(),
-            confidence_score=round(confidence * 10, 1),
-            transparency_score=min(round(transparency, 1), 100.0)
+            disclaimer=disclaimer,
         )
         
-        return standardized.strip()
+        standardized = standardized.strip()
+        # Final safety pass: ensure we never embed the process trace inside the answer.
+        return cls._strip_execution_steps_section(standardized).strip()
     
     @classmethod
     def _parse_response_components(cls, response: str, question: str) -> Dict:
@@ -241,16 +306,37 @@ Critical Points:
         }
         
         # Check if response follows the "Step" format (Structured)
-        step_pattern = r'\*\*Step\s+(\d+):\s*([^*]+)\*\*\s*\n(.*?)(?=\n\*\*Step|\Z)'
-        steps_found = re.findall(step_pattern, response, re.DOTALL)
-        
-        if steps_found:
-            # We have a structured response!
-            step_dict = {int(s[0]): (s[1].strip(), s[2].strip()) for s in steps_found}
-            
-            # 1. Summary: Use Step 1 (Understanding) content
+        # Accepts many variants produced by different models/templates, e.g.:
+        # - "**Step 1: Title**\nContent"
+        # - "**Step 1:** Title\nContent"
+        # - "Step 1: Title\nContent"
+        # - "## Step 1: Title\nContent"
+        # We'll locate Step headers robustly using a line-based scan, then collect content until
+        # the next header to avoid edge cases where headers and content appear on the same line.
+        header_iter = list(re.finditer(r'^(?:\*\*|##\s*)?Step\s+(\d+)[:.]\s*(.*)$', response, flags=re.M | re.IGNORECASE))
+
+        if header_iter:
+            # We have a structured response - build an ordered step_dict
+            step_dict = {}
+            for idx, m in enumerate(header_iter):
+                num = int(m.group(1))
+                title_line = (m.group(2) or '').strip()
+                start = m.end()
+                end = header_iter[idx + 1].start() if idx + 1 < len(header_iter) else len(response)
+                content = response[start:end].strip()
+                # If content absent but title_line looks long, treat the title as content
+                if not content and len(title_line) > 40:
+                    content = title_line
+                    title_line = ''
+                step_dict[num] = (title_line, content)
+
+            # 1. Summary: Use Step 1 (Understanding) content (prefer content over title)
             if 1 in step_dict:
-                components['summary'] = step_dict[1][1]
+                title, content = step_dict[1]
+                # sanitize
+                title = re.sub(r"^\*+|\*+$", "", title).strip()
+                content = re.sub(r"^\*+|\*+$", "", content).strip()
+                components['summary'] = content if content else title
             else:
                 components['summary'] = response[:200] + '...'
             
@@ -267,8 +353,20 @@ Critical Points:
                 components['analysis'] = response
             
             # 3. Reasoning: Extract titles of the steps as the reasoning flow
-            components['reasoning'] = [f"{title}" for num, (title, content) in step_dict.items()]
-            
+            # Sanitize titles (remove leftover bold markers or 'Step N' prefixes)
+            clean_reasoning = []
+            for num, (title, content) in step_dict.items():
+                t = re.sub(r"^\*+|\*+$", "", title).strip()
+                t = re.sub(r"^Step\s+\d+[:.\s\*]*", "", t, flags=re.IGNORECASE).strip()
+                # If title is empty, fall back to a short summary of the content
+                if not t and content:
+                    t = content.split('\n', 1)[0][:120].strip()
+                # Final sanitize for any leftover bold markers or 'Step N' prefix
+                t = re.sub(r"^\*+|\*+$", "", t).strip()
+                t = re.sub(r"^Step\s+\d+[:.\s\*]*", "", t, flags=re.IGNORECASE).strip()
+                clean_reasoning.append(t)
+            components['reasoning'] = clean_reasoning
+
             # 4. Main Points: Extract from Step 4 (Conclusion) or Step 5/6
             # Look for conclusion/recommendation steps
             conclusion_step = None
@@ -286,7 +384,12 @@ Critical Points:
                 else:
                     # Split by sentences
                     components['main_points'] = [s.strip() for s in re.split(r'(?<=[.!?])\s+', conclusion_step) if len(s.strip()) > 10]
-            
+
+            # Sanitize main points to remove 'Step N' prefixes or leftover bold markers
+            for i, mp in enumerate(components['main_points']):
+                mp_clean = re.sub(r"^\*+|\*+$", "", mp).strip()
+                mp_clean = re.sub(r"^Step\s+\d+[:.\s\*]*", "", mp_clean, flags=re.IGNORECASE).strip()
+                components['main_points'][i] = mp_clean
             return components
 
         # Fallback for Unstructured Response
@@ -344,6 +447,20 @@ Critical Points:
              components['summary'] = components['analysis'][:200] + "..."
         
         return components
+
+    @staticmethod
+    def _strip_chain_of_thought_section(text: str) -> str:
+        """Remove the standardized 'Chain of Thought Reasoning' block if present.
+
+        We keep reasoning visible via the agents' real execution trace ('My Reasoning Process')
+        to avoid duplicated or empty reasoning sections.
+        """
+        if not text:
+            return text
+
+        # Remove the section starting at the CoT header up to the next horizontal rule.
+        pattern = r"\n---\n\n##\s+💡\s+Chain\s+of\s+Thought\s+Reasoning\n.*?\n---\n"
+        return re.sub(pattern, "\n---\n\n", text, flags=re.DOTALL)
     
     @classmethod
     def _format_evidence_sources(cls, sources: List) -> str:

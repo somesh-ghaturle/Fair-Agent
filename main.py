@@ -19,8 +19,33 @@ from pathlib import Path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-from src.core.system import FairAgentSystem
 from src.utils.logger import setup_logging
+
+
+def run_django_web_interface(port: int, debug: bool) -> None:
+    """Run the Django web interface.
+
+    In web mode, Django initializes the FAIR-Agent service via AppConfig.ready().
+    Avoid initializing the full FairAgentSystem here to prevent duplicate startup
+    work and noisy, repeated logs (especially under Django autoreload).
+    """
+    import subprocess
+
+    # Set environment variables for Django
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'webapp.settings')
+    os.environ['FAIR_AGENT_PORT'] = str(port)
+    os.environ['FAIR_AGENT_DEBUG'] = str(debug)
+
+    # Change to webapp directory
+    webapp_dir = project_root / 'webapp'
+    original_cwd = os.getcwd()
+
+    try:
+        os.chdir(webapp_dir)
+        cmd = [sys.executable, 'manage.py', 'runserver', f"0.0.0.0:{port}"]
+        subprocess.run(cmd)
+    finally:
+        os.chdir(original_cwd)
 
 
 def main():
@@ -59,19 +84,19 @@ def main():
     setup_logging(level=log_level)
     
     logger = logging.getLogger(__name__)
-    logger.info("Starting FAIR-Agent System")
+    logger.info("Starting FAIR-Agent")
     
     try:
-        # Initialize the system
-        system = FairAgentSystem(config_path=args.config)
-        
         if args.mode == "web":
-            # Run Django web interface
-            system.run_web_interface(port=args.port, debug=args.debug)
+            run_django_web_interface(port=args.port, debug=args.debug)
         elif args.mode == "cli":
+            from src.core.system import FairAgentSystem
+            system = FairAgentSystem(config_path=args.config)
             # Run interactive CLI
             system.run_cli()
         elif args.mode == "api":
+            from src.core.system import FairAgentSystem
+            system = FairAgentSystem(config_path=args.config)
             # Run API only
             system.run_api(port=args.port)
             

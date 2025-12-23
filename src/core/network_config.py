@@ -11,6 +11,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+_redis_warning_emitted = False
+
 class NetworkConfig:
     """Dynamic network configuration manager"""
     
@@ -70,7 +72,15 @@ class NetworkConfig:
         except Exception:
             pass
         
-        logger.warning("⚠️ Redis not found, using default configuration")
+        # In Django dev server with autoreload, settings are imported twice.
+        # Avoid emitting the same startup warning in the parent process.
+        global _redis_warning_emitted
+        if not _redis_warning_emitted:
+            if os.environ.get('RUN_MAIN') == 'true' or os.environ.get('FAIR_AGENT_LOG_STARTUP') == '1':
+                logger.warning("Redis not found; using default configuration")
+                _redis_warning_emitted = True
+            else:
+                logger.debug("Redis not found; using default configuration")
         return redis_host, redis_port
     
     @classmethod
@@ -110,7 +120,7 @@ class NetworkConfig:
         # Combine and deduplicate
         all_hosts = list(set(allowed_hosts + default_hosts))
         
-        logger.info(f"📡 Configured allowed hosts: {all_hosts}")
+        logger.debug(f"Configured allowed hosts: {all_hosts}")
         return all_hosts
     
     @classmethod
@@ -136,7 +146,7 @@ class NetworkConfig:
         # Combine and deduplicate
         all_origins = list(set(origins + default_origins))
         
-        logger.info(f"🌐 Configured CORS origins: {all_origins}")
+        logger.debug(f"Configured CORS origins: {all_origins}")
         return all_origins
     
     @classmethod

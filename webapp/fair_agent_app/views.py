@@ -29,7 +29,8 @@ from django.conf import settings
 
 from .models import (
     QuerySession, QueryRecord, EvaluationMetrics, 
-    SystemPerformance, SafetyAlert, UserFeedback
+    SystemPerformance, SafetyAlert, UserFeedback,
+    TraceLog, SpanLog
 )
 from .services import FairAgentService, QueryProcessor
 from .formatters import ResponseFormatter
@@ -1041,3 +1042,33 @@ def dataset_stats_api(request):
 class ArchitectureView(TemplateView):
     """View for system architecture diagram"""
     template_name = 'fair_agent_app/architecture.html'
+
+
+class PublicationView(TemplateView):
+    """View for publication and research documentation"""
+    template_name = 'fair_agent_app/publication.html'
+
+
+class DashboardView(TemplateView):
+    """View for system dashboard and telemetry"""
+    template_name = 'fair_agent_app/dashboard.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Fetch recent traces with their spans pre-fetched
+        traces = TraceLog.objects.prefetch_related('spans').order_by('-created_at')[:50]
+        
+        # Calculate summary stats
+        total_traces = TraceLog.objects.count()
+        avg_duration = TraceLog.objects.aggregate(Avg('duration_ms'))['duration_ms__avg'] or 0
+        
+        # Get recent errors (spans with status='error')
+        error_spans = SpanLog.objects.filter(status='error').order_by('-start_time')[:10]
+        
+        context['traces'] = traces
+        context['total_traces'] = total_traces
+        context['avg_duration'] = round(avg_duration, 2)
+        context['recent_errors'] = error_spans
+        
+        return context

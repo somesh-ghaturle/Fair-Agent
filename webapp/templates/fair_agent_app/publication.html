@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Publication - FAIR-Agent{% endblock %}
+
+{% block extra_css %}
+<style>
+    .publication-container {
+        background-color: var(--card-bg);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+        height: 85vh;
+    }
+    
+    .pdf-viewer {
+        width: 100%;
+        height: 100%;
+        border: none;
+        border-radius: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-white">
+                <i class="fas fa-book-open me-2"></i>Publication
+            </h2>
+            <p class="text-muted">Research Abstract: FAIR-Agent Framework</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="publication-container">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="text-white mb-0">SARD 2025 Abstract</h5>
+                    <a href="https://csis.pace.edu/~scha/SARD2025/Abstract/a11.pdf" target="_blank" class="btn btn-primary btn-sm">
+                        <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
+                    </a>
+                </div>
+                <object data="https://csis.pace.edu/~scha/SARD2025/Abstract/a11.pdf" type="application/pdf" class="pdf-viewer">
+                    <div class="text-center text-white p-5">
+                        <p>Your browser does not support embedded PDFs.</p>
+                        <a href="https://csis.pace.edu/~scha/SARD2025/Abstract/a11.pdf" class="btn btn-primary">Download PDF</a>
+                    </div>
+                </object>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
