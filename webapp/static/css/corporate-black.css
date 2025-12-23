@@ -1,0 +1,271 @@
+/* Corporate Black Theme (BlackRock Inspired) */
+
+:root {
+    /* Corporate Palette */
+    --bg-body: #000000;
+    --bg-card: #121212;
+    --bg-header: #000000;
+    --bg-input: #1A1A1A;
+    
+    /* Typography */
+    --text-primary: #FFFFFF;
+    --text-secondary: #CCCCCC;
+    --text-muted: #999999;
+    --font-family: 'Arial', 'Helvetica Neue', sans-serif;
+    
+    /* Accents */
+    --accent-primary: #FFFFFF; /* Stark White for primary actions */
+    --accent-blue: #0070CD; /* Financial Blue */
+    --accent-hover: #E6E6E6;
+    
+    /* Borders & Spacing */
+    --border-color: #333333;
+    --border-radius: 0px; /* Sharp, professional edges */
+    --card-border: 1px solid #333333;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-body) !important;
+    background-image: none !important;
+    color: var(--text-primary) !important;
+    font-family: var(--font-family) !important;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Navbar */
+.navbar {
+    background-color: var(--bg-header) !important;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.5rem 0;
+    backdrop-filter: none !important;
+}
+
+.navbar-brand {
+    color: var(--text-primary) !important;
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+    background: none !important;
+    -webkit-text-fill-color: initial !important;
+    text-shadow: none !important;
+}
+
+.nav-link {
+    color: var(--text-secondary) !important;
+    font-weight: 400;
+    font-size: 0.95rem;
+    padding: 0.5rem 1rem !important;
+    transition: color 0.2s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--text-primary) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+/* Cards */
+.card {
+    background-color: var(--bg-card) !important;
+    border: var(--card-border) !important;
+    border-radius: var(--border-radius) !important;
+    box-shadow: none !important;
+    color: var(--text-primary) !important;
+    backdrop-filter: none !important;
+}
+
+.card:hover {
+    transform: none !important;
+    border-color: #555555 !important;
+}
+
+.card-header {
+    background-color: transparent !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    padding: 1.25rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.9rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Typography Overrides */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary) !important;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+p {
+    color: var(--text-secondary) !important;
+    font-weight: 300;
+}
+
+/* Buttons */
+.btn-primary {
+    background: var(--accent-primary) !important;
+    color: #000000 !important;
+    border: 1px solid var(--accent-primary) !important;
+    border-radius: 0px !important;
+    padding: 0.75rem 2rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    box-shadow: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover) !important;
+    border-color: var(--accent-hover) !important;
+    transform: none !important;
+}
+
+.btn-light {
+    background: transparent !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--text-primary) !important;
+    border-radius: 0px !important;
+    padding: 0.75rem 2rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    box-shadow: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-light:hover {
+    background: rgba(255,255,255,0.1) !important;
+}
+
+/* Forms */
+.form-control {
+    background-color: var(--bg-input) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    border-radius: 0px !important;
+    padding: 1rem !important;
+}
+
+.form-control:focus {
+    background-color: var(--bg-input) !important;
+    border-color: var(--text-primary) !important;
+    box-shadow: none !important;
+    color: var(--text-primary) !important;
+}
+
+.form-control::placeholder {
+    color: #666666 !important;
+}
+
+/* Chat Interface */
+.message {
+    border-radius: 0px !important;
+    border: 1px solid var(--border-color) !important;
+    background: var(--bg-card) !important;
+    margin-bottom: 1rem;
+}
+
+.message.user {
+    background-color: #1A1A1A !important;
+    border-left: 3px solid var(--accent-primary) !important;
+}
+
+.message.agent {
+    background-color: #000000 !important;
+    border-left: 3px solid var(--accent-blue) !important;
+}
+
+.evidence-badge {
+    background-color: transparent !important;
+    border: 1px solid var(--accent-blue) !important;
+    color: var(--accent-blue) !important;
+    border-radius: 0px !important;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Utility Overrides */
+.text-primary { color: var(--accent-blue) !important; }
+.text-white { color: #FFFFFF !important; }
+.bg-primary { background: var(--accent-blue) !important; }
+.shadow-lg { box-shadow: none !important; }
+.shadow-sm { box-shadow: none !important; }
+
+/* Response Content Specifics */
+.response-content {
+    color: #E0E0E0 !important; /* Light grey for readability on black */
+}
+
+.response-content strong {
+    color: #FFFFFF !important; /* White for emphasis */
+}
+
+.response-content h1, 
+.response-content h2, 
+.response-content h3, 
+.response-content h4 {
+    color: #FFFFFF !important;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.response-content ul, 
+.response-content ol {
+    color: #CCCCCC !important;
+}
+
+.response-content li {
+    margin-bottom: 0.5rem;
+}
+
+/* Icons */
+.fas { color: var(--text-primary) !important; }
+.text-primary .fas { color: var(--accent-blue) !important; }
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+    background: var(--bg-body);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333333;
+    border: 2px solid var(--bg-body);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555555;
+}
+
+/* Specific Overrides for Home Page */
+.hero-card {
+    background-color: transparent !important;
+    border: none !important;
+}
+
+.principle-card {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.principle-card:hover {
+    border-color: var(--accent-blue) !important;
+}

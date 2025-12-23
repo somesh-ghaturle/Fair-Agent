@@ -97,7 +97,7 @@ class NetworkConfig:
             allowed_hosts.extend([h.strip() for h in env_hosts.split(',') if h.strip()])
         
         # Add default hosts
-        default_hosts = ['localhost', '127.0.0.1', '0.0.0.0']
+        default_hosts = ['localhost', '127.0.0.1', '0.0.0.0', 'fair-agent', 'fair-agent.local']
         
         # Add discovered local IP
         try:

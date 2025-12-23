@@ -1,6 +1,6 @@
 # FAIR-Agent: Trustworthy AI for High-Stakes Domains
 
-**Team:** Somesh Ghaturle, Darshil Malviya, Priyank Mistry  
+**Team:** Somesh Ghaturle, Priyank Mistry  
 **Institution:** Pace University | **Date:** October 26, 2025  
 
 ---

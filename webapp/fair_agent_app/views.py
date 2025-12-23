@@ -426,7 +426,7 @@ class DatasetsView(TemplateView):
 
 class QueryInterfaceView(TemplateView):
     """Interactive query interface"""
-    template_name = 'fair_agent_app/query_interface_clean.html'
+    template_name = 'fair_agent_app/query_interface.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

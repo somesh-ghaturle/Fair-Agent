@@ -7,21 +7,21 @@
     <!-- Hero Section -->
     <div class="row mb-5">
         <div class="col-lg-10 mx-auto text-center">
-            <div class="card border-0 shadow-lg p-5" style="background: linear-gradient(135deg, #007bff, #0056b3);">
-                <h1 class="display-3 mb-4 fw-bold" style="color: white;">
-                    <i class="fas fa-shield-alt me-3 text-white"></i>FAIR-Agent
+            <div class="card border-0 p-5 hero-card">
+                <h1 class="display-3 mb-4 fw-bold">
+                    <i class="fas fa-shield-alt me-3"></i>FAIR-Agent
                 </h1>
-                <h2 class="h3 mb-4 fw-light" style="color: rgba(255,255,255,0.9);">
+                <h2 class="h3 mb-4 fw-light">
                     Faithful, Adaptive, Interpretable, and Risk-Aware AI
                 </h2>
-                <p class="lead mb-5" style="color: rgba(255,255,255,0.8);">
+                <p class="lead mb-5">
                     A comprehensive multi-agent framework for trustworthy AI deployment in critical domains 
                     including Finance and Medicine. Built for <strong>CS668 Analytics Capstone Fall 2025</strong>.
                 </p>
                 
                 <!-- Action Buttons -->
                 <div class="d-grid gap-3 d-md-flex justify-content-center">
-                    <a href="{% url 'fair_agent_app:query_interface' %}" class="btn btn-light btn-lg px-5 py-3" style="color: #007bff; font-weight: 600;">
+                    <a href="{% url 'fair_agent_app:query_interface' %}" class="btn btn-primary btn-lg px-5 py-3">
                         <i class="fas fa-comments me-2"></i>Launch FAIR-Agent Interface
                     </a>
                 </div>
@@ -32,13 +32,13 @@
     <!-- FAIR Principles Grid -->
     <div class="row mb-5">
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card h-100 border-0 shadow-sm" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb);">
+            <div class="card h-100 border-0 principle-card">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
                         <i class="fas fa-check-circle fa-3x text-primary"></i>
                     </div>
-                    <h5 class="card-title fw-bold text-primary">Faithfulness</h5>
-                    <p class="card-text" style="color: #0d47a1;">
+                    <h5 class="card-title fw-bold">Faithfulness</h5>
+                    <p class="card-text">
                         Ensuring responses are grounded in reliable sources and maintain accuracy
                     </p>
                 </div>
@@ -46,13 +46,13 @@
         </div>
         
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card h-100 border-0 shadow-sm" style="background: linear-gradient(135deg, #e8f4fd, #c3e3fc);">
+            <div class="card h-100 border-0 principle-card">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
                         <i class="fas fa-exchange-alt fa-3x text-primary"></i>
                     </div>
-                    <h5 class="card-title fw-bold text-primary">Adaptability</h5>
-                    <p class="card-text" style="color: #0d47a1;">
+                    <h5 class="card-title fw-bold">Adaptability</h5>
+                    <p class="card-text">
                         Dynamic adaptation to different domains and query contexts
                     </p>
                 </div>
@@ -60,13 +60,13 @@
         </div>
         
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card h-100 border-0 shadow-sm" style="background: linear-gradient(135deg, #e1f5fe, #b3e5fc);">
+            <div class="card h-100 border-0 principle-card">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
                         <i class="fas fa-lightbulb fa-3x text-primary"></i>
                     </div>
-                    <h5 class="card-title fw-bold text-primary">Interpretability</h5>
-                    <p class="card-text" style="color: #0d47a1;">
+                    <h5 class="card-title fw-bold">Interpretability</h5>
+                    <p class="card-text">
                         Clear reasoning and transparent decision-making processes
                     </p>
                 </div>
@@ -74,13 +74,13 @@
         </div>
         
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card h-100 border-0 shadow-sm" style="background: linear-gradient(135deg, #e0f2f1, #b2dfdb);">
+            <div class="card h-100 border-0 principle-card">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
                         <i class="fas fa-shield-alt fa-3x text-primary"></i>
                     </div>
-                    <h5 class="card-title fw-bold text-primary">Risk-Awareness</h5>
-                    <p class="card-text" style="color: #0d47a1;">
+                    <h5 class="card-title fw-bold">Risk-Awareness</h5>
+                    <p class="card-text">
                         Proactive identification and mitigation of potential risks
                     </p>
                 </div>
@@ -89,28 +89,5 @@
     </div>
 </div>
 
-<style>
-/* Custom styles for home page */
-body {
-    background: linear-gradient(135deg, #e3f2fd, #f0f8ff) !important;
-    min-height: 100vh;
-}
 
-.card {
-    transition: transform 0.2s ease-in-out;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-}
-
-.btn {
-    transition: all 0.2s ease-in-out;
-}
-
-.btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-</style>
 {% endblock %}

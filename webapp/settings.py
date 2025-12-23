@@ -24,7 +24,9 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() == 'true'
 try:
     from src.core.network_config import NetworkConfig
     ALLOWED_HOSTS = NetworkConfig.get_allowed_hosts()
-except ImportError:
+    print(f"DEBUG: ALLOWED_HOSTS loaded from NetworkConfig: {ALLOWED_HOSTS}")
+except ImportError as e:
+    print(f"DEBUG: Could not import NetworkConfig: {e}")
     # Fallback if network config not available
     ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 

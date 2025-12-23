@@ -11,10 +11,10 @@ class ResponseFormatter:
     @staticmethod
     def format_response_html(text: str) -> str:
         """
-        Convert raw FAIR-Agent response text (Markdown) to clean HTML formatting with Times New Roman
+        Convert raw FAIR-Agent response text (Markdown) to clean HTML formatting
         """
         if not text:
-            return '<p style="font-family: \'Times New Roman\', Times, serif;">No response available</p>'
+            return '<p>No response available</p>'
         
         # Clean up the text first
         formatted = text.strip()
@@ -46,23 +46,23 @@ class ResponseFormatter:
                 header_text = line[3:].strip()
                 # Special styling for Disclaimers
                 if 'Disclaimer' in header_text or 'Notice' in header_text:
-                     html_lines.append(f'<div style="border: 2px solid #000; padding: 10px; margin-top: 25px; margin-bottom: 15px; background-color: #fff8f8;">')
-                     html_lines.append(f'<h3 style="font-family: \'Times New Roman\', Times, serif; margin: 0; color: #d32f2f; font-weight: bold;">{header_text}</h3>')
+                     html_lines.append(f'<div style="border: 1px solid #d32f2f; padding: 15px; margin-top: 25px; margin-bottom: 15px; background-color: rgba(211, 47, 47, 0.1); border-radius: 4px;">')
+                     html_lines.append(f'<h4 style="margin: 0 0 10px 0; color: #ff6b6b; font-weight: bold; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 0.5px;">{header_text}</h4>')
                      html_lines.append('</div>')
                 else:
-                    html_lines.append(f'<h3 style="font-family: \'Times New Roman\', Times, serif; margin-top: 25px; margin-bottom: 15px; color: #000; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 5px;">{header_text}</h3>')
+                    html_lines.append(f'<h3 style="margin-top: 25px; margin-bottom: 15px; color: #FFFFFF; font-weight: 600; border-bottom: 1px solid #333; padding-bottom: 10px;">{header_text}</h3>')
 
             # 3. Handle Horizontal Rules
             elif line.startswith('---'):
                 if in_list:
                     html_lines.append('</ul>')
                     in_list = False
-                html_lines.append('<hr style="border: 0; border-top: 1px solid #ccc; margin: 20px 0;">')
+                html_lines.append('<hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">')
 
             # 4. Handle Lists
             elif line.startswith('- ') or line.startswith('• '):
                 if not in_list:
-                    html_lines.append('<ul style="font-family: \'Times New Roman\', Times, serif; margin-left: 20px;">')
+                    html_lines.append('<ul style="margin-left: 20px; color: #CCCCCC;">')
                     in_list = True
                 content = line[2:].strip() if line.startswith('- ') else line[2:].strip()
                 html_lines.append(f'<li style="margin-bottom: 8px;">{content}</li>')
@@ -72,14 +72,14 @@ class ResponseFormatter:
                 if in_list:
                     html_lines.append('</ul>')
                     in_list = False
-                html_lines.append(f'<p style="font-family: \'Times New Roman\', Times, serif; margin: 10px 0; font-weight: bold;">{line}</p>')
+                html_lines.append(f'<p style="margin: 15px 0 5px 0; font-weight: bold; color: #FFFFFF;">{line}</p>')
 
             # 6. Default Paragraphs
             else:
                 if in_list:
                     html_lines.append('</ul>')
                     in_list = False
-                html_lines.append(f'<p style="font-family: \'Times New Roman\', Times, serif; margin-bottom: 10px; line-height: 1.6;">{line}</p>')
+                html_lines.append(f'<p style="margin-bottom: 10px; line-height: 1.6; color: #E0E0E0;">{line}</p>')
         
         if in_list:
             html_lines.append('</ul>')
