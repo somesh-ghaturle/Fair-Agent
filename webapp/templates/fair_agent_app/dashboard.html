@@ -110,6 +110,7 @@
                             <thead>
                                 <tr>
                                     <th>Trace ID</th>
+                                    <th>Query ID</th>
                                     <th>Timestamp</th>
                                     <th>Duration</th>
                                     <th>Spans</th>
@@ -118,9 +119,17 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for trace in traces %}
+                                {% for item in traces %}
+                                {% with trace=item.trace query=item.query_record %}
                                 <tr class="trace-row" data-bs-toggle="collapse" data-bs-target="#trace-{{ trace.id }}">
                                     <td><code class="text-primary">{{ trace.trace_id|slice:":8" }}...</code></td>
+                                    <td>
+                                        {% if query %}
+                                            <span class="badge bg-secondary">{{ query.id }}</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
                                     <td>{{ trace.created_at|date:"Y-m-d H:i:s" }}</td>
                                     <td>{{ trace.duration_ms|floatformat:2 }} ms</td>
                                     <td>{{ trace.spans.count }}</td>
@@ -138,8 +147,42 @@
                                     </td>
                                 </tr>
                                 <tr class="collapse" id="trace-{{ trace.id }}">
-                                    <td colspan="6" class="p-0">
+                                    <td colspan="7" class="p-0">
                                         <div class="span-details m-3">
+                                            {% if query %}
+                                            <div class="mb-4 p-3 bg-dark border border-secondary rounded">
+                                                <h6 class="text-primary mb-2"><i class="fas fa-question-circle me-2"></i>Query Details</h6>
+                                                <p class="text-white mb-2"><strong>Query:</strong> {{ query.query_text }}</p>
+                                                
+                                                <div class="row g-2 mt-2">
+                                                    <div class="col-md-3">
+                                                        <div class="p-2 border border-secondary rounded text-center">
+                                                            <div class="small text-muted">Faithfulness</div>
+                                                            <div class="fw-bold text-white">{{ query.faithfulness_score|floatformat:2|default:"-" }}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="p-2 border border-secondary rounded text-center">
+                                                            <div class="small text-muted">Adaptability</div>
+                                                            <div class="fw-bold text-white">{{ query.adaptability_score|floatformat:2|default:"-" }}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="p-2 border border-secondary rounded text-center">
+                                                            <div class="small text-muted">Interpretability</div>
+                                                            <div class="fw-bold text-white">{{ query.interpretability_score|floatformat:2|default:"-" }}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="p-2 border border-secondary rounded text-center">
+                                                            <div class="small text-muted">Risk Awareness</div>
+                                                            <div class="fw-bold text-white">{{ query.risk_awareness_score|floatformat:2|default:"-" }}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                            
                                             <h6 class="text-white border-bottom border-secondary pb-2 mb-3">Execution Spans</h6>
                                             <div class="table-responsive">
                                                 <table class="table table-sm table-borderless text-white-50">
@@ -193,9 +236,10 @@
                                         </div>
                                     </td>
                                 </tr>
+                                {% endwith %}
                                 {% empty %}
                                 <tr>
-                                    <td colspan="6" class="text-center py-4 text-muted">
+                                    <td colspan="7" class="text-center py-4 text-muted">
                                         No traces recorded yet. Run some queries to generate telemetry data.
                                     </td>
                                 </tr>

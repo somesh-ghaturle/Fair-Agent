@@ -517,7 +517,11 @@ def process_query_api(request):
         
         # Process query
         try:
-            result = FairAgentService.process_query(query_text, model_name=selected_model)
+            result = FairAgentService.process_query(
+                query_text, 
+                model_name=selected_model,
+                query_id=query_record.id
+            )
             
             if result.get('status') == 'failed':
                 query_record.status = 'failed'
@@ -1059,6 +1063,24 @@ class DashboardView(TemplateView):
         # Fetch recent traces with their spans pre-fetched
         traces = TraceLog.objects.prefetch_related('spans').order_by('-created_at')[:50]
         
+        # Enrich traces with query info
+        enriched_traces = []
+        for trace in traces:
+            trace_data = {
+                'trace': trace,
+                'query_record': None
+            }
+            
+            # Try to find associated query record
+            query_id = trace.metadata.get('query_id')
+            if query_id:
+                try:
+                    trace_data['query_record'] = QueryRecord.objects.get(id=query_id)
+                except QueryRecord.DoesNotExist:
+                    pass
+            
+            enriched_traces.append(trace_data)
+        
         # Calculate summary stats
         total_traces = TraceLog.objects.count()
         avg_duration = TraceLog.objects.aggregate(Avg('duration_ms'))['duration_ms__avg'] or 0
@@ -1066,7 +1088,7 @@ class DashboardView(TemplateView):
         # Get recent errors (spans with status='error')
         error_spans = SpanLog.objects.filter(status='error').order_by('-start_time')[:10]
         
-        context['traces'] = traces
+        context['traces'] = enriched_traces
         context['total_traces'] = total_traces
         context['avg_duration'] = round(avg_duration, 2)
         context['recent_errors'] = error_spans

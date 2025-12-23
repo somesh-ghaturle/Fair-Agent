@@ -196,13 +196,14 @@ class FairAgentService:
             raise
     
     @classmethod
-    def process_query(cls, query_text: str, model_name: str = 'llama3.2:latest') -> Dict[str, Any]:
+    def process_query(cls, query_text: str, model_name: str = 'llama3.2:latest', query_id: Optional[int] = None) -> Dict[str, Any]:
         """
         Process a query through the FAIR-Agent system
         
         Args:
             query_text: The user's query
             model_name: The model to use for generation (e.g., 'llama3.2:latest', 'mistral:latest')
+            query_id: Optional ID of the query record for tracing
             
         Returns:
             Dictionary containing response and metrics
@@ -226,7 +227,8 @@ class FairAgentService:
                 cls._reinitialize_agents_with_model(model_name)
             
             # Process query through orchestrator
-            result = cls._orchestrator.process_query(query_text)
+            context = {'query_id': query_id} if query_id else None
+            result = cls._orchestrator.process_query(query_text, context=context)
             
             end_time = datetime.now()
             processing_time = (end_time - start_time).total_seconds()

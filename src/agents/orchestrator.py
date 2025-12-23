@@ -100,7 +100,12 @@ class Orchestrator:
         """
         telemetry = get_telemetry()
         trace_id = str(uuid.uuid4())
-        telemetry.start_trace(trace_id, metadata={"query": query})
+        
+        metadata = {"query": query}
+        if context and 'query_id' in context:
+            metadata['query_id'] = context['query_id']
+            
+        telemetry.start_trace(trace_id, metadata=metadata)
         
         try:
             # Classify query domain
