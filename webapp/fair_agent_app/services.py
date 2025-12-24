@@ -130,7 +130,11 @@ class FairAgentService:
     def get_memory_stats(cls) -> Dict[str, Any]:
         """Get statistics from the memory systems (Vector Store & Knowledge Graph)"""
         stats = {
-            "vector_store": {"status": "Not Initialized", "count": 0},
+            "vector_store": {
+                "status": "Not Initialized", 
+                "count": 0,
+                "collections": []
+            },
             "knowledge_graph": {"status": "Not Initialized", "nodes": 0, "edges": 0}
         }
         
@@ -141,12 +145,29 @@ class FairAgentService:
         if hasattr(cls._orchestrator, 'vector_store') and cls._orchestrator.vector_store:
             try:
                 vs = cls._orchestrator.vector_store
-                count = 0
-                if vs.trace_collection:
-                    count += vs.trace_collection.count()
-                if vs.evidence_collection:
-                    count += vs.evidence_collection.count()
-                stats["vector_store"] = {"status": "Active", "count": count}
+                total_count = 0
+                collections_info = []
+                
+                # Check each known collection
+                for col_name in ['evidence', 'traces', 'telemetry']:
+                    col_attr = f"{col_name}_collection"
+                    if hasattr(vs, col_attr):
+                        collection = getattr(vs, col_attr)
+                        if collection:
+                            count = collection.count()
+                            total_count += count
+                            collections_info.append({
+                                "name": col_name.capitalize(),
+                                "id": col_name,
+                                "count": count,
+                                "description": cls._get_collection_description(col_name)
+                            })
+                
+                stats["vector_store"] = {
+                    "status": "Active", 
+                    "count": total_count,
+                    "collections": collections_info
+                }
             except Exception as e:
                 stats["vector_store"]["status"] = f"Error: {str(e)}"
 
@@ -163,6 +184,15 @@ class FairAgentService:
                 stats["knowledge_graph"]["status"] = f"Error: {str(e)}"
                 
         return stats
+
+    @staticmethod
+    def _get_collection_description(name: str) -> str:
+        descriptions = {
+            "evidence": "RAG Knowledge Base (Datasets & Curated Sources)",
+            "traces": "Semantic Conversation History (User Q&A)",
+            "telemetry": "Operational Logs (Performance, Errors, Latency)"
+        }
+        return descriptions.get(name, "Vector Collection")
 
     @classmethod
     def search_memory(cls, query: str, system: str = "all") -> Dict[str, Any]:

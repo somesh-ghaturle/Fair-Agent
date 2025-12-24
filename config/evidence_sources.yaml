@@ -198,6 +198,149 @@ medical_sources:
     domain: "medical"
     keywords: ["depression", "mental health", "mood", "psychiatry", "antidepressant", "therapy", "SSRI", "sadness", "suicide", "treatment", "diagnosis", "disorder", "major depression", "MDD", "emotional"]
 
+  - id: "med_020"
+    title: "Pediatric Vaccination Schedule Guidelines"
+    content: |
+      CDC recommends a vaccination schedule to protect children from 16 diseases. Key vaccines include Hepatitis B (birth), Rotavirus, DTaP (diphtheria, tetanus, pertussis), Hib, Pneumococcal, and Polio (2, 4, 6 months). MMR (measles, mumps, rubella) and Varicella (chickenpox) start at 12-15 months. HPV and Meningococcal vaccines recommended at age 11-12. Annual flu shots for all >6 months. Vaccines are safe and effective; serious side effects are rare. Herd immunity protects vulnerable populations.
+    source_type: "public_health_guideline"
+    url: "https://www.cdc.gov/vaccines/schedules/"
+    publication_date: "2024-01-01"
+    reliability_score: 0.98
+    domain: "medical"
+    keywords: ["vaccine", "immunization", "pediatric", "childhood", "schedule", "MMR", "DTaP", "polio", "hepatitis", "baby", "infant", "shots", "prevention"]
+
+  - id: "med_021"
+    title: "Stroke Recognition and Response (FAST)"
+    content: |
+      Stroke is a medical emergency requiring immediate action. Use FAST to recognize signs: Face drooping (one side), Arm weakness (one arm drifts downward), Speech difficulty (slurred or strange), Time to call 911. Other symptoms include sudden confusion, vision trouble, dizziness, or severe headache. Ischemic strokes (clots) can be treated with tPA if administered within 3-4.5 hours. Hemorrhagic strokes (bleeding) require different management. Rapid treatment minimizes brain damage and disability.
+    source_type: "clinical_guideline"
+    url: "https://www.stroke.org/en/about-stroke/stroke-symptoms"
+    publication_date: "2023-05-01"
+    reliability_score: 0.97
+    domain: "medical"
+    keywords: ["stroke", "FAST", "brain attack", "emergency", "symptoms", "clot", "ischemic", "hemorrhagic", "tPA", "neurology", "paralysis", "speech"]
+
+  - id: "med_022"
+    title: "Skin Cancer Detection and Prevention"
+    content: |
+      Skin cancer is the most common cancer. Prevention includes sunscreen (SPF 30+), protective clothing, and avoiding midday sun. The ABCDE rule helps detect melanoma: Asymmetry (one half unlike other), Border (irregular), Color (varied shades), Diameter (>6mm), Evolving (changing size/shape/color). Basal and squamous cell carcinomas often appear as pearly bumps or scaly patches. Regular self-exams and annual dermatologist checks are recommended, especially for those with fair skin or history of sunburns.
+    source_type: "clinical_guideline"
+    url: "https://www.aad.org/public/diseases/skin-cancer"
+    publication_date: "2023-06-15"
+    reliability_score: 0.95
+    domain: "medical"
+    keywords: ["skin cancer", "melanoma", "dermatology", "sunscreen", "ABCDE", "mole", "sun protection", "UV", "carcinoma", "screening"]
+
+  - id: "med_023"
+    title: "Gastroesophageal Reflux Disease (GERD) Management"
+    content: |
+      GERD occurs when stomach acid flows back into the esophagus. Symptoms include heartburn, regurgitation, and chest pain. Lifestyle changes: lose weight, elevate head of bed, avoid trigger foods (spicy, fatty, caffeine, alcohol), and don't eat 3 hours before sleep. Medications include antacids, H2 blockers (famotidine), and proton pump inhibitors (omeprazole). Long-term untreated GERD can lead to Barrett's esophagus or esophageal cancer. Endoscopy indicated for alarm symptoms (dysphagia, weight loss).
+    source_type: "clinical_guideline"
+    url: "https://gi.org/topics/acid-reflux/"
+    publication_date: "2023-09-10"
+    reliability_score: 0.94
+    domain: "medical"
+    keywords: ["GERD", "acid reflux", "heartburn", "stomach", "esophagus", "digestion", "PPI", "antacid", "diet", "gastroenterology"]
+
+  - id: "med_024"
+    title: "Alzheimer's Disease and Dementia Signs"
+    content: |
+      Alzheimer's is a progressive neurodegenerative disease. Early signs include memory loss disrupting daily life, challenges in planning/solving problems, difficulty completing familiar tasks, confusion with time/place, trouble understanding visual images, new problems with words, misplacing things, decreased judgment, withdrawal from work/social activities, and mood changes. Diagnosis involves cognitive testing, biomarkers (amyloid/tau), and imaging. Treatments (cholinesterase inhibitors, anti-amyloid antibodies) may slow progression but do not cure.
+    source_type: "clinical_guideline"
+    url: "https://www.alz.org/alzheimers-dementia/10-signs"
+    publication_date: "2023-11-01"
+    reliability_score: 0.95
+    domain: "medical"
+    keywords: ["Alzheimer's", "dementia", "memory loss", "aging", "brain", "cognitive", "neurodegenerative", "forgetfulness", "confusion", "diagnosis"]
+
+  - id: "med_025"
+    title: "Thyroid Disorders: Hypothyroidism and Hyperthyroidism"
+    content: |
+      The thyroid regulates metabolism. Hypothyroidism (underactive) symptoms: fatigue, weight gain, cold intolerance, dry skin, constipation, depression. Treated with levothyroxine. Hyperthyroidism (overactive) symptoms: weight loss, rapid heartbeat, heat intolerance, anxiety, tremors. Causes include Graves' disease or nodules. Diagnosed via TSH, T3, and T4 blood tests. High TSH usually indicates hypothyroidism; low TSH indicates hyperthyroidism. Treatment includes anti-thyroid meds, radioactive iodine, or surgery.
+    source_type: "clinical_guideline"
+    url: "https://www.thyroid.org/thyroid-information/"
+    publication_date: "2023-08-20"
+    reliability_score: 0.94
+    domain: "medical"
+    keywords: ["thyroid", "hypothyroidism", "hyperthyroidism", "metabolism", "TSH", "hormones", "fatigue", "weight", "endocrine", "levothyroxine"]
+
+  - id: "med_026"
+    title: "Seasonal Allergy (Allergic Rhinitis) Management"
+    content: |
+      Seasonal allergies result from immune reaction to pollen, mold, or dust. Symptoms: sneezing, runny nose, itchy eyes, congestion. Management: avoidance (close windows, use AC, shower after outdoors), saline rinses, and medications. First-line meds: intranasal corticosteroids (fluticasone) and oral antihistamines (cetirizine, loratadine). Decongestants provide short-term relief. Immunotherapy (allergy shots) offers long-term desensitization for severe cases. Differentiate from cold/flu by lack of fever and body aches.
+    source_type: "clinical_guideline"
+    url: "https://acaai.org/allergies/types/seasonal-allergies"
+    publication_date: "2023-03-01"
+    reliability_score: 0.92
+    domain: "medical"
+    keywords: ["allergies", "hay fever", "pollen", "antihistamine", "sneeze", "congestion", "immune", "seasonal", "rhinitis", "treatment"]
+
+  - id: "med_027"
+    title: "Pregnancy Nutrition and Prenatal Care"
+    content: |
+      Prenatal care improves outcomes for mother and baby. Key nutrients: Folic acid (400-800mcg) prevents neural tube defects; Iron supports increased blood volume; Calcium/Vitamin D for bone growth. Avoid alcohol, tobacco, raw meat/fish, unpasteurized dairy, and high-mercury fish. Weight gain guidelines depend on pre-pregnancy BMI (25-35 lbs for normal weight). Regular checkups monitor BP (preeclampsia risk), fetal growth, and glucose (gestational diabetes). Tdap and flu vaccines recommended during pregnancy.
+    source_type: "clinical_guideline"
+    url: "https://www.acog.org/womens-health/pregnancy"
+    publication_date: "2023-10-15"
+    reliability_score: 0.96
+    domain: "medical"
+    keywords: ["pregnancy", "prenatal", "nutrition", "baby", "folic acid", "maternal", "health", "obstetrics", "vitamins", "diet"]
+
+  - id: "med_028"
+    title: "Prostate Cancer Screening Guidelines"
+    content: |
+      Prostate cancer screening involves PSA blood test and digital rectal exam. USPSTF recommends shared decision-making for men aged 55-69. Screening offers small potential benefit in reducing death but carries risks of overdiagnosis and treatment side effects (incontinence, erectile dysfunction). Men at higher risk (African American, family history) should discuss screening at age 40-45. Screening generally not recommended for men 70+ due to slow tumor growth and competing health risks.
+    source_type: "clinical_guideline"
+    url: "https://www.cancer.org/cancer/prostate-cancer/detection-diagnosis-staging/acs-recommendations.html"
+    publication_date: "2023-07-01"
+    reliability_score: 0.93
+    domain: "medical"
+    keywords: ["prostate", "cancer", "PSA", "screening", "men's health", "urology", "tumor", "diagnosis", "risks", "benefits"]
+
+  - id: "med_029"
+    title: "Glaucoma and Vision Loss Prevention"
+    content: |
+      Glaucoma causes optic nerve damage, often from high eye pressure, leading to irreversible blindness. It is the "silent thief of sight" with no early symptoms. Comprehensive eye exams with dilation are crucial for detection. Risk factors: age >60, African American/Hispanic heritage, family history, diabetes. Treatments (eye drops, laser, surgery) lower pressure to prevent further loss but cannot restore lost vision. Regular exams recommended every 1-2 years for at-risk groups.
+    source_type: "clinical_guideline"
+    url: "https://www.nei.nih.gov/learn-about-eye-health/eye-conditions-and-diseases/glaucoma"
+    publication_date: "2023-09-01"
+    reliability_score: 0.94
+    domain: "medical"
+    keywords: ["glaucoma", "vision", "eye", "blindness", "optic nerve", "pressure", "ophthalmology", "screening", "eye exam", "sight"]
+
+  - id: "med_030"
+    title: "Periodontal Disease and Oral Health"
+    content: |
+      Periodontal (gum) disease ranges from gingivitis (mild inflammation) to periodontitis (tissue/bone loss). Linked to heart disease, diabetes, and stroke. Prevention: brush twice daily, floss daily, regular dental cleanings. Signs: bleeding gums, bad breath, loose teeth, receding gums. Smoking is a major risk factor. Treatment involves deep cleaning (scaling/root planing), antibiotics, or surgery. Maintaining oral health is integral to systemic health.
+    source_type: "clinical_guideline"
+    url: "https://www.perio.org/consumer/gum-disease.htm"
+    publication_date: "2023-05-20"
+    reliability_score: 0.92
+    domain: "medical"
+    keywords: ["dental", "gum disease", "periodontitis", "gingivitis", "teeth", "oral health", "hygiene", "brushing", "flossing", "dentist"]
+
+  - id: "med_031"
+    title: "Anaphylaxis Emergency Management"
+    content: |
+      Anaphylaxis is a severe, life-threatening allergic reaction. Triggers: foods (nuts, shellfish), insect stings, meds, latex. Symptoms: hives, swelling (lips/tongue), difficulty breathing, wheezing, rapid pulse, dizziness. Epinephrine (EpiPen) is the only effective first-line treatment and must be administered immediately in the outer thigh. Call 911 after use. Antihistamines are NOT sufficient for anaphylaxis. Patients with history should carry two auto-injectors at all times.
+    source_type: "clinical_guideline"
+    url: "https://www.aaaai.org/conditions-and-treatments/allergies/anaphylaxis"
+    publication_date: "2023-08-15"
+    reliability_score: 0.97
+    domain: "medical"
+    keywords: ["anaphylaxis", "allergy", "epinephrine", "EpiPen", "emergency", "shock", "reaction", "hives", "breathing", "life-threatening"]
+
+  - id: "med_032"
+    title: "Influenza (Flu) Prevention and Treatment"
+    content: |
+      Influenza is a contagious respiratory illness caused by influenza viruses. Symptoms: fever, cough, sore throat, body aches, fatigue. Complications include pneumonia, especially in young children, elderly, and pregnant women. Annual vaccination is the best prevention. Antiviral drugs (oseltamivir/Tamiflu) can shorten duration if started within 48 hours of symptom onset. Prevention also includes hand washing and covering coughs. Antibiotics do NOT treat the flu.
+    source_type: "public_health_guideline"
+    url: "https://www.cdc.gov/flu/index.htm"
+    publication_date: "2023-09-01"
+    reliability_score: 0.95
+    domain: "medical"
+    keywords: ["flu", "influenza", "virus", "vaccine", "fever", "respiratory", "contagious", "antiviral", "tamiflu", "prevention"]
+
 finance_sources:
   - id: "fin_001"
     title: "Portfolio Diversification Principles - Modern Portfolio Theory"
@@ -737,13 +880,79 @@ finance_sources:
     domain: "finance"
     keywords: ["financial ratios", "fundamental analysis", "accounting", "corporate finance", "profitability", "liquidity", "solvency", "efficiency", "valuation", "stocks", "analysis", "balance sheet", "income statement", "cash flow"]
 
+  - id: "fin_027"
+    title: "Roth IRA Conversion Strategies"
+    content: |
+      A Roth conversion moves funds from a Traditional IRA/401(k) to a Roth IRA. The converted amount is taxed as ordinary income in the year of conversion, but future growth and withdrawals are tax-free. "Backdoor Roth" allows high earners (above income limits) to contribute to a non-deductible Traditional IRA and immediately convert to Roth. The "Pro-Rata Rule" complicates this if other pre-tax IRA assets exist. Conversions are best done in low-income years to minimize tax impact. No RMDs (Required Minimum Distributions) for Roth IRAs.
+    source_type: "tax_planning"
+    url: "https://www.investopedia.com/roth-ira-conversion-rules-4770480"
+    publication_date: "2023-11-10"
+    reliability_score: 0.91
+    domain: "finance"
+    keywords: ["Roth IRA", "conversion", "tax", "backdoor roth", "retirement", "investing", "tax-free", "strategy", "wealth"]
+
+  - id: "fin_028"
+    title: "Health Savings Account (HSA) Investment Strategy"
+    content: |
+      HSAs are triple-tax-advantaged: tax-deductible contributions, tax-free growth, and tax-free withdrawals for medical expenses. To maximize wealth, pay current medical bills out-of-pocket and invest HSA funds for long-term growth. There is no deadline for reimbursement; receipts can be saved for decades. At age 65, HSA funds can be withdrawn for any purpose (taxed like IRA) or medical (tax-free), acting as a "stealth IRA." Requires High Deductible Health Plan (HDHP).
+    source_type: "financial_planning"
+    url: "https://www.fidelity.com/viewpoints/wealth-management/hsas-and-your-retirement"
+    publication_date: "2023-10-05"
+    reliability_score: 0.93
+    domain: "finance"
+    keywords: ["HSA", "health savings account", "investing", "tax advantage", "medical expenses", "retirement", "triple tax", "wealth building"]
+
+  - id: "fin_029"
+    title: "Tax-Loss Harvesting Rules and Benefits"
+    content: |
+      Tax-loss harvesting involves selling an investment at a loss to offset capital gains tax liability. Up to $3,000 of excess loss can offset ordinary income annually. The "Wash Sale Rule" prohibits claiming a loss if a "substantially identical" security is purchased within 30 days before or after the sale. Investors often swap to a similar but not identical ETF (e.g., VOO to VTI) to maintain market exposure while realizing the loss. Best utilized in taxable brokerage accounts during market dips.
+    source_type: "tax_planning"
+    url: "https://www.schwab.com/learn/story/how-to-cut-your-tax-bill-with-tax-loss-harvesting"
+    publication_date: "2023-12-01"
+    reliability_score: 0.92
+    domain: "finance"
+    keywords: ["tax loss harvesting", "taxes", "capital gains", "wash sale", "investing", "strategy", "offset", "brokerage", "losses"]
+
+  - id: "fin_030"
+    title: "Dividend Growth Investing Strategy"
+    content: |
+      Dividend growth investing focuses on companies with a history of increasing dividend payouts (e.g., Dividend Aristocrats). This strategy provides a growing passive income stream that can outpace inflation. High yield doesn't always mean high quality; payout ratio and cash flow sustainability are key metrics. Reinvesting dividends (DRIP) accelerates compounding. While total return (price + dividends) matters most, dividend growth offers psychological stability and cash flow during market volatility.
+    source_type: "investment_strategy"
+    url: "https://www.investopedia.com/articles/stocks/07/dividend_growth.asp"
+    publication_date: "2023-09-15"
+    reliability_score: 0.89
+    domain: "finance"
+    keywords: ["dividends", "passive income", "investing", "cash flow", "dividend aristocrats", "growth", "compounding", "DRIP", "stocks"]
+
+  - id: "fin_031"
+    title: "Peer-to-Peer (P2P) Lending Risks and Returns"
+    content: |
+      P2P lending platforms connect borrowers directly with investors, bypassing banks. Investors earn interest but bear default risk. Returns can exceed savings accounts but are unsecured and illiquid. Diversification (lending small amounts to many borrowers) is critical to mitigate default impact. Economic downturns correlate with higher default rates. Platforms charge service fees. Interest income is taxed as ordinary income, not capital gains. Secondary markets for selling loans may be limited.
+    source_type: "alternative_investments"
+    url: "https://www.investor.gov/introduction-investing/investing-basics/investment-products/peer-peer-lending"
+    publication_date: "2023-08-20"
+    reliability_score: 0.87
+    domain: "finance"
+    keywords: ["P2P lending", "peer to peer", "loans", "investing", "alternative investment", "risk", "default", "interest", "lending club"]
+
+  - id: "fin_032"
+    title: "Robo-Advisors vs. Human Financial Advisors"
+    content: |
+      Robo-advisors use algorithms to manage portfolios based on risk tolerance, typically using low-cost ETFs. Fees are low (0.25-0.50%) and include features like automatic rebalancing and tax-loss harvesting. Best for hands-off investors with simple needs. Human advisors (fees ~1%) offer personalized planning, behavioral coaching, and complex tax/estate guidance. Hybrid models combine digital management with access to human planners. Choice depends on portfolio size, complexity, and need for emotional support.
+    source_type: "financial_services"
+    url: "https://www.nerdwallet.com/article/investing/robo-advisors-vs-financial-advisors"
+    publication_date: "2023-10-10"
+    reliability_score: 0.91
+    domain: "finance"
+    keywords: ["robo advisor", "financial advisor", "investing", "fees", "wealth management", "automation", "advice", "planning", "portfolio"]
+
 # Evidence source metadata
 metadata:
-  version: "2.1.0"
+  version: "2.2.0"
   last_updated: "2025-12-23"
-  total_sources: 45
-  medical_sources_count: 19
-  finance_sources_count: 26
+  total_sources: 64
+  medical_sources_count: 32
+  finance_sources_count: 32
   min_reliability_score: 0.85
   citation_format: "simple"
   
