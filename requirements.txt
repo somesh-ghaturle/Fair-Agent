@@ -48,6 +48,9 @@ sentence-transformers>=3.3.0
 faiss-cpu>=1.8.0
 beautifulsoup4>=4.12.0
 lxml>=5.3.0
+chromadb
+pydantic-settings>=2.0.0
+networkx>=3.0
 
 # Evaluation and Metrics - Updated versions
 rouge-score>=0.1.2
