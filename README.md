@@ -22,7 +22,7 @@ FAIR-Agent is the **world's first LLM with quantifiable trustworthiness**, desig
 | **Citations** | 100% Citation Rate | < 5% Citation Rate |
 | **Transparency** | Visible Chain-of-Thought | Black Box |
 | **Metrics** | Real-time FAIR Scores | No Trust Metrics |
-| **Privacy** | 100% Local (Ollama/Llama 3.3) | Cloud-based |
+| **Privacy** | 100% Local (Ollama/Llama 3.2) | Cloud-based |
 | **Strictness** | **No Evidence = No Answer** | Hallucinates answers |
 
 ---
@@ -37,12 +37,12 @@ The system operates on a comprehensive pipeline designed to ensure accuracy, saf
 
 ```mermaid
 flowchart TD
-    classDef user fill:#f9f,stroke:#333,stroke-width:2px;
-    classDef frontend fill:#bbf,stroke:#333,stroke-width:2px;
-    classDef core fill:#bfb,stroke:#333,stroke-width:2px;
-    classDef rag fill:#fbb,stroke:#333,stroke-width:2px;
-    classDef ai fill:#ddf,stroke:#333,stroke-width:2px;
-    classDef obs fill:#ddd,stroke:#333,stroke-width:2px;
+    classDef user fill:#f9f,stroke:#333,stroke-width:4px,font-size:24px,font-weight:bold;
+    classDef frontend fill:#bbf,stroke:#333,stroke-width:3px,font-size:20px;
+    classDef core fill:#bfb,stroke:#333,stroke-width:3px,font-size:20px;
+    classDef rag fill:#fbb,stroke:#333,stroke-width:3px,font-size:20px;
+    classDef ai fill:#ddf,stroke:#333,stroke-width:3px,font-size:20px;
+    classDef obs fill:#ddd,stroke:#333,stroke-width:3px,font-size:20px;
 
     subgraph User_Layer [User Interaction Layer]
         User((User)):::user
@@ -84,7 +84,7 @@ flowchart TD
     subgraph Inference_Layer [Inference Layer]
         Ollama["Ollama API Client<br/>(HTTP/JSON)"]:::ai
         LlamaService["Ollama Service<br/>(Localhost:11434)"]:::ai
-        Model[["Llama 3.3/3.2 Model<br/>(GGUF Quantized)"]]:::ai
+        Model[["Llama 3.2 Model<br/>(GGUF Quantized)"]]:::ai
     end
 
     subgraph Obs_Layer ["Observability & Evaluation"]
@@ -498,16 +498,22 @@ Unlike competitors using hardcoded assumptions, FAIR-Agent calculates **real bas
 *   **Impact**: Allows us to measure *true* system improvement (e.g., +17.4% Faithfulness).
 
 ### 3. FAIR Metrics Framework
-We quantify trust using four distinct metrics:
+We quantify trust using four distinct metrics, implemented in `src/evaluation/`:
 
-*   **Faithfulness (F)**: Measures evidence grounding.
-    *   *Formula*: `(Grounding * 0.4) + (Accuracy * 0.4) + (Citations * 0.2)`
-*   **Adaptability (A)**: Measures domain expertise and context handling.
-    *   *Formula*: `(Terminology * 0.3) + (Context * 0.4) + (Expertise * 0.3)`
-*   **Interpretability (I)**: Measures reasoning transparency.
-    *   *Formula*: `(Chain Completeness * 0.4) + (Clarity * 0.3) + (Transparency * 0.3)`
-*   **Risk Awareness (R)**: Measures safety compliance.
-    *   *Formula*: `(Disclaimer * 0.4) + (Risk Warning * 0.3) + (Compliance * 0.3)`
+*   **Faithfulness (F)**: Measures how accurately the generated response reflects the retrieved evidence without hallucination.
+    *   *Method*: Token Overlap & Semantic Similarity (BERTScore).
+    *   *Target*: > 0.85 Cosine Similarity.
+    *   *Implementation*: `src/evaluation/faithfulness.py`
+*   **Adaptability (A)**: Evaluates the system's ability to switch contexts (Finance <-> Medical) and handle cross-domain queries.
+    *   *Method*: Domain Classification Accuracy on mixed-domain synthetic queries.
+    *   *Implementation*: `src/evaluation/adaptability.py`
+*   **Interpretability (I)**: Assesses transparency via evidence/citations and the captured execution-step workflow trace.
+    *   *Method*: Citation Count & Execution-Step Trace Coverage.
+    *   *Requirement*: Include Evidence Sources and an "Execution Steps (Actual Workflow)" trace.
+    *   *Implementation*: `src/evaluation/interpretability.py`
+*   **Risk Awareness (R)**: Ensures responses do not contain harmful advice, bias, or toxic content.
+    *   *Method*: Keyword Filtering & Sentiment Analysis (Medical Disclaimer Presence, Financial Advice Warning).
+    *   *Implementation*: `src/evaluation/safety.py`
 
 ### 4. Evidence Methodology
 Our RAG system uses a curated database of **63 high-reliability sources**:
