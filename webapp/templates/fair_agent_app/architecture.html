@@ -97,9 +97,14 @@
             <div class="architecture-container">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="text-white mb-0">System Data Flow & Component Interaction</h4>
-                    <button id="downloadBtn" class="btn btn-primary btn-sm" onclick="downloadSVG()">
-                        <i class="fas fa-download me-2"></i>Download Diagram
-                    </button>
+                    <div class="btn-group">
+                        <button id="downloadBtn" class="btn btn-secondary btn-sm" onclick="downloadSVG()">
+                            <i class="fas fa-file-code me-2"></i>Download SVG
+                        </button>
+                        <button id="downloadPngBtn" class="btn btn-primary btn-sm" onclick="downloadPNG()">
+                            <i class="fas fa-image me-2"></i>Download PNG
+                        </button>
+                    </div>
                 </div>
                 <div class="diagram-container">
                     <div class="mermaid" id="mermaidDiagram">
@@ -126,6 +131,7 @@
 
                             subgraph Core_Layer [Core Orchestration Layer]
                                 Orchestrator["Orchestrator System<br/>(orchestrator.py)"]:::core
+                                SpellCheck["Spell & Query Fixer<br/>(spell_checker.py)"]:::core
                                 Classifier["Domain Classifier<br/>(Regex/Keyword)"]:::core
                                 Router{Router}:::core
                                 Aggregator["Response Aggregator<br/>(JSON Builder)"]:::core
@@ -136,7 +142,7 @@
                                 FinAgent["Finance Agent<br/>(finance_agent.py)"]:::core
                                 MedAgent["Medical Agent<br/>(medical_agent.py)"]:::core
                                 CrossAgent["Cross-Domain Logic<br/>(Synthesis)"]:::core
-                                PromptEng["Prompt Engineer<br/>(Template Builder)"]:::core
+                                Reasoning["Reasoning Engine<br/>(cot_system.py)"]:::core
                             end
 
                             subgraph RAG_Layer ["RAG & Knowledge Layer"]
@@ -144,6 +150,7 @@
                                 VectorDB[("ChromaDB Vector Store<br/>(Persistent)")]:::rag
                                 KnowledgeGraph[("Knowledge Graph<br/>(NetworkX)")]:::rag
                                 DocStore[("Evidence Sources<br/>YAML/JSON")]:::rag
+                                Internet["Internet Search<br/>(internet_rag.py)"]:::rag
                                 HybridSearch["Hybrid Search Engine<br/>(Semantic + Keyword)"]:::rag
                                 ReRanker["Cross-Encoder Re-ranker<br/>(ms-marco-MiniLM)"]:::rag
                                 ContextWindow["Context Window Manager<br/>(Token Limiter)"]:::rag
@@ -177,7 +184,8 @@
                             API -->|5. Process| Orchestrator
 
                             %% Orchestration Flow
-                            Orchestrator -->|6. Classify| Classifier
+                            Orchestrator -->|Pre-process| SpellCheck
+                            SpellCheck -->|6. Classify| Classifier
                             Classifier -->|Domain Tag| Router
                             Router -->|Finance| FinAgent
                             Router -->|Medical| MedAgent
@@ -189,12 +197,13 @@
                             QueryEnc -->|Vector Search| VectorDB
                             HybridSearch -->|Graph Search| KnowledgeGraph
                             HybridSearch -->|Keyword Search| DocStore
-                            VectorDB & KnowledgeGraph & DocStore -->|Candidates| ReRanker
+                            FinAgent & MedAgent -->|Web Search| Internet
+                            VectorDB & KnowledgeGraph & DocStore & Internet -->|Candidates| ReRanker
                             ReRanker -->|Top K Evidence| ContextWindow
-                            ContextWindow -->|Formatted Context| PromptEng
+                            ContextWindow -->|Formatted Context| Reasoning
 
                             %% Inference Flow
-                            PromptEng -->|8. Construct Prompt| FinAgent & MedAgent
+                            Reasoning -->|8. Construct CoT| FinAgent & MedAgent
                             FinAgent & MedAgent -->|9. Send Prompt| Ollama
                             Ollama -->|Generate| LlamaService
                             LlamaService -->|Inference| Model
@@ -543,6 +552,82 @@
         downloadLink.click();
         document.body.removeChild(downloadLink);
         URL.revokeObjectURL(url);
+    }
+
+    function downloadPNG() {
+        const svg = document.querySelector('.mermaid svg');
+        if (!svg) {
+            alert('Diagram is still rendering. Please try again in a moment.');
+            return;
+        }
+        
+        // Get the SVG content
+        const serializer = new XMLSerializer();
+        let source = serializer.serializeToString(svg);
+        
+        // Add namespaces
+        if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
+            source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+        }
+
+        // Get dimensions from the live element
+        const bbox = svg.getBoundingClientRect();
+        
+        // Parse the serialized string back to a DOM element to safely modify attributes
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(source, "image/svg+xml");
+        const svgEl = xmlDoc.documentElement;
+        
+        // Force absolute dimensions to match the rendered size
+        // This fixes issues where creating an image from SVG fails if width/height are % or missing
+        svgEl.setAttribute("width", bbox.width);
+        svgEl.setAttribute("height", bbox.height);
+        
+        // Enforce white background
+        svgEl.style.backgroundColor = "white";
+        
+        // Re-serialize with changes
+        source = serializer.serializeToString(svgEl);
+
+        const img = new Image();
+        // Use Base64 encoding which is often more reliable than Blob URLs for this specific conversion
+        // unescape(encodeURIComponent(x)) handles unicode characters correctly for btoa
+        const base64 = btoa(unescape(encodeURIComponent(source)));
+        img.src = 'data:image/svg+xml;base64,' + base64;
+        
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const scale = 3; // Higher resolution (3x) for crisp text
+            
+            canvas.width = bbox.width * scale;
+            canvas.height = bbox.height * scale;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.scale(scale, scale);
+            
+            // Fill white background again on canvas to be safe
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width/scale, canvas.height/scale);
+            
+            try {
+                ctx.drawImage(img, 0, 0, bbox.width, bbox.height);
+                const pngUrl = canvas.toDataURL('image/png');
+                
+                const downloadLink = document.createElement("a");
+                downloadLink.href = pngUrl;
+                downloadLink.download = "fair_agent_architecture.png";
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+            } catch (e) {
+                console.error("PNG Generation Error:", e);
+                alert('An error occurred while generating the PNG. Please check console for details.');
+            }
+        };
+        
+        img.onerror = function() {
+            alert('Failed to process SVG data for PNG conversion.');
+        };
     }
 </script>
 {% endblock %}
