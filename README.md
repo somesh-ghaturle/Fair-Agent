@@ -58,6 +58,7 @@ flowchart TD
 
     subgraph Core_Layer [Core Orchestration Layer]
         Orchestrator["Orchestrator System<br/>(orchestrator.py)"]:::core
+        SpellCheck["Spell & Query Fixer<br/>(spell_checker.py)"]:::core
         Classifier["Domain Classifier<br/>(Regex/Keyword)"]:::core
         Router{Router}:::core
         Aggregator["Response Aggregator<br/>(JSON Builder)"]:::core
@@ -68,7 +69,7 @@ flowchart TD
         FinAgent["Finance Agent<br/>(finance_agent.py)"]:::core
         MedAgent["Medical Agent<br/>(medical_agent.py)"]:::core
         CrossAgent["Cross-Domain Logic<br/>(Synthesis)"]:::core
-        PromptEng["Prompt Engineer<br/>(Template Builder)"]:::core
+        Reasoning["Reasoning Engine<br/>(cot_system.py)"]:::core
     end
 
     subgraph RAG_Layer ["RAG & Knowledge Layer"]
@@ -76,6 +77,7 @@ flowchart TD
         VectorDB[("ChromaDB Vector Store<br/>(Persistent)")]:::rag
         KnowledgeGraph[("Knowledge Graph<br/>(NetworkX)")]:::rag
         DocStore[("Evidence Sources<br/>YAML/JSON")]:::rag
+        Internet["Internet Search<br/>(internet_rag.py)"]:::rag
         HybridSearch["Hybrid Search Engine<br/>(Semantic + Keyword)"]:::rag
         ReRanker["Cross-Encoder Re-ranker<br/>(ms-marco-MiniLM)"]:::rag
         ContextWindow["Context Window Manager<br/>(Token Limiter)"]:::rag
@@ -109,7 +111,8 @@ flowchart TD
     API -->|5. Process| Orchestrator
 
     %% Orchestration Flow
-    Orchestrator -->|6. Classify| Classifier
+    Orchestrator -->|Pre-process| SpellCheck
+    SpellCheck -->|6. Classify| Classifier
     Classifier -->|Domain Tag| Router
     Router -->|Finance| FinAgent
     Router -->|Medical| MedAgent
@@ -121,12 +124,13 @@ flowchart TD
     QueryEnc -->|Vector Search| VectorDB
     HybridSearch -->|Graph Search| KnowledgeGraph
     HybridSearch -->|Keyword Search| DocStore
-    VectorDB & KnowledgeGraph & DocStore -->|Candidates| ReRanker
+    FinAgent & MedAgent -->|Web Search| Internet
+    VectorDB & KnowledgeGraph & DocStore & Internet -->|Candidates| ReRanker
     ReRanker -->|Top K Evidence| ContextWindow
-    ContextWindow -->|Formatted Context| PromptEng
+    ContextWindow -->|Formatted Context| Reasoning
 
     %% Inference Flow
-    PromptEng -->|8. Construct Prompt| FinAgent & MedAgent
+    Reasoning -->|8. Construct CoT| FinAgent & MedAgent
     FinAgent & MedAgent -->|9. Send Prompt| Ollama
     Ollama -->|Generate| LlamaService
     LlamaService -->|Inference| Model
