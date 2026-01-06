@@ -36,6 +36,7 @@ The system operates on a comprehensive pipeline designed to ensure accuracy, saf
 ### Complete System Architecture
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffcc00', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#fff', 'fontSize': '20px'}, 'flowchart': {'nodeSpacing': 50, 'rankSpacing': 50, 'curve': 'basis'}}}%%
 flowchart TD
     classDef user fill:#f9f,stroke:#333,stroke-width:4px,font-size:24px,font-weight:bold;
     classDef frontend fill:#bbf,stroke:#333,stroke-width:3px,font-size:20px;
