@@ -100,6 +100,43 @@ graph TD
 12. **Telemetry** → Trace storage and metrics collection
 13. **Response Delivery** → Rendered template to browser
 
+### Detailed Request Processing Flow
+
+#### 1. Request Initiation & Routing
+- The user submits a query via the web interface.
+- The Django backend receives the request and forwards it to the **Orchestrator**.
+- The Orchestrator uses a keyword-based **Domain Classifier** (Regex/Keyword) to determine if the query is **Financial**, **Medical**, or **Cross-Domain**.
+- **Tech Stack:** Django, Python, Regex
+
+#### 2. Retrieval Augmented Generation (RAG)
+- The active Agent (Finance or Medical) initiates the RAG process.
+- **Query Encoding:** The query is converted to a vector embedding using `all-MiniLM-L6-v2`.
+- **Hybrid Search:** Both semantic search (cosine similarity) against the `.npz` embeddings cache and keyword search against the document store.
+- **Re-ranking:** Top candidates are re-ranked using a Cross-Encoder to ensure high relevance.
+- **Tech Stack:** SentenceTransformers, NumPy, FAISS (Logic)
+
+#### 3. Prompt Construction & Inference
+- The Agent constructs a prompt including:
+  - System instructions (Role, Tone, Constraints)
+  - Retrieved Evidence (Context)
+  - User Query
+- This prompt is sent to the **Ollama** service running the **Llama 3.2** model.
+- **Tech Stack:** Ollama, Llama 3.2, Prompt Engineering
+
+#### 4. Response Processing & Safety
+- The raw LLM response is passed through a **Safety Filter** to check for harmful content or hallucinations.
+- The **Response Standardizer/Aggregator** formats the final output into consistent sections.
+- It injects:
+  - (a) Evidence sources
+  - (b) An "Execution Steps (Actual Workflow)" trace
+  - (c) A domain disclaimer placed at the end.
+- **Tech Stack:** Regex Validation, JSON Formatting
+
+#### 5. Observability & Evaluation
+- Throughout the process, the **Telemetry Manager** records traces (execution paths) and metrics (latency, token counts).
+- The **Evaluator** runs periodically to benchmark system performance against baseline datasets (FinQA, MedMCQA).
+- **Tech Stack:** OpenTelemetry Concepts, Custom Metrics
+
 ---
 
 ## Technology Stack
