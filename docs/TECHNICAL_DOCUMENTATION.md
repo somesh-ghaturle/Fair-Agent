@@ -57,22 +57,31 @@ FAIR-Agent is the **world's first LLM with quantifiable trustworthiness**, desig
 
 The system operates on a **6-layer architecture**:
 
-```
-┌─────────────────────────────────────────────┐
-│   User Interaction Layer (Browser/UI)      │
-├─────────────────────────────────────────────┤
-│   Web Application Layer (Django/ASGI)      │
-├─────────────────────────────────────────────┤
-│   Core Orchestration Layer (Routing)       │
-├─────────────────────────────────────────────┤
-│   Agent Layer (Finance/Medical/Cross)      │
-├─────────────────────────────────────────────┤
-│   RAG & Knowledge Layer (Hybrid Search)    │
-├─────────────────────────────────────────────┤
-│   Inference Layer (Ollama + Llama 3.2)     │
-├─────────────────────────────────────────────┤
-│   Observability Layer (Tracing/Metrics)    │
-└─────────────────────────────────────────────┘
+```mermaid
+graph TD
+    classDef layer fill:#f9f9f9,stroke:#333,stroke-width:2px;
+    classDef obs fill:#e1f5fe,stroke:#0277bd,stroke-width:2px,stroke-dasharray: 5 5;
+
+    L1[User Interaction Layer<br/>Browser/UI]:::layer
+    L2[Web Application Layer<br/>Django/ASGI]:::layer
+    L3[Core Orchestration Layer<br/>Routing]:::layer
+    L4[Agent Layer<br/>Finance/Medical/Cross]:::layer
+    L5[RAG & Knowledge Layer<br/>Hybrid Search]:::layer
+    L6[Inference Layer<br/>Ollama + Llama 3.2]:::layer
+    L7[Observability Layer<br/>Tracing/Metrics]:::obs
+
+    L1 --> L2
+    L2 --> L3
+    L3 --> L4
+    L4 --> L5
+    L5 --> L6
+    
+    L7 -.-> L1
+    L7 -.-> L2
+    L7 -.-> L3
+    L7 -.-> L4
+    L7 -.-> L5
+    L7 -.-> L6
 ```
 
 ### Component Interaction Flow
@@ -253,21 +262,20 @@ class FinanceResponse:
 
 **Architecture:**
 
-```
-Query Input
-    ↓
-Query Encoder (all-MiniLM-L6-v2)
-    ↓
-┌─────────────────┬──────────────────┬─────────────────┐
-│  Vector Search  │  Graph Search    │  Internet Search│
-│  (ChromaDB)     │  (NetworkX)      │  (DuckDuckGo)   │
-└─────────────────┴──────────────────┴─────────────────┘
-    ↓
-Cross-Encoder Re-ranker (ms-marco-MiniLM)
-    ↓
-Context Window Manager (Token Limiting)
-    ↓
-Formatted Context for LLM
+```mermaid
+flowchart TD
+    Q[Query Input] --> QE[Query Encoder<br/>all-MiniLM-L6-v2]
+    
+    QE --> VS[Vector Search<br/>ChromaDB]
+    QE --> GS[Graph Search<br/>NetworkX]
+    QE --> IS[Internet Search<br/>DuckDuckGo]
+    
+    VS --> CER[Cross-Encoder Re-ranker<br/>ms-marco-MiniLM]
+    GS --> CER
+    IS --> CER
+    
+    CER --> CWM[Context Window Manager<br/>Token Limiting]
+    CWM --> FC[Formatted Context for LLM]
 ```
 
 **Key Components:**
@@ -306,8 +314,13 @@ Formatted Context for LLM
 
 **Prompt Structure:**
 ```
-[Context] → [Evidence] → [Step 1] → [Step 2] → ... → [Conclusion]
-```
+[Comermaid
+flowchart LR
+    C[Context] --> E[Evidence]
+    E --> S1[Step 1]
+    S1 --> S2[Step 2]
+    S2 --> D[...]
+    D --> Conc
 
 **Benefits:**
 - Improved interpretability scores
@@ -323,8 +336,12 @@ Formatted Context for LLM
 **Features:**
 - Medical terminology dictionary
 - Financial jargon recognition
-- Context-aware corrections
-- Query expansion
+- Cmermaid
+flowchart LR
+    IQ[Input Query] --> Tok[Tokenization]
+    Tok --> SC[Spell Check]
+    SC --> DT[Domain Terms]
+    DT --> CQ[Corrected Query]
 
 **Workflow:**
 ```python
