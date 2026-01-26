@@ -304,25 +304,53 @@ flowchart TD
 
 ### 5. Reasoning Engine (`src/reasoning/cot_system.py`)
 
-**Purpose:** Chain-of-Thought reasoning implementation.
+**Purpose:** Chain-of-Thought reasoning implementation (`cot_system.py`).
 
 **Features:**
 - Step-by-step problem decomposition
 - Logical inference tracking
 - Reasoning transparency
 - Intermediate step validation
+- Domain-specific templates (Finance/Medical)
 
-**Prompt Structure:**
+**Architecture Flow:**
 ```mermaid
-flowchart LR
-    C[Context] --> E[Evidence]
-    E --> S1[Step 1]
-    S1 --> S2[Step 2]
-    S2 --> D[...]
-    D --> Conc[Conclusion]
+flowchart TD
+    ContextWindow -->|formatted context| Reasoning
+    Reasoning -->|Construct CoT| FinAgent & MedAgent
 ```
 
-**Benefits:**
+**Reasoning Process Flow:**
+```mermaid
+flowchart TD
+    P[Problem Analysis] --> I[Information Gathering]
+    I --> E[Evaluation]
+    E --> S[Synthesis]
+    S --> U[Uncertainty Assessment]
+    U --> C[Conclusion]
+    
+    subgraph Steps [Reasoning Steps]
+    P
+    I
+    E
+    S
+    U
+    C
+    end
+```
+
+**Step Definitions:**
+1. **Problem Analysis:** Deconstructs the query into core components (e.g., Identifying symptoms or financial goals).
+2. **Information Gathering:** Retrieves relevant facts from context and evidence (e.g., "First, I'll consider common causes...").
+3. **Evaluation:** Weighs evidence, checks for contradictions, and assesses risks (e.g., "Next, I'll evaluate potential red flags...").
+4. **Synthesis:** Combines evaluated points into a coherent narrative.
+5. **Uncertainty Assessment:** Explicitly identifies unknowns or limitations in the data.
+6. **Conclusion:** Formulates the final answer with disclaimers.
+
+**Data Classes:**
+- `ReasoningStep` (Enum): PROBLEM_ANALYSIS, INFORMATION_GATHERING, etc.
+- `ThoughtStep`: Captures individual step logic, evidence, and confidence.
+- `ReasoningChain`: Aggregates steps into a final conclusion with transparency scores.
 - Improved interpretability scores
 - Reduced hallucinations
 - Better complex query handling
