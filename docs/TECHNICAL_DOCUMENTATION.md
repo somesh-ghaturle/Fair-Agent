@@ -313,14 +313,14 @@ flowchart TD
 - Intermediate step validation
 
 **Prompt Structure:**
-```
-[Comermaid
+```mermaid
 flowchart LR
     C[Context] --> E[Evidence]
     E --> S1[Step 1]
     S1 --> S2[Step 2]
     S2 --> D[...]
-    D --> Conc
+    D --> Conc[Conclusion]
+```
 
 **Benefits:**
 - Improved interpretability scores
@@ -336,12 +336,17 @@ flowchart LR
 **Features:**
 - Medical terminology dictionary
 - Financial jargon recognition
-- Cmermaid
+- Context-aware corrections
+- Query expansion
+
+**Workflow:**
+```mermaid
 flowchart LR
     IQ[Input Query] --> Tok[Tokenization]
     Tok --> SC[Spell Check]
     SC --> DT[Domain Terms]
     DT --> CQ[Corrected Query]
+```
 
 **Workflow:**
 ```python
