@@ -100,6 +100,136 @@ graph TD
 12. **Telemetry** → Trace storage and metrics collection
 13. **Response Delivery** → Rendered template to browser
 
+### Detailed Architecture
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffcc00', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#fff', 'fontSize': '20px'}, 'flowchart': {'nodeSpacing': 50, 'rankSpacing': 50, 'curve': 'basis'}}}%%
+flowchart TD
+    classDef user fill:#f9f,stroke:#333,stroke-width:4px,font-size:24px,font-weight:bold;
+    classDef frontend fill:#bbf,stroke:#333,stroke-width:3px,font-size:20px;
+    classDef core fill:#bfb,stroke:#333,stroke-width:3px,font-size:20px;
+    classDef rag fill:#fbb,stroke:#333,stroke-width:3px,font-size:20px;
+    classDef ai fill:#ddf,stroke:#333,stroke-width:3px,font-size:20px;
+    classDef obs fill:#ddd,stroke:#333,stroke-width:3px,font-size:20px;
+
+    subgraph User_Layer [User Interaction Layer]
+        User((User)):::user
+        Browser["Web Browser / UI<br/>(HTML/JS/CSS)"]:::frontend
+    end
+
+    subgraph Web_Layer [Web Application Layer]
+        Django["Django Server<br/>(WSGI/ASGI)"]:::frontend
+        Views["View Logic<br/>(views.py)"]:::frontend
+        API["REST API Endpoints<br/>(/api/query)"]:::frontend
+        Session["Session Manager<br/>(DB/Cache)"]:::frontend
+    end
+
+    subgraph Core_Layer [Core Orchestration Layer]
+        Orchestrator["Orchestrator System<br/>(orchestrator.py)"]:::core
+        SpellCheck["Spell & Query Fixer<br/>(spell_checker.py)"]:::core
+        Classifier["Domain Classifier<br/>(Regex/Keyword)"]:::core
+        Router{Router}:::core
+        Aggregator["Response Aggregator<br/>(JSON Builder)"]:::core
+        Safety["Safety & Ethics Filter<br/>(Pattern Matcher)"]:::core
+    end
+
+    subgraph Agent_Layer [Domain Agents]
+        FinAgent["Finance Agent<br/>(finance_agent.py)"]:::core
+        MedAgent["Medical Agent<br/>(medical_agent.py)"]:::core
+        CrossAgent["Cross-Domain Logic<br/>(Synthesis)"]:::core
+        Reasoning["Reasoning Engine<br/>(cot_system.py)"]:::core
+    end
+
+    subgraph RAG_Layer ["RAG & Knowledge Layer"]
+        QueryEnc["Query Encoder<br/>(all-MiniLM-L6-v2)"]:::rag
+        VectorDB[("ChromaDB Vector Store<br/>(Persistent)")]:::rag
+        KnowledgeGraph[("Knowledge Graph<br/>(NetworkX)")]:::rag
+        DocStore[("Evidence Sources<br/>YAML/JSON")]:::rag
+        Internet["Internet Search<br/>(internet_rag.py)"]:::rag
+        HybridSearch["Hybrid Search Engine<br/>(Semantic + Keyword)"]:::rag
+        ReRanker["Cross-Encoder Re-ranker<br/>(ms-marco-MiniLM)"]:::rag
+        ContextWindow["Context Window Manager<br/>(Token Limiter)"]:::rag
+    end
+
+    subgraph Inference_Layer [Inference Layer]
+        Ollama["Ollama API Client<br/>(HTTP/JSON)"]:::ai
+        LlamaService["Ollama Service<br/>(Localhost:11434)"]:::ai
+        Model[["Llama 3.2 Model<br/>(GGUF Quantized)"]]:::ai
+    end
+
+    subgraph Obs_Layer ["Observability & Evaluation"]
+        Telemetry["Telemetry Manager<br/>(telemetry.py)"]:::obs
+        Tracer["Trace Storage<br/>(logs/telemetry + DB)"]:::obs
+        Metrics["Metrics Store<br/>(Latency/Tokens)"]:::obs
+        Evaluator["Offline Evaluator<br/>(evaluate.py)"]:::obs
+        Benchmarks[("Benchmark Datasets<br/>FinQA/MedMCQA")]:::obs
+        
+        %% Metrics Details
+        M_Faith["Faithfulness<br/>(faithfulness.py)"]:::obs
+        M_Safe["Safety<br/>(safety.py)"]:::obs
+        M_Adapt["Adaptability<br/>(adaptability.py)"]:::obs
+        M_Interp["Interpretability<br/>(interpretability.py)"]:::obs
+    end
+
+    %% Flows
+    User -->|1. Submit Query| Browser
+    Browser -->|2. HTTP POST| Django
+    Django -->|3. Route Request| Views
+    Views -->|4. API Call| API
+    API -->|5. Process| Orchestrator
+
+    %% Orchestration Flow
+    Orchestrator -->|Pre-process| SpellCheck
+    SpellCheck -->|6. Classify| Classifier
+    Classifier -->|Domain Tag| Router
+    Router -->|Finance| FinAgent
+    Router -->|Medical| MedAgent
+    Router -->|Both| CrossAgent
+
+    %% RAG Flow
+    FinAgent & MedAgent -->|7. Retrieve Context| HybridSearch
+    HybridSearch -->|Encode Query| QueryEnc
+    QueryEnc -->|Vector Search| VectorDB
+    HybridSearch -->|Graph Search| KnowledgeGraph
+    HybridSearch -->|Keyword Search| DocStore
+    FinAgent & MedAgent -->|Web Search| Internet
+    VectorDB & KnowledgeGraph & DocStore & Internet -->|Candidates| ReRanker
+    ReRanker -->|Top K Evidence| ContextWindow
+    ContextWindow -->|Formatted Context| Reasoning
+
+    %% Inference Flow
+    Reasoning -->|8. Construct CoT| FinAgent & MedAgent
+    FinAgent & MedAgent -->|9. Send Prompt| Ollama
+    Ollama -->|Generate| LlamaService
+    LlamaService -->|Inference| Model
+    Model -->|Tokens| LlamaService
+    LlamaService -->|Response Stream| Ollama
+    Ollama -->|Text| FinAgent & MedAgent
+
+    %% Response Flow
+    FinAgent & MedAgent -->|10. Raw Response| Safety
+    Safety -->|Validated Response| Aggregator
+    Aggregator -->|Final Output| Orchestrator
+    Orchestrator -->|JSON Response| API
+    API -->|Return Data| Views
+    Views -->|Render Template| Browser
+    Browser -->|Display| User
+
+    %% Observability Flow
+    Orchestrator -.->|Start Trace| Telemetry
+    FinAgent & MedAgent -.->|Span| Telemetry
+    Ollama -.->|Latency/Tokens| Telemetry
+    Telemetry -->|Store| Tracer & Metrics
+    Evaluator -.->|Read| Metrics
+    Evaluator -.->|Compare| Benchmarks
+    
+    %% Metrics Calculation Flow
+    Evaluator -.->|Calculate| M_Faith
+    Evaluator -.->|Calculate| M_Safe
+    Evaluator -.->|Calculate| M_Adapt
+    Evaluator -.->|Calculate| M_Interp
+```
+
 ### Detailed Request Processing Flow
 
 #### 1. Request Initiation & Routing
