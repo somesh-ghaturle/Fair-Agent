@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": { "title": "RAG Evidence Retrieval", "quality_profile": "showcase" },
+  "lanes": [
+    { "id": "retrieval", "label": "Retrieval Path" },
+    { "id": "vector", "label": "Vector Store" },
+    { "id": "graph", "label": "Knowledge Graph" },
+    { "id": "keyword", "label": "Keyword Index" },
+    { "id": "refusal", "label": "Refusal Path", "variant": "exception" }
+  ],
+  "nodes": [
+    { "id": "agentquery", "lane": "retrieval", "col": 0, "type": "external", "label": "Agent Query", "sublabel": "domain question", "width": 150 },
+    { "id": "expand", "lane": "retrieval", "col": 1, "type": "backend", "label": "Query Expansion", "sublabel": "synonyms · domain terms", "width": 180 },
+    { "id": "hybrid", "lane": "retrieval", "col": 2, "type": "backend", "label": "Hybrid Search", "sublabel": "fan out to all sources", "width": 170 },
+    { "id": "rerank", "lane": "retrieval", "col": 4, "type": "backend", "label": "Cross-Encoder Rerank", "sublabel": "pooled candidates", "width": 190 },
+    { "id": "verified", "lane": "retrieval", "col": 5, "type": "backend", "label": "Top-3 Verified Sources", "sublabel": "grounded evidence", "width": 190 },
+    { "id": "chroma", "lane": "vector", "col": 3, "type": "database", "label": "ChromaDB", "sublabel": "semantic search", "width": 160 },
+    { "id": "kg", "lane": "graph", "col": 3, "type": "database", "label": "NetworkX Graph", "sublabel": "concept traversal", "width": 170 },
+    { "id": "bm25", "lane": "keyword", "col": 3, "type": "database", "label": "BM25 Index", "sublabel": "keyword match", "width": 160 },
+    { "id": "refuse", "lane": "refusal", "col": 5, "type": "security", "label": "No-Evidence Refusal", "sublabel": "answer withheld", "width": 190 },
+    { "id": "logmiss", "lane": "refusal", "col": 4, "type": "database", "label": "Missing-Evidence Log", "sublabel": "gap for curation", "width": 190 }
+  ],
+  "edges": [
+    { "id": "expand-query", "from": "agentquery", "to": "expand", "variant": "emphasis" },
+    { "id": "fan-out", "from": "expand", "to": "hybrid", "label": "expanded query", "variant": "emphasis" },
+    { "id": "search-vector", "from": "hybrid", "to": "chroma", "label": "semantic" },
+    { "id": "search-graph", "from": "hybrid", "to": "kg", "label": "graph" },
+    { "id": "search-keyword", "from": "hybrid", "to": "bm25", "label": "keyword" },
+    { "id": "vector-candidates", "from": "chroma", "to": "rerank" },
+    { "id": "graph-candidates", "from": "kg", "to": "rerank" },
+    { "id": "keyword-candidates", "from": "bm25", "to": "rerank", "label": "candidate pool" },
+    { "id": "evidence-found", "from": "rerank", "to": "verified", "label": "evidence found", "variant": "emphasis" },
+    { "id": "no-evidence", "from": "rerank", "to": "logmiss", "label": "no evidence", "variant": "security", "role": "error" },
+    { "id": "refusal-response", "from": "logmiss", "to": "refuse", "variant": "security", "role": "error" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "Hybrid retrieval", "items": ["One expanded query fans out to vectors, graph, and keyword index", "All candidates are pooled before a cross-encoder reranks them"] },
+    { "dot": "rose", "title": "No evidence, no answer", "items": ["An empty or low-scoring pool stops the answer instead of guessing", "The missing-evidence log marks gaps for source curation"] }
+  ]
+}

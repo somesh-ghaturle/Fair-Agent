@@ -1,0 +1,33 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": { "title": "Query Classification and Routing", "quality_profile": "showcase" },
+  "lanes": [
+    { "id": "analysis", "label": "Query Analysis" },
+    { "id": "finance", "label": "Finance Route" },
+    { "id": "medical", "label": "Medical Route" },
+    { "id": "crossdomain", "label": "Cross-Domain Route" }
+  ],
+  "mainPath": ["query", "nlp", "scoring", "selection", "financeagent"],
+  "nodes": [
+    { "id": "query", "lane": "analysis", "col": 0, "type": "external", "label": "Query Text", "sublabel": "validated input", "width": 150 },
+    { "id": "nlp", "lane": "analysis", "col": 1, "type": "backend", "label": "NLP Analysis", "sublabel": "keywords · entities", "width": 160 },
+    { "id": "scoring", "lane": "analysis", "col": 2, "type": "backend", "label": "Domain Confidence", "sublabel": "per-domain score", "width": 170 },
+    { "id": "selection", "lane": "analysis", "col": 3, "type": "backend", "label": "Agent Selection", "sublabel": "highest confidence wins", "width": 180 },
+    { "id": "financeagent", "lane": "finance", "col": 4, "type": "backend", "label": "Finance Agent", "sublabel": "finance_agent.py", "width": 160 },
+    { "id": "medicalagent", "lane": "medical", "col": 4, "type": "backend", "label": "Medical Agent", "sublabel": "medical_agent.py", "width": 160 },
+    { "id": "crossagent", "lane": "crossdomain", "col": 4, "type": "backend", "label": "Multi-Agent Path", "sublabel": "both domains answer", "width": 170 }
+  ],
+  "edges": [
+    { "id": "analyze", "from": "query", "to": "nlp", "variant": "emphasis" },
+    { "id": "score", "from": "nlp", "to": "scoring", "label": "tokens + terms" },
+    { "id": "select", "from": "scoring", "to": "selection", "label": "confidence vector", "variant": "emphasis" },
+    { "id": "to-finance", "from": "selection", "to": "financeagent", "label": "finance 94.2%" },
+    { "id": "to-medical", "from": "selection", "to": "medicalagent", "label": "medical 91.8%" },
+    { "id": "to-cross", "from": "selection", "to": "crossagent", "label": "cross-domain 87.3%" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "How the route is chosen", "items": ["NLP analysis extracts domain keywords and entities", "Each domain receives an independent confidence score"] },
+    { "dot": "amber", "title": "Cross-domain queries", "items": ["A query that scores highly in both domains goes to the multi-agent path", "Both domain answers are later synthesised into one response"] }
+  ]
+}

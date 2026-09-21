@@ -1,0 +1,194 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "LLM Response Generation",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "finance",
+      "label": "Finance Framing"
+    },
+    {
+      "id": "generation",
+      "label": "Generation Path"
+    },
+    {
+      "id": "medical",
+      "label": "Medical Framing"
+    },
+    {
+      "id": "crossdomain",
+      "label": "Cross-Domain Framing"
+    }
+  ],
+  "mainPath": [
+    "evidence",
+    "assembly",
+    "ollama",
+    "draft"
+  ],
+  "nodes": [
+    {
+      "id": "evidence",
+      "lane": "generation",
+      "col": 0,
+      "type": "external",
+      "label": "Evidence + Query",
+      "sublabel": "verified sources",
+      "width": 160
+    },
+    {
+      "id": "assembly",
+      "lane": "generation",
+      "col": 1,
+      "type": "backend",
+      "label": "Context Assembly",
+      "sublabel": "prompt construction",
+      "width": 160
+    },
+    {
+      "id": "ollama",
+      "lane": "generation",
+      "col": 2,
+      "type": "cloud",
+      "label": "Ollama",
+      "sublabel": "llama3.2:latest",
+      "width": 150
+    },
+    {
+      "id": "draft",
+      "lane": "generation",
+      "col": 3,
+      "type": "backend",
+      "label": "Grounded Draft",
+      "sublabel": "context-aware",
+      "width": 160
+    },
+    {
+      "id": "finframe",
+      "lane": "finance",
+      "col": 4,
+      "type": "backend",
+      "label": "Financial Analysis",
+      "sublabel": "domain framing",
+      "width": 160
+    },
+    {
+      "id": "finresp",
+      "lane": "finance",
+      "col": 5,
+      "type": "backend",
+      "label": "Finance Response",
+      "width": 160
+    },
+    {
+      "id": "medframe",
+      "lane": "medical",
+      "col": 4,
+      "type": "backend",
+      "label": "Clinical Analysis",
+      "sublabel": "domain framing",
+      "width": 160
+    },
+    {
+      "id": "medresp",
+      "lane": "medical",
+      "col": 5,
+      "type": "backend",
+      "label": "Clinical Response",
+      "width": 160
+    },
+    {
+      "id": "crossframe",
+      "lane": "crossdomain",
+      "col": 4,
+      "type": "backend",
+      "label": "Multi-Domain Merge",
+      "sublabel": "both framings",
+      "width": 170
+    },
+    {
+      "id": "crossresp",
+      "lane": "crossdomain",
+      "col": 5,
+      "type": "backend",
+      "label": "Synthesised Answer",
+      "width": 158
+    }
+  ],
+  "edges": [
+    {
+      "id": "assemble",
+      "from": "evidence",
+      "to": "assembly",
+      "variant": "emphasis"
+    },
+    {
+      "id": "prompt",
+      "from": "assembly",
+      "to": "ollama",
+      "label": "prompt + context",
+      "variant": "emphasis"
+    },
+    {
+      "id": "generate",
+      "from": "ollama",
+      "to": "draft",
+      "label": "generated tokens",
+      "variant": "emphasis"
+    },
+    {
+      "id": "draft-finance",
+      "from": "draft",
+      "to": "finframe",
+      "label": "finance"
+    },
+    {
+      "id": "draft-medical",
+      "from": "draft",
+      "to": "medframe",
+      "label": "medical"
+    },
+    {
+      "id": "draft-cross",
+      "from": "draft",
+      "to": "crossframe",
+      "label": "both"
+    },
+    {
+      "id": "fin-final",
+      "from": "finframe",
+      "to": "finresp"
+    },
+    {
+      "id": "med-final",
+      "from": "medframe",
+      "to": "medresp"
+    },
+    {
+      "id": "cross-final",
+      "from": "crossframe",
+      "to": "crossresp"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Grounded generation",
+      "items": [
+        "The prompt carries only retrieved, verified evidence",
+        "Ollama runs llama3.2 locally, so no query leaves the host"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Domain framing",
+      "items": [
+        "The same draft is framed differently per domain",
+        "Cross-domain queries merge both framings into one answer"
+      ]
+    }
+  ]
+}

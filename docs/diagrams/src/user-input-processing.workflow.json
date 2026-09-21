@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": { "title": "User Input Processing", "quality_profile": "showcase" },
+  "lanes": [
+    { "id": "client", "label": "Client" },
+    { "id": "web", "label": "Django Web Application" }
+  ],
+  "mainPath": ["input", "interface", "validation", "session", "logging"],
+  "nodes": [
+    { "id": "input", "lane": "client", "col": 0, "type": "external", "label": "User Input", "sublabel": "typed question", "width": 150 },
+    { "id": "interface", "lane": "web", "col": 1, "type": "frontend", "label": "Web Interface", "sublabel": "Django view", "width": 150 },
+    { "id": "validation", "lane": "web", "col": 2, "type": "security", "label": "Input Validation", "sublabel": "length · encoding · injection", "width": 170 },
+    { "id": "session", "lane": "web", "col": 3, "type": "backend", "label": "Session Management", "sublabel": "user context", "width": 170 },
+    { "id": "logging", "lane": "web", "col": 4, "type": "database", "label": "Query Logging", "sublabel": "history + analytics", "width": 160 }
+  ],
+  "edges": [
+    { "id": "submit", "from": "input", "to": "interface", "label": "HTTP POST", "variant": "emphasis" },
+    { "id": "validate", "from": "interface", "to": "validation", "variant": "security" },
+    { "id": "attach-session", "from": "validation", "to": "session", "label": "accepted query" },
+    { "id": "record", "from": "session", "to": "logging", "label": "persist" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Entry contract", "items": ["Every question arrives through one Django endpoint", "Validation runs before any session or agent work"] },
+    { "dot": "slate", "title": "What is kept", "items": ["Session context links follow-up questions to a conversation", "Logged queries feed the analytics dashboard and future evaluation"] }
+  ]
+}

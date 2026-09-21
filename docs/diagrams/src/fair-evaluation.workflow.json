@@ -1,0 +1,192 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "FAIR Evaluation Scoring",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "spine",
+      "label": "Scoring Spine"
+    },
+    {
+      "id": "faithfulness",
+      "label": "Faithfulness"
+    },
+    {
+      "id": "adaptability",
+      "label": "Adaptability"
+    },
+    {
+      "id": "interpretability",
+      "label": "Interpretability"
+    },
+    {
+      "id": "riskawareness",
+      "label": "Risk Awareness"
+    }
+  ],
+  "mainPath": [
+    "composite",
+    "report",
+    "package"
+  ],
+  "nodes": [
+    {
+      "id": "response",
+      "lane": "spine",
+      "col": 0,
+      "type": "external",
+      "label": "Enhanced Response",
+      "sublabel": "answer + evidence",
+      "width": 274
+    },
+    {
+      "id": "composite",
+      "lane": "spine",
+      "col": 2,
+      "type": "backend",
+      "label": "FAIR Composite",
+      "sublabel": "combined score",
+      "tag": "0-100",
+      "width": 274
+    },
+    {
+      "id": "report",
+      "lane": "spine",
+      "col": 3,
+      "type": "backend",
+      "label": "Quality Report",
+      "sublabel": "per-metric detail",
+      "width": 274
+    },
+    {
+      "id": "package",
+      "lane": "spine",
+      "col": 5,
+      "type": "backend",
+      "label": "Response Package",
+      "sublabel": "answer + score",
+      "width": 274
+    },
+    {
+      "id": "faith",
+      "lane": "faithfulness",
+      "col": 1,
+      "type": "backend",
+      "label": "Faithfulness",
+      "sublabel": "evidence grounding",
+      "width": 274
+    },
+    {
+      "id": "adapt",
+      "lane": "adaptability",
+      "col": 1,
+      "type": "backend",
+      "label": "Adaptability",
+      "sublabel": "domain expertise",
+      "width": 274
+    },
+    {
+      "id": "interp",
+      "lane": "interpretability",
+      "col": 1,
+      "type": "backend",
+      "label": "Interpretability",
+      "sublabel": "reasoning transparency",
+      "width": 274
+    },
+    {
+      "id": "risk",
+      "lane": "riskawareness",
+      "col": 1,
+      "type": "security",
+      "label": "Risk Awareness",
+      "sublabel": "safety disclaimers",
+      "width": 274
+    }
+  ],
+  "edges": [
+    {
+      "id": "to-faith",
+      "from": "response",
+      "to": "faith",
+      "label": "cited claims"
+    },
+    {
+      "id": "to-adapt",
+      "from": "response",
+      "to": "adapt",
+      "label": "domain signals"
+    },
+    {
+      "id": "to-interp",
+      "from": "response",
+      "to": "interp",
+      "label": "reasoning steps"
+    },
+    {
+      "id": "to-risk",
+      "from": "response",
+      "to": "risk",
+      "label": "risk markers",
+      "variant": "security"
+    },
+    {
+      "id": "faith-score",
+      "from": "faith",
+      "to": "composite",
+      "label": "grounding"
+    },
+    {
+      "id": "adapt-score",
+      "from": "adapt",
+      "to": "composite",
+      "label": "expertise"
+    },
+    {
+      "id": "interp-score",
+      "from": "interp",
+      "to": "composite",
+      "label": "transparency"
+    },
+    {
+      "id": "risk-score",
+      "from": "risk",
+      "to": "composite",
+      "label": "disclaimers",
+      "variant": "security"
+    },
+    {
+      "id": "breakdown",
+      "from": "composite",
+      "to": "report",
+      "variant": "dashed"
+    },
+    {
+      "id": "ship",
+      "from": "report",
+      "to": "package",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Four independent axes",
+      "items": [
+        "Faithfulness scores how much of the answer is backed by retrieved evidence",
+        "Adaptability and interpretability score domain framing and visible reasoning"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Risk and delivery",
+      "items": [
+        "Risk awareness scores the presence and fit of safety disclaimers",
+        "The composite score ships with the answer, not as a separate report"
+      ]
+    }
+  ]
+}

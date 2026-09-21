@@ -1,0 +1,171 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Memory and Learning Loop",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "querypath",
+      "label": "Query Path"
+    },
+    {
+      "id": "vector",
+      "label": "Vector Memory"
+    },
+    {
+      "id": "graph",
+      "label": "Graph Memory"
+    }
+  ],
+  "mainPath": [
+    "query",
+    "search",
+    "chroma",
+    "context",
+    "model",
+    "response"
+  ],
+  "nodes": [
+    {
+      "id": "query",
+      "lane": "querypath",
+      "col": 0,
+      "type": "external",
+      "label": "User Query",
+      "width": 150
+    },
+    {
+      "id": "search",
+      "lane": "querypath",
+      "col": 1,
+      "type": "backend",
+      "label": "Memory Search",
+      "sublabel": "semantic + concept",
+      "width": 165
+    },
+    {
+      "id": "context",
+      "lane": "querypath",
+      "col": 3,
+      "type": "backend",
+      "label": "Augmented Context",
+      "sublabel": "past traces + relations",
+      "width": 175
+    },
+    {
+      "id": "model",
+      "lane": "querypath",
+      "col": 4,
+      "type": "cloud",
+      "label": "Llama 3.2",
+      "sublabel": "via Ollama",
+      "width": 150
+    },
+    {
+      "id": "response",
+      "lane": "querypath",
+      "col": 5,
+      "type": "backend",
+      "label": "Generated Response",
+      "width": 170
+    },
+    {
+      "id": "chroma",
+      "lane": "vector",
+      "col": 2,
+      "type": "database",
+      "label": "ChromaDB",
+      "sublabel": "semantic match",
+      "width": 160
+    },
+    {
+      "id": "kg",
+      "lane": "graph",
+      "col": 2,
+      "type": "database",
+      "label": "Knowledge Graph",
+      "sublabel": "concept match",
+      "width": 170
+    }
+  ],
+  "edges": [
+    {
+      "id": "ask",
+      "from": "query",
+      "to": "search",
+      "variant": "emphasis"
+    },
+    {
+      "id": "semantic",
+      "from": "search",
+      "to": "chroma",
+      "label": "semantic match"
+    },
+    {
+      "id": "concept",
+      "from": "search",
+      "to": "kg",
+      "label": "concept match"
+    },
+    {
+      "id": "traces",
+      "from": "chroma",
+      "to": "context",
+      "label": "past traces"
+    },
+    {
+      "id": "relations",
+      "from": "kg",
+      "to": "context",
+      "label": "related concepts"
+    },
+    {
+      "id": "prompt",
+      "from": "context",
+      "to": "model",
+      "variant": "emphasis"
+    },
+    {
+      "id": "generate",
+      "from": "model",
+      "to": "response",
+      "variant": "emphasis"
+    },
+    {
+      "id": "save-trace",
+      "from": "response",
+      "to": "chroma",
+      "label": "save trace",
+      "variant": "dashed",
+      "role": "async"
+    },
+    {
+      "id": "extract",
+      "from": "response",
+      "to": "kg",
+      "label": "extract relations",
+      "variant": "dashed",
+      "role": "async"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Retrieval",
+      "items": [
+        "Every query searches both the vector store and the knowledge graph",
+        "Retrieved traces and concept relations become the augmented context"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Learning",
+      "items": [
+        "Each generated response is saved back as a trace",
+        "Extracted relations grow the knowledge graph, so later queries see more"
+      ]
+    }
+  ]
+}

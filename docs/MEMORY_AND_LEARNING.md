@@ -58,28 +58,8 @@ The system "learns" by extracting knowledge from every interaction:
 
 Unlike a static chatbot, FAIR-Agent gets smarter with every interaction through this continuous loop:
 
-```mermaid
-graph TD
-    User[User Query] --> Search{Memory Search}
-    
-    subgraph Retrieval
-    Search -->|Semantic Match| VectorDB[(ChromaDB)]
-    Search -->|Concept Match| KG((Knowledge Graph))
-    end
-    
-    VectorDB --> Context[Augmented Context]
-    KG --> Context
-    
-    Context --> LLM[Llama 3.2 Model]
-    LLM --> Response[Generated Response]
-    
-    subgraph Learning
-    Response -->|Save Trace| VectorDB
-    Response -->|Extract Relations| KG
-    end
-    
-    Response --> User
-```
+> 📐 **[Memory and Learning Loop — open the interactive diagram](diagrams/memory-learning-loop.html)**
+> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`diagrams/src/`](diagrams/src/).*
 
 ## 🛠️ Technical Implementation
 

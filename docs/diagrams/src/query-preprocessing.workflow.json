@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": { "title": "Query Preprocessing", "quality_profile": "showcase" },
+  "lanes": [ { "id": "preprocessing", "label": "Query Preprocessing" } ],
+  "mainPath": ["input", "tokenize", "spellcheck", "domainterms", "corrected"],
+  "nodes": [
+    { "id": "input", "lane": "preprocessing", "col": 0, "type": "external", "label": "Input Query", "sublabel": "as typed", "width": 150 },
+    { "id": "tokenize", "lane": "preprocessing", "col": 1, "type": "backend", "label": "Tokenization", "sublabel": "split into terms", "width": 160 },
+    { "id": "spellcheck", "lane": "preprocessing", "col": 2, "type": "backend", "label": "Spell Check", "sublabel": "spell_checker.py", "width": 160 },
+    { "id": "domainterms", "lane": "preprocessing", "col": 3, "type": "backend", "label": "Domain Terms", "sublabel": "finance + medical lexicon", "width": 180 },
+    { "id": "corrected", "lane": "preprocessing", "col": 4, "type": "backend", "label": "Corrected Query", "sublabel": "ready for routing", "width": 170 }
+  ],
+  "edges": [
+    { "id": "split", "from": "input", "to": "tokenize", "variant": "emphasis" },
+    { "id": "correct", "from": "tokenize", "to": "spellcheck", "label": "tokens" },
+    { "id": "protect", "from": "spellcheck", "to": "domainterms", "label": "corrected tokens" },
+    { "id": "rebuild", "from": "domainterms", "to": "corrected", "variant": "emphasis" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Why correction runs first", "items": ["A misspelled ticker or drug name retrieves nothing", "Correction happens before classification, so routing sees clean text"] },
+    { "dot": "amber", "title": "Domain lexicon", "items": ["Finance and medical vocabulary is protected from generic spell correction", "Preserved terms keep exact product, drug, and instrument names intact"] }
+  ]
+}

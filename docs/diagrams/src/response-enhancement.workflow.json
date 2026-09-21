@@ -1,0 +1,209 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Response Enhancement",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "pipeline",
+      "label": "Enhancement Pipeline"
+    },
+    {
+      "id": "artifacts",
+      "label": "Generated Artifacts"
+    }
+  ],
+  "mainPath": [
+    "raw",
+    "cot",
+    "safety",
+    "disclaimer",
+    "format",
+    "enhanced"
+  ],
+  "nodes": [
+    {
+      "id": "raw",
+      "lane": "pipeline",
+      "col": 0,
+      "type": "external",
+      "label": "Raw Response",
+      "sublabel": "model output",
+      "width": 150
+    },
+    {
+      "id": "cot",
+      "lane": "pipeline",
+      "col": 1,
+      "type": "backend",
+      "label": "Chain-of-Thought",
+      "sublabel": "expose the reasoning",
+      "width": 170
+    },
+    {
+      "id": "safety",
+      "lane": "pipeline",
+      "col": 2,
+      "type": "security",
+      "label": "Safety Checks",
+      "sublabel": "harm + ethics patterns",
+      "width": 170
+    },
+    {
+      "id": "disclaimer",
+      "lane": "pipeline",
+      "col": 3,
+      "type": "security",
+      "label": "Disclaimer Addition",
+      "sublabel": "domain-specific warning",
+      "width": 180
+    },
+    {
+      "id": "format",
+      "lane": "pipeline",
+      "col": 4,
+      "type": "backend",
+      "label": "Structure & Format",
+      "sublabel": "7-section layout",
+      "width": 170
+    },
+    {
+      "id": "enhanced",
+      "lane": "pipeline",
+      "col": 5,
+      "type": "backend",
+      "label": "Enhanced Response",
+      "sublabel": "ready for scoring",
+      "width": 180
+    },
+    {
+      "id": "steps",
+      "lane": "artifacts",
+      "col": 1,
+      "type": "database",
+      "label": "Reasoning Steps",
+      "sublabel": "numbered trace",
+      "width": 160
+    },
+    {
+      "id": "risk",
+      "lane": "artifacts",
+      "col": 2,
+      "type": "database",
+      "label": "Risk Assessment",
+      "sublabel": "flagged hazards",
+      "width": 160
+    },
+    {
+      "id": "compliance",
+      "lane": "artifacts",
+      "col": 3,
+      "type": "database",
+      "label": "Compliance Record",
+      "sublabel": "disclaimer coverage",
+      "width": 180
+    }
+  ],
+  "edges": [
+    {
+      "id": "explain",
+      "from": "raw",
+      "to": "cot",
+      "variant": "emphasis"
+    },
+    {
+      "id": "check",
+      "from": "cot",
+      "to": "safety",
+      "variant": "security"
+    },
+    {
+      "id": "warn",
+      "from": "safety",
+      "to": "disclaimer",
+      "variant": "security"
+    },
+    {
+      "id": "structure",
+      "from": "disclaimer",
+      "to": "format"
+    },
+    {
+      "id": "publish",
+      "from": "format",
+      "to": "enhanced",
+      "variant": "emphasis"
+    },
+    {
+      "id": "emit-steps",
+      "from": "cot",
+      "to": "steps",
+      "label": "reasoning trace",
+      "variant": "dashed",
+      "role": "async"
+    },
+    {
+      "id": "emit-risk",
+      "from": "safety",
+      "to": "risk",
+      "label": "hazard flags",
+      "variant": "dashed",
+      "role": "async"
+    },
+    {
+      "id": "emit-compliance",
+      "from": "disclaimer",
+      "to": "compliance",
+      "label": "coverage record",
+      "variant": "dashed",
+      "role": "async"
+    },
+    {
+      "id": "attach-steps",
+      "from": "steps",
+      "to": "enhanced",
+      "variant": "dashed",
+      "role": "branch",
+      "route": "bottom-channel",
+      "channelY": 300
+    },
+    {
+      "id": "attach-risk",
+      "from": "risk",
+      "to": "enhanced",
+      "variant": "dashed",
+      "role": "branch",
+      "route": "bottom-channel",
+      "channelY": 316
+    },
+    {
+      "id": "attach-compliance",
+      "from": "compliance",
+      "to": "enhanced",
+      "variant": "dashed",
+      "role": "branch",
+      "route": "bottom-channel",
+      "channelY": 332
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Safety is not optional",
+      "items": [
+        "Every answer passes harm and ethics pattern checks",
+        "Domain-specific disclaimers are added, not suggested"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Traceable output",
+      "items": [
+        "Reasoning steps, hazard flags, and disclaimer coverage are recorded separately",
+        "All three are attached to the enhanced response for scoring"
+      ]
+    }
+  ]
+}

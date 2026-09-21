@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "RAG Retrieval Pipeline",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1080,
+      560
+    ]
+  },
+  "stages": [
+    {
+      "label": "Query"
+    },
+    {
+      "label": "Encode"
+    },
+    {
+      "label": "Search"
+    },
+    {
+      "label": "Rank"
+    },
+    {
+      "label": "Context"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "query",
+      "type": "external",
+      "label": "Query Input",
+      "sublabel": "agent question",
+      "stage": 0,
+      "row": 1,
+      "width": 130
+    },
+    {
+      "id": "encoder",
+      "type": "backend",
+      "label": "Query Encoder",
+      "sublabel": "all-MiniLM-L6-v2",
+      "stage": 1,
+      "row": 1,
+      "width": 130
+    },
+    {
+      "id": "vector",
+      "type": "database",
+      "label": "Vector Search",
+      "sublabel": "ChromaDB",
+      "stage": 2,
+      "row": 0,
+      "width": 130
+    },
+    {
+      "id": "graph",
+      "type": "database",
+      "label": "Graph Search",
+      "sublabel": "NetworkX",
+      "stage": 2,
+      "row": 1,
+      "width": 130
+    },
+    {
+      "id": "internet",
+      "type": "external",
+      "label": "Internet Search",
+      "sublabel": "DuckDuckGo",
+      "stage": 2,
+      "row": 2,
+      "width": 130
+    },
+    {
+      "id": "reranker",
+      "type": "backend",
+      "label": "Reranker",
+      "sublabel": "cross-encoder",
+      "stage": 3,
+      "row": 1,
+      "width": 130
+    },
+    {
+      "id": "context",
+      "type": "backend",
+      "label": "Context Window",
+      "sublabel": "token-limited prompt",
+      "stage": 4,
+      "row": 1,
+      "tag": "formatted context",
+      "width": 130
+    }
+  ],
+  "flows": [
+    {
+      "id": "encode",
+      "from": "query",
+      "to": "encoder",
+      "label": "question",
+      "variant": "emphasis"
+    },
+    {
+      "id": "embed",
+      "from": "encoder",
+      "to": "vector",
+      "label": "embedding",
+      "route": "vertical-channel",
+      "channelX": 390,
+      "labelAt": [
+        430,
+        157
+      ]
+    },
+    {
+      "id": "concepts",
+      "from": "encoder",
+      "to": "graph",
+      "label": "concepts"
+    },
+    {
+      "id": "terms",
+      "from": "encoder",
+      "to": "internet",
+      "label": "keywords",
+      "route": "vertical-channel",
+      "channelX": 455,
+      "labelAt": [
+        418,
+        385
+      ]
+    },
+    {
+      "id": "vector-hits",
+      "from": "vector",
+      "to": "reranker",
+      "label": "vector hits",
+      "route": "vertical-channel",
+      "channelX": 605,
+      "labelAt": [
+        645,
+        157
+      ]
+    },
+    {
+      "id": "graph-hits",
+      "from": "graph",
+      "to": "reranker",
+      "label": "graph hits",
+      "labelAt": [
+        645,
+        214
+      ]
+    },
+    {
+      "id": "web-hits",
+      "from": "internet",
+      "to": "reranker",
+      "label": "web results",
+      "route": "vertical-channel",
+      "channelX": 670,
+      "labelAt": [
+        630,
+        385
+      ]
+    },
+    {
+      "id": "ranked",
+      "from": "reranker",
+      "to": "context",
+      "label": "ranked",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Three retrieval channels",
+      "items": [
+        "Dense vectors catch paraphrase and semantic similarity",
+        "The knowledge graph follows explicit concept relationships",
+        "Internet search covers facts that are not in the curated corpus"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "One ranked context",
+      "items": [
+        "A cross-encoder scores every candidate against the original question",
+        "The context window enforces the token budget before the prompt is built"
+      ]
+    }
+  ]
+}

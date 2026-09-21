@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "FAIR-Agent Component Inventory",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    { "id": "ui", "type": "frontend", "label": "Web Interface", "sublabel": "Django templates", "pos": [60, 60], "size": [150, 50] },
+    { "id": "api", "type": "frontend", "label": "REST API", "sublabel": "WebSocket support", "pos": [225, 60], "size": [150, 50] },
+    { "id": "dash", "type": "frontend", "label": "Live Dashboard", "sublabel": "FAIR metrics display", "pos": [60, 130], "size": [150, 50] },
+
+    { "id": "orch", "type": "backend", "label": "Main Orchestrator", "sublabel": "query router", "pos": [455, 60], "size": [150, 50] },
+    { "id": "cache", "type": "database", "label": "Response Cache", "sublabel": "repeat queries", "pos": [620, 60], "size": [150, 50] },
+    { "id": "session", "type": "backend", "label": "Session Management", "sublabel": "user context", "pos": [455, 130], "size": [150, 50] },
+
+    { "id": "fa", "type": "backend", "label": "Finance Agent", "sublabel": "financial expertise", "pos": [850, 60], "size": [150, 50] },
+    { "id": "ma", "type": "backend", "label": "Medical Agent", "sublabel": "healthcare knowledge", "pos": [1015, 60], "size": [150, 50] },
+    { "id": "cross", "type": "backend", "label": "Cross-Domain", "sublabel": "multi-agent synthesis", "pos": [850, 130], "size": [150, 50] },
+
+    { "id": "rag", "type": "backend", "label": "RAG System", "sublabel": "63 evidence sources", "pos": [60, 320], "size": [150, 50] },
+    { "id": "cot", "type": "backend", "label": "Chain-of-Thought", "sublabel": "reasoning engine", "pos": [225, 320], "size": [150, 50] },
+    { "id": "safety", "type": "security", "label": "Safety System", "sublabel": "disclaimers + compliance", "pos": [60, 390], "size": [150, 50] },
+
+    { "id": "faith", "type": "backend", "label": "Faithfulness", "sublabel": "evidence grounding", "pos": [455, 320], "size": [150, 50] },
+    { "id": "adapt", "type": "backend", "label": "Adaptability", "sublabel": "domain expertise", "pos": [620, 320], "size": [150, 50] },
+    { "id": "interp", "type": "backend", "label": "Interpretability", "sublabel": "reasoning transparency", "pos": [455, 390], "size": [150, 50] },
+    { "id": "risk", "type": "security", "label": "Risk Awareness", "sublabel": "safety compliance", "pos": [620, 390], "size": [150, 50] },
+
+    { "id": "ollama", "type": "cloud", "label": "Ollama Server", "sublabel": "llama3.2:latest", "pos": [850, 320], "size": [150, 50] },
+    { "id": "db", "type": "database", "label": "SQLite", "sublabel": "history + analytics", "pos": [1015, 320], "size": [150, 50] },
+    { "id": "embed", "type": "backend", "label": "Sentence Transformers", "sublabel": "semantic search", "pos": [850, 390], "size": [150, 50] },
+    { "id": "logs", "type": "database", "label": "Logging System", "sublabel": "performance monitoring", "pos": [1015, 390], "size": [150, 50] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Frontend Layer", "wraps": ["ui", "api", "dash"], "pad": 18 },
+    { "kind": "region", "label": "Orchestration Layer", "wraps": ["orch", "cache", "session"], "pad": 18 },
+    { "kind": "region", "label": "Multi-Agent System", "wraps": ["fa", "ma", "cross"], "pad": 18 },
+    { "kind": "region", "label": "Enhancement Pipeline", "wraps": ["rag", "cot", "safety"], "pad": 18 },
+    { "kind": "region", "label": "FAIR Evaluation Engine", "wraps": ["faith", "adapt", "interp", "risk"], "pad": 18 },
+    { "kind": "security-group", "label": "Infrastructure Layer", "wraps": ["ollama", "db", "embed", "logs"], "pad": 18 }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "How to read this", "items": ["This is the component inventory per layer, not a request flow", "The end-to-end flow is in the FAIR-Agent System Architecture diagram"] },
+    { "dot": "emerald", "title": "Layer responsibilities", "items": ["Frontend serves the UI, the API, and the live metrics dashboard", "Orchestration owns routing, caching, and session context", "Enhancement adds retrieval, reasoning, and safety to every answer"] },
+    { "dot": "slate", "title": "Infrastructure", "items": ["Ollama runs llama3.2 locally; no query leaves the host", "SQLite holds query history and analytics", "Sentence Transformers back the semantic search index"] }
+  ]
+}

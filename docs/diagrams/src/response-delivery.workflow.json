@@ -1,0 +1,168 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Response Delivery and Analytics",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "delivery",
+      "label": "Delivery Pipeline"
+    },
+    {
+      "id": "reader",
+      "label": "User Interface"
+    },
+    {
+      "id": "analytics",
+      "label": "Analytics & History"
+    }
+  ],
+  "mainPath": [
+    "scored",
+    "format",
+    "analytics",
+    "deliver",
+    "store"
+  ],
+  "nodes": [
+    {
+      "id": "scored",
+      "lane": "delivery",
+      "col": 0,
+      "type": "external",
+      "label": "Scored Response",
+      "sublabel": "answer + FAIR score",
+      "width": 170
+    },
+    {
+      "id": "format",
+      "lane": "delivery",
+      "col": 1,
+      "type": "backend",
+      "label": "Format Response",
+      "sublabel": "HTML rendering",
+      "width": 160
+    },
+    {
+      "id": "analytics",
+      "lane": "delivery",
+      "col": 2,
+      "type": "backend",
+      "label": "Record Analytics",
+      "sublabel": "latency · tokens · score",
+      "width": 180
+    },
+    {
+      "id": "deliver",
+      "lane": "delivery",
+      "col": 3,
+      "type": "backend",
+      "label": "Deliver to User",
+      "sublabel": "WebSocket push",
+      "width": 160
+    },
+    {
+      "id": "store",
+      "lane": "delivery",
+      "col": 4,
+      "type": "database",
+      "label": "Store Session",
+      "sublabel": "SQLite",
+      "width": 150
+    },
+    {
+      "id": "ui",
+      "lane": "reader",
+      "col": 4,
+      "type": "frontend",
+      "label": "Browser UI",
+      "sublabel": "real-time streamed answer",
+      "width": 190
+    },
+    {
+      "id": "dashboard",
+      "lane": "analytics",
+      "col": 3,
+      "type": "frontend",
+      "label": "Analytics Dashboard",
+      "sublabel": "live metrics",
+      "width": 180
+    },
+    {
+      "id": "history",
+      "lane": "analytics",
+      "col": 5,
+      "type": "database",
+      "label": "Query History",
+      "sublabel": "input for improvements",
+      "width": 180
+    }
+  ],
+  "edges": [
+    {
+      "id": "render",
+      "from": "scored",
+      "to": "format",
+      "variant": "emphasis"
+    },
+    {
+      "id": "measure",
+      "from": "format",
+      "to": "analytics"
+    },
+    {
+      "id": "send",
+      "from": "analytics",
+      "to": "deliver",
+      "variant": "emphasis"
+    },
+    {
+      "id": "persist",
+      "from": "deliver",
+      "to": "store",
+      "label": "session record"
+    },
+    {
+      "id": "push",
+      "from": "deliver",
+      "to": "ui",
+      "label": "WebSocket frame",
+      "variant": "emphasis"
+    },
+    {
+      "id": "update-dashboard",
+      "from": "analytics",
+      "to": "dashboard",
+      "label": "performance metrics",
+      "variant": "dashed",
+      "role": "async"
+    },
+    {
+      "id": "archive",
+      "from": "store",
+      "to": "history",
+      "variant": "dashed",
+      "role": "async"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "What the user sees",
+      "items": [
+        "Formatted HTML streams over a WebSocket as it is produced",
+        "The FAIR score travels with the answer, not as a separate report"
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "What the system keeps",
+      "items": [
+        "Per-query latency, token counts, and scores feed the live dashboard",
+        "Stored sessions become the query history used to improve the system"
+      ]
+    }
+  ]
+}

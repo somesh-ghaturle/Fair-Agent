@@ -1,0 +1,543 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "FAIR-Agent System Architecture",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "query-path",
+        "label": "Query path",
+        "focus": [
+          "user",
+          "browser",
+          "django",
+          "orchestrator",
+          "preprocess",
+          "router",
+          "finance",
+          "medical",
+          "cross"
+        ],
+        "note": "A question travels from the browser through Django into the orchestrator, which normalizes it and routes it to a domain agent."
+      },
+      {
+        "id": "evidence-path",
+        "label": "Evidence path",
+        "focus": [
+          "retrieval",
+          "chroma",
+          "kg",
+          "internet",
+          "reranker",
+          "ollama"
+        ],
+        "note": "Agents gather candidates from the vector store, the knowledge graph, and the web, then rerank them into grounded context for the model."
+      },
+      {
+        "id": "observability",
+        "label": "Observability",
+        "focus": [
+          "orchestrator",
+          "ollama",
+          "telemetry",
+          "evaluator"
+        ],
+        "note": "Spans, latency, and token counts stream to telemetry, which feeds the offline FAIR evaluator."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "user",
+      "type": "external",
+      "label": "User",
+      "sublabel": "analyst or clinician",
+      "pos": [
+        50,
+        40
+      ],
+      "size": [
+        160,
+        52
+      ]
+    },
+    {
+      "id": "browser",
+      "type": "frontend",
+      "label": "Browser UI",
+      "sublabel": "HTML / JS / Bootstrap",
+      "pos": [
+        290,
+        40
+      ],
+      "size": [
+        160,
+        52
+      ]
+    },
+    {
+      "id": "django",
+      "type": "frontend",
+      "label": "Django Server",
+      "sublabel": "views.py · /api/query",
+      "pos": [
+        530,
+        40
+      ],
+      "size": [
+        160,
+        52
+      ]
+    },
+    {
+      "id": "evaluator",
+      "type": "backend",
+      "label": "FAIR Evaluator",
+      "sublabel": "evaluate.py",
+      "pos": [
+        1010,
+        40
+      ],
+      "size": [
+        160,
+        52
+      ]
+    },
+    {
+      "id": "preprocess",
+      "type": "backend",
+      "label": "Query Preprocessor",
+      "sublabel": "spell fix · domain terms",
+      "pos": [
+        290,
+        144
+      ],
+      "size": [
+        160,
+        52
+      ]
+    },
+    {
+      "id": "orchestrator",
+      "type": "backend",
+      "label": "Orchestrator",
+      "sublabel": "orchestrator.py",
+      "pos": [
+        530,
+        144
+      ],
+      "size": [
+        160,
+        52
+      ]
+    },
+    {
+      "id": "telemetry",
+      "type": "backend",
+      "label": "Telemetry",
+      "sublabel": "telemetry.py",
+      "pos": [
+        1010,
+        144
+      ],
+      "size": [
+        160,
+        52
+      ]
+    },
+    {
+      "id": "router",
+      "type": "backend",
+      "label": "Domain Router",
+      "sublabel": "confidence scoring",
+      "pos": [
+        290,
+        248
+      ],
+      "size": [
+        160,
+        52
+      ]
+    },
+    {
+      "id": "safety",
+      "type": "security",
+      "label": "Safety Filter",
+      "sublabel": "ethics · disclaimers",
+      "pos": [
+        770,
+        248
+      ],
+      "size": [
+        160,
+        52
+      ]
+    },
+    {
+      "id": "finance",
+      "type": "backend",
+      "label": "Finance Agent",
+      "sublabel": "finance_agent.py",
+      "pos": [
+        50,
+        352
+      ],
+      "size": [
+        160,
+        52
+      ]
+    },
+    {
+      "id": "medical",
+      "type": "backend",
+      "label": "Medical Agent",
+      "sublabel": "medical_agent.py",
+      "pos": [
+        290,
+        352
+      ],
+      "size": [
+        160,
+        52
+      ]
+    },
+    {
+      "id": "cross",
+      "type": "backend",
+      "label": "Cross-Domain",
+      "sublabel": "multi-agent synthesis",
+      "pos": [
+        530,
+        352
+      ],
+      "size": [
+        160,
+        52
+      ]
+    },
+    {
+      "id": "ollama",
+      "type": "cloud",
+      "label": "Ollama Service",
+      "sublabel": "llama3.2 · :11434",
+      "pos": [
+        770,
+        352
+      ],
+      "size": [
+        160,
+        52
+      ]
+    },
+    {
+      "id": "retrieval",
+      "type": "backend",
+      "label": "Hybrid Retrieval",
+      "sublabel": "semantic + keyword",
+      "pos": [
+        290,
+        456
+      ],
+      "size": [
+        160,
+        52
+      ]
+    },
+    {
+      "id": "reranker",
+      "type": "backend",
+      "label": "Cross-Encoder",
+      "sublabel": "ms-marco-MiniLM",
+      "pos": [
+        770,
+        456
+      ],
+      "size": [
+        160,
+        52
+      ]
+    },
+    {
+      "id": "chroma",
+      "type": "database",
+      "label": "ChromaDB",
+      "sublabel": "persistent vectors",
+      "pos": [
+        50,
+        560
+      ],
+      "size": [
+        160,
+        52
+      ]
+    },
+    {
+      "id": "kg",
+      "type": "database",
+      "label": "Knowledge Graph",
+      "sublabel": "NetworkX",
+      "pos": [
+        290,
+        560
+      ],
+      "size": [
+        160,
+        52
+      ]
+    },
+    {
+      "id": "internet",
+      "type": "external",
+      "label": "Internet Search",
+      "sublabel": "internet_rag.py",
+      "pos": [
+        530,
+        560
+      ],
+      "size": [
+        160,
+        52
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Web Application",
+      "wraps": [
+        "browser",
+        "django"
+      ],
+      "pad": 14
+    },
+    {
+      "kind": "region",
+      "label": "Core Orchestration",
+      "wraps": [
+        "preprocess",
+        "orchestrator",
+        "router"
+      ],
+      "pad": 14
+    },
+    {
+      "kind": "region",
+      "label": "Domain Agents",
+      "wraps": [
+        "finance",
+        "medical",
+        "cross"
+      ],
+      "pad": 14
+    },
+    {
+      "kind": "region",
+      "label": "RAG & Knowledge",
+      "wraps": [
+        "retrieval",
+        "chroma",
+        "kg",
+        "internet"
+      ],
+      "pad": 14
+    },
+    {
+      "kind": "security-group",
+      "label": "Inference, Safety & Observability",
+      "wraps": [
+        "safety",
+        "ollama",
+        "reranker",
+        "telemetry",
+        "evaluator"
+      ],
+      "pad": 14
+    }
+  ],
+  "connections": [
+    {
+      "id": "user-browser",
+      "from": "user",
+      "to": "browser",
+      "variant": "emphasis"
+    },
+    {
+      "id": "browser-django",
+      "from": "browser",
+      "to": "django",
+      "label": "HTTP POST",
+      "variant": "emphasis",
+      "labelDy": -18
+    },
+    {
+      "id": "django-orchestrator",
+      "from": "django",
+      "to": "orchestrator",
+      "variant": "emphasis"
+    },
+    {
+      "id": "orchestrator-preprocess",
+      "from": "orchestrator",
+      "to": "preprocess"
+    },
+    {
+      "id": "preprocess-router",
+      "from": "preprocess",
+      "to": "router"
+    },
+    {
+      "id": "router-finance",
+      "from": "router",
+      "to": "finance",
+      "label": "finance"
+    },
+    {
+      "id": "router-medical",
+      "from": "router",
+      "to": "medical",
+      "label": "medical",
+      "labelAt": [
+        370,
+        313
+      ]
+    },
+    {
+      "id": "router-cross",
+      "from": "router",
+      "to": "cross",
+      "label": "both domains"
+    },
+    {
+      "id": "finance-retrieval",
+      "from": "finance",
+      "to": "retrieval"
+    },
+    {
+      "id": "medical-retrieval",
+      "from": "medical",
+      "to": "retrieval",
+      "label": "retrieve evidence",
+      "labelAt": [
+        370,
+        418
+      ]
+    },
+    {
+      "id": "cross-retrieval",
+      "from": "cross",
+      "to": "retrieval"
+    },
+    {
+      "id": "retrieval-chroma",
+      "from": "retrieval",
+      "to": "chroma",
+      "label": "vector search"
+    },
+    {
+      "id": "retrieval-kg",
+      "from": "retrieval",
+      "to": "kg",
+      "label": "graph search",
+      "labelAt": [
+        370,
+        522
+      ]
+    },
+    {
+      "id": "retrieval-internet",
+      "from": "retrieval",
+      "to": "internet",
+      "label": "web search"
+    },
+    {
+      "id": "retrieval-reranker",
+      "from": "retrieval",
+      "to": "reranker",
+      "label": "candidates",
+      "labelDy": -18
+    },
+    {
+      "id": "reranker-ollama",
+      "from": "reranker",
+      "to": "ollama",
+      "label": "top-k context"
+    },
+    {
+      "id": "ollama-safety",
+      "from": "ollama",
+      "to": "safety",
+      "label": "draft answer"
+    },
+    {
+      "id": "safety-orchestrator",
+      "from": "safety",
+      "to": "orchestrator",
+      "label": "validated answer",
+      "variant": "security"
+    },
+    {
+      "id": "orchestrator-django",
+      "from": "orchestrator",
+      "to": "django",
+      "label": "JSON response",
+      "variant": "emphasis",
+      "labelAt": [
+        482,
+        118
+      ]
+    },
+    {
+      "id": "orchestrator-telemetry",
+      "from": "orchestrator",
+      "to": "telemetry",
+      "label": "spans",
+      "variant": "dashed",
+      "labelDy": -18
+    },
+    {
+      "id": "ollama-telemetry",
+      "from": "ollama",
+      "to": "telemetry",
+      "label": "latency · tokens",
+      "variant": "dashed",
+      "labelAt": [
+        970,
+        326
+      ]
+    },
+    {
+      "id": "telemetry-evaluator",
+      "from": "telemetry",
+      "to": "evaluator",
+      "label": "metrics",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Request handling",
+      "items": [
+        "Django serves the UI and the /api/query endpoint",
+        "The orchestrator owns spell correction, routing, and aggregation"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Grounding",
+      "items": [
+        "Hybrid retrieval spans ChromaDB vectors, the NetworkX graph, and web search",
+        "A cross-encoder reranks candidates before the context window is built"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Safety and measurement",
+      "items": [
+        "Every answer passes the ethics and disclaimer filter before return",
+        "Telemetry feeds the offline FAIR evaluator"
+      ]
+    }
+  ]
+}

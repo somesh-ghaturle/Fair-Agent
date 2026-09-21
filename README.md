@@ -35,133 +35,8 @@ The system operates on a comprehensive pipeline designed to ensure accuracy, saf
 
 ### Complete System Architecture
 
-```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffcc00', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#fff', 'fontSize': '20px'}, 'flowchart': {'nodeSpacing': 50, 'rankSpacing': 50, 'curve': 'basis'}}}%%
-flowchart TD
-    classDef user fill:#f9f,stroke:#333,stroke-width:4px,font-size:24px,font-weight:bold;
-    classDef frontend fill:#bbf,stroke:#333,stroke-width:3px,font-size:20px;
-    classDef core fill:#bfb,stroke:#333,stroke-width:3px,font-size:20px;
-    classDef rag fill:#fbb,stroke:#333,stroke-width:3px,font-size:20px;
-    classDef ai fill:#ddf,stroke:#333,stroke-width:3px,font-size:20px;
-    classDef obs fill:#ddd,stroke:#333,stroke-width:3px,font-size:20px;
-
-    subgraph User_Layer [User Interaction Layer]
-        User((User)):::user
-        Browser["Web Browser / UI<br/>(HTML/JS/CSS)"]:::frontend
-    end
-
-    subgraph Web_Layer [Web Application Layer]
-        Django["Django Server<br/>(WSGI/ASGI)"]:::frontend
-        Views["View Logic<br/>(views.py)"]:::frontend
-        API["REST API Endpoints<br/>(/api/query)"]:::frontend
-        Session["Session Manager<br/>(DB/Cache)"]:::frontend
-    end
-
-    subgraph Core_Layer [Core Orchestration Layer]
-        Orchestrator["Orchestrator System<br/>(orchestrator.py)"]:::core
-        SpellCheck["Spell & Query Fixer<br/>(spell_checker.py)"]:::core
-        Classifier["Domain Classifier<br/>(Regex/Keyword)"]:::core
-        Router{Router}:::core
-        Aggregator["Response Aggregator<br/>(JSON Builder)"]:::core
-        Safety["Safety & Ethics Filter<br/>(Pattern Matcher)"]:::core
-    end
-
-    subgraph Agent_Layer [Domain Agents]
-        FinAgent["Finance Agent<br/>(finance_agent.py)"]:::core
-        MedAgent["Medical Agent<br/>(medical_agent.py)"]:::core
-        CrossAgent["Cross-Domain Logic<br/>(Synthesis)"]:::core
-        Reasoning["Reasoning Engine<br/>(cot_system.py)"]:::core
-    end
-
-    subgraph RAG_Layer ["RAG & Knowledge Layer"]
-        QueryEnc["Query Encoder<br/>(all-MiniLM-L6-v2)"]:::rag
-        VectorDB[("ChromaDB Vector Store<br/>(Persistent)")]:::rag
-        KnowledgeGraph[("Knowledge Graph<br/>(NetworkX)")]:::rag
-        DocStore[("Evidence Sources<br/>YAML/JSON")]:::rag
-        Internet["Internet Search<br/>(internet_rag.py)"]:::rag
-        HybridSearch["Hybrid Search Engine<br/>(Semantic + Keyword)"]:::rag
-        ReRanker["Cross-Encoder Re-ranker<br/>(ms-marco-MiniLM)"]:::rag
-        ContextWindow["Context Window Manager<br/>(Token Limiter)"]:::rag
-    end
-
-    subgraph Inference_Layer [Inference Layer]
-        Ollama["Ollama API Client<br/>(HTTP/JSON)"]:::ai
-        LlamaService["Ollama Service<br/>(Localhost:11434)"]:::ai
-        Model[["Llama 3.2 Model<br/>(GGUF Quantized)"]]:::ai
-    end
-
-    subgraph Obs_Layer ["Observability & Evaluation"]
-        Telemetry["Telemetry Manager<br/>(telemetry.py)"]:::obs
-        Tracer["Trace Storage<br/>(logs/telemetry + DB)"]:::obs
-        Metrics["Metrics Store<br/>(Latency/Tokens)"]:::obs
-        Evaluator["Offline Evaluator<br/>(evaluate.py)"]:::obs
-        Benchmarks[("Benchmark Datasets<br/>FinQA/MedMCQA")]:::obs
-        
-        %% Metrics Details
-        M_Faith["Faithfulness<br/>(faithfulness.py)"]:::obs
-        M_Safe["Safety<br/>(safety.py)"]:::obs
-        M_Adapt["Adaptability<br/>(adaptability.py)"]:::obs
-        M_Interp["Interpretability<br/>(interpretability.py)"]:::obs
-    end
-
-    %% Flows
-    User -->|1. Submit Query| Browser
-    Browser -->|2. HTTP POST| Django
-    Django -->|3. Route Request| Views
-    Views -->|4. API Call| API
-    API -->|5. Process| Orchestrator
-
-    %% Orchestration Flow
-    Orchestrator -->|Pre-process| SpellCheck
-    SpellCheck -->|6. Classify| Classifier
-    Classifier -->|Domain Tag| Router
-    Router -->|Finance| FinAgent
-    Router -->|Medical| MedAgent
-    Router -->|Both| CrossAgent
-
-    %% RAG Flow
-    FinAgent & MedAgent -->|7. Retrieve Context| HybridSearch
-    HybridSearch -->|Encode Query| QueryEnc
-    QueryEnc -->|Vector Search| VectorDB
-    HybridSearch -->|Graph Search| KnowledgeGraph
-    HybridSearch -->|Keyword Search| DocStore
-    FinAgent & MedAgent -->|Web Search| Internet
-    VectorDB & KnowledgeGraph & DocStore & Internet -->|Candidates| ReRanker
-    ReRanker -->|Top K Evidence| ContextWindow
-    ContextWindow -->|Formatted Context| Reasoning
-
-    %% Inference Flow
-    Reasoning -->|8. Construct CoT| FinAgent & MedAgent
-    FinAgent & MedAgent -->|9. Send Prompt| Ollama
-    Ollama -->|Generate| LlamaService
-    LlamaService -->|Inference| Model
-    Model -->|Tokens| LlamaService
-    LlamaService -->|Response Stream| Ollama
-    Ollama -->|Text| FinAgent & MedAgent
-
-    %% Response Flow
-    FinAgent & MedAgent -->|10. Raw Response| Safety
-    Safety -->|Validated Response| Aggregator
-    Aggregator -->|Final Output| Orchestrator
-    Orchestrator -->|JSON Response| API
-    API -->|Return Data| Views
-    Views -->|Render Template| Browser
-    Browser -->|Display| User
-
-    %% Observability Flow
-    Orchestrator -.->|Start Trace| Telemetry
-    FinAgent & MedAgent -.->|Span| Telemetry
-    Ollama -.->|Latency/Tokens| Telemetry
-    Telemetry -->|Store| Tracer & Metrics
-    Evaluator -.->|Read| Metrics
-    Evaluator -.->|Compare| Benchmarks
-    
-    %% Metrics Calculation Flow
-    Evaluator -.->|Calculate| M_Faith
-    Evaluator -.->|Calculate| M_Safe
-    Evaluator -.->|Calculate| M_Adapt
-    Evaluator -.->|Calculate| M_Interp
-```
+> 📐 **[FAIR-Agent System Architecture — open the interactive diagram](docs/diagrams/system-architecture.html)**
+> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).*
 
 ### Workflow Steps
 1.  **User Query**: Received via Django web interface.
@@ -181,286 +56,41 @@ flowchart TD
 ### Detailed Pipeline Breakdown
 
 #### Stage 1: Query Reception & Validation
-```mermaid
-flowchart LR
-    A[👤 User Input] --> B[🌐 Django Web Interface]
-    B --> C[✅ Input Validation]
-    C --> D[📝 Session Management]
-    D --> E[📊 Query Logging]
-    
-    style A fill:#e3f2fd
-    style B fill:#f3e5f5
-    style C fill:#e8f5e8
-    style D fill:#fff3e0
-    style E fill:#f1f8e9
-```
+> 📐 **[User Input Processing — open the interactive diagram](docs/diagrams/user-input-processing.html)**
+> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).*
 
 #### Stage 2: Domain Classification & Intelligence Routing
-```mermaid
-flowchart LR
-    A[📝 Query Text] --> B[🔍 NLP Analysis]
-    B --> C[📊 Domain Confidence Scoring]
-    C --> D{🎯 Agent Selection}
-    
-    D -->|Finance 94.2%| E[💰 Finance Agent]
-    D -->|Medical 91.8%| F[🏥 Medical Agent]
-    D -->|Cross-Domain 87.3%| G[🔄 Multi-Agent]
-    
-    style A fill:#e3f2fd
-    style B fill:#f3e5f5
-    style C fill:#fff3e0
-    style D fill:#e8f5e8
-    style E fill:#e8f4f8
-    style F fill:#f0f8ff
-    style G fill:#fff8e1
-```
+> 📐 **[Query Classification and Routing — open the interactive diagram](docs/diagrams/query-classification-routing.html)**
+> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).*
 
 #### Stage 3: Specialized Agent Processing
-```mermaid
-flowchart LR
-    A[🎯 Routed Query] --> B{🤖 Domain Agent}
-    
-    B -->|Finance Domain| C[💰 Finance Agent]
-    B -->|Medical Domain| D[🏥 Medical Agent]
-    B -->|Cross-Domain| E[🔄 Both Agents]
-    
-    C --> F[📊 Financial Analysis]
-    D --> G[⚕️ Medical Analysis]
-    E --> H[🔄 Multi-Domain Synthesis]
-    
-    F --> I[💼 Initial Finance Response]
-    G --> J[🩺 Initial Medical Response]
-    H --> K[🌐 Cross-Domain Response]
-    
-    style A fill:#e3f2fd
-    style B fill:#fff3e0
-    style C fill:#e8f4f8
-    style D fill:#f0f8ff
-    style E fill:#fff8e1
-    style F fill:#f3e5f5
-    style G fill:#e8f5e8
-    style H fill:#ffeaa7
-    style I fill:#dda0dd
-    style J fill:#98fb98
-    style K fill:#f0e68c
-```
+> 📐 **[Domain Agent Processing — open the interactive diagram](docs/diagrams/agent-processing.html)**
+> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).*
 
 #### Stage 4: Advanced Evidence Retrieval (New!)
-```mermaid
-flowchart TD
-    A[🎯 Agent Query] --> B[🔄 Query Expansion]
-    B --> C{🔍 Hybrid Search}
-    
-    C -->|Semantic Search| D[🧠 ChromaDB Vector Store]
-    C -->|Graph Search| K[🕸️ Knowledge Graph]
-    C -->|Keyword Search| E[📝 BM25 / Keywords]
-    
-    D --> F[📑 Candidate Pool]
-    K --> F
-    E --> F
-    
-    F --> G[⚖️ Cross-Encoder Re-ranking]
-    G --> H{✅ Evidence Found?}
-    
-    H -->|Yes| I[📚 Top-3 Verified Sources]
-    H -->|No| J[🚫 Strict Refusal Protocol]
-    
-    J --> K_Log[📝 Log Missing Evidence]
-    J --> L[❌ 'No Evidence' Response]
-    
-    style A fill:#e3f2fd
-    style B fill:#e1bee7
-    style C fill:#fff3e0
-    style D fill:#e8f4f8
-    style K fill:#e8f4f8
-    style E fill:#f0f8ff
-    style F fill:#f5f5dc
-    style G fill:#ffcc80
-    style H fill:#fff9c4
-    style I fill:#c8e6c9
-    style J fill:#ffcdd2
-    style K_Log fill:#cfd8dc
-    style L fill:#ffab91
-```
+> 📐 **[RAG Evidence Retrieval — open the interactive diagram](docs/diagrams/rag-evidence-retrieval.html)**
+> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).*
 
 #### Stage 5: AI Model Processing
-```mermaid
-flowchart LR
-    A[📚 Evidence + Query] --> B[🔄 Context Assembly]
-    B --> C[🧠 Ollama LLM<br/>llama3.2:latest]
-    C --> D[💭 Context-Aware Response]
-    D --> E{🎯 Domain Expertise}
-    
-    E -->|Finance| F[💰 Financial Analysis]
-    E -->|Medical| G[⚕️ Medical Analysis]
-    E -->|Cross-Domain| H[🔄 Multi-Domain]
-    
-    F --> I[📊 Domain Response]
-    G --> J[🩺 Clinical Response]
-    H --> K[🌐 Synthesized Response]
-    
-    style A fill:#e3f2fd
-    style B fill:#f3e5f5
-    style C fill:#fff3e0
-    style D fill:#e8f5e8
-    style E fill:#fff8e1
-    style F fill:#e8f4f8
-    style G fill:#f0f8ff
-    style H fill:#ffeaa7
-    style I fill:#dda0dd
-    style J fill:#98fb98
-    style K fill:#f0e68c
-```
+> 📐 **[LLM Response Generation — open the interactive diagram](docs/diagrams/llm-generation.html)**
+> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).*
 
 #### Stage 6: Enhancement Pipeline
-```mermaid
-flowchart LR
-    A[🗣️ Raw Response] --> B[🔗 Chain-of-Thought]
-    B --> C[🛡️ Safety Checks]
-    C --> D[⚠️ Disclaimer Addition]
-    D --> E[📝 Structure & Format]
-    
-    B --> F[💭 Reasoning Steps]
-    C --> G[🚨 Risk Assessment]
-    D --> H[📋 Compliance Checks]
-    E --> I[✨ Enhanced Response]
-    
-    F --> I
-    G --> I
-    H --> I
-    
-    style A fill:#e3f2fd
-    style B fill:#fff3e0
-    style C fill:#ffebee
-    style D fill:#fff8e1
-    style E fill:#f3e5f5
-    style F fill:#e8f5e8
-    style G fill:#ffeaa7
-    style H fill:#e0ffff
-    style I fill:#f0e68c
-```
+> 📐 **[Response Enhancement — open the interactive diagram](docs/diagrams/response-enhancement.html)**
+> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).*
 
 #### Stage 7: FAIR Evaluation & Scoring
-```mermaid
-flowchart TD
-    A[📄 Enhanced Response + Evidence] --> B[🔍 Faithfulness Evaluation]
-    A --> C[🎯 Adaptability Evaluation]
-    A --> D[🔍 Interpretability Evaluation]
-    A --> E[⚠️ Risk Assessment]
-    
-    B --> F[📊 F-Score: 0-100]
-    C --> G[📈 A-Score: 0-100]
-    D --> H[💡 I-Score: 0-100]
-    E --> I[🚨 R-Score: 0-100]
-    
-    F --> J[⚡ FAIR Composite Score]
-    G --> J
-    H --> J
-    I --> J
-    
-    J --> K[📋 Quality Report]
-    K --> L[✅ Final Response Package]
-    
-    B --> M[Evidence Grounding %]
-    C --> N[Domain Expertise %]
-    D --> O[Reasoning Transparency %]
-    E --> P[Safety Disclaimer %]
-    
-    style A fill:#e3f2fd
-    style B fill:#ffebee
-    style C fill:#e8f5e8
-    style D fill:#fff3e0
-    style E fill:#ffeaa7
-    style F fill:#ffcdd2
-    style G fill:#c8e6c9
-    style H fill:#ffe0b2
-    style I fill:#ffecb3
-    style J fill:#f0e68c
-    style K fill:#e1bee7
-    style L fill:#dcedc8
-```
+> 📐 **[FAIR Evaluation Scoring — open the interactive diagram](docs/diagrams/fair-evaluation.html)**
+> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).*
 
 #### Stage 8: Response Delivery & Analytics
-```mermaid
-flowchart LR
-    A[📊 FAIR Score + Response] --> B[📝 Format Response]
-    B --> C[📈 Record Analytics]
-    C --> D[🚀 Deliver to User]
-    D --> E[💾 Store Session Data]
-    
-    B --> F[🎨 HTML Formatting]
-    C --> G[📊 Performance Metrics]
-    D --> H[🌐 WebSocket Delivery]
-    E --> I[🗄️ Database Storage]
-    
-    F --> J[👤 User Interface]
-    G --> K[📋 Dashboard Updates]
-    H --> J
-    I --> L[📚 Query History]
-    
-    J --> M[🎯 Real-time Response]
-    K --> N[📊 Analytics Dashboard]
-    L --> O[🔍 Future Improvements]
-    
-    style A fill:#e3f2fd
-    style B fill:#fff3e0
-    style C fill:#e8f5e8
-    style D fill:#ffebee
-    style E fill:#f3e5f5
-    style F fill:#ffe0b2
-    style G fill:#c8e6c9
-    style H fill:#ffcdd2
-    style I fill:#e1bee7
-    style J fill:#f0e68c
-    style K fill:#b3e5fc
-    style L fill:#dcedc8
-    style M fill:#81c784
-    style N fill:#64b5f6
-    style O fill:#ffb74d
-```
+> 📐 **[Response Delivery and Analytics — open the interactive diagram](docs/diagrams/response-delivery.html)**
+> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).*
 
 ### System Component Architecture
 
-```mermaid
-graph TB
-    subgraph "🌐 Frontend Layer"
-        UI[Web Interface<br/>Django Templates]
-        API[REST API<br/>WebSocket Support]
-        DASH[Real-time Dashboard<br/>FAIR Metrics Display]
-    end
-    
-    subgraph "🎯 Orchestration Layer"
-        ORCH[Main Orchestrator<br/>Query Router & Manager]
-        CACHE[Response Cache<br/>Performance Optimization]
-        SESSION[Session Management<br/>User Context]
-    end
-    
-    subgraph "🤖 Multi-Agent System"
-        FA[Finance Agent<br/>Financial Expertise]
-        MA[Medical Agent<br/>Healthcare Knowledge]
-        CROSS[Cross-Domain<br/>Multi-Agent Synthesis]
-    end
-    
-    subgraph "🧠 Enhancement Pipeline"
-        RAG[RAG System<br/>63 Evidence Sources]
-        COT[Chain-of-Thought<br/>Reasoning Engine]
-        SAFETY[Safety System<br/>Disclaimers & Compliance]
-    end
-    
-    subgraph "📏 FAIR Evaluation Engine"
-        FAITH[Faithfulness<br/>Evidence Grounding]
-        ADAPT[Adaptability<br/>Domain Expertise]
-        INTERP[Interpretability<br/>Reasoning Transparency]
-        RISK[Risk Awareness<br/>Safety Compliance]
-    end
-    
-    subgraph "🔧 Infrastructure Layer"
-        OLLAMA[Ollama LLM Server<br/>llama3.2:latest]
-        DB[(SQLite Database<br/>Query History & Analytics)]
-        EMBED[Sentence Transformers<br/>Semantic Search]
-        LOGS[(Logging System<br/>Performance Monitoring)]
-    end
-```
+> 📐 **[FAIR-Agent Component Inventory — open the interactive diagram](docs/diagrams/component-architecture.html)**
+> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).*
 
 ### 📊 New Features (Dec 2025)
 - **System Dashboard**: Real-time telemetry visualization including trace execution, latency metrics, and error tracking.

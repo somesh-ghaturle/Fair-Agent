@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": { "title": "Domain Agent Processing", "quality_profile": "showcase" },
+  "lanes": [
+    { "id": "routing", "label": "Routing" },
+    { "id": "finance", "label": "Finance Agent" },
+    { "id": "medical", "label": "Medical Agent" },
+    { "id": "crossdomain", "label": "Cross-Domain" }
+  ],
+  "mainPath": ["routed", "gate", "finagent", "finanalysis", "finresponse"],
+  "nodes": [
+    { "id": "routed", "lane": "routing", "col": 0, "type": "external", "label": "Routed Query", "sublabel": "with domain tag", "width": 150 },
+    { "id": "gate", "lane": "routing", "col": 1, "type": "backend", "label": "Domain Dispatch", "sublabel": "one or both agents", "width": 170 },
+    { "id": "finagent", "lane": "finance", "col": 2, "type": "backend", "label": "Finance Agent", "sublabel": "finance_agent.py", "width": 160 },
+    { "id": "finanalysis", "lane": "finance", "col": 3, "type": "backend", "label": "Financial Analysis", "sublabel": "ratios · risk · market", "width": 170 },
+    { "id": "finresponse", "lane": "finance", "col": 4, "type": "backend", "label": "Finance Draft", "sublabel": "initial response", "width": 160 },
+    { "id": "medagent", "lane": "medical", "col": 2, "type": "backend", "label": "Medical Agent", "sublabel": "medical_agent.py", "width": 160 },
+    { "id": "medanalysis", "lane": "medical", "col": 3, "type": "backend", "label": "Clinical Analysis", "sublabel": "symptoms · treatment", "width": 170 },
+    { "id": "medresponse", "lane": "medical", "col": 4, "type": "backend", "label": "Medical Draft", "sublabel": "initial response", "width": 160 },
+    { "id": "bothagents", "lane": "crossdomain", "col": 2, "type": "backend", "label": "Both Agents", "sublabel": "parallel invocation", "width": 160 },
+    { "id": "synthesis", "lane": "crossdomain", "col": 3, "type": "backend", "label": "Multi-Domain Synthesis", "sublabel": "merge findings", "width": 190 },
+    { "id": "crossresponse", "lane": "crossdomain", "col": 4, "type": "backend", "label": "Cross-Domain Draft", "sublabel": "combined response", "width": 180 }
+  ],
+  "edges": [
+    { "id": "dispatch", "from": "routed", "to": "gate", "variant": "emphasis" },
+    { "id": "gate-finance", "from": "gate", "to": "finagent", "label": "finance domain" },
+    { "id": "gate-medical", "from": "gate", "to": "medagent", "label": "medical domain" },
+    { "id": "gate-cross", "from": "gate", "to": "bothagents", "label": "both domains" },
+    { "id": "fin-analyse", "from": "finagent", "to": "finanalysis" },
+    { "id": "fin-draft", "from": "finanalysis", "to": "finresponse" },
+    { "id": "med-analyse", "from": "medagent", "to": "medanalysis" },
+    { "id": "med-draft", "from": "medanalysis", "to": "medresponse" },
+    { "id": "cross-synth", "from": "bothagents", "to": "synthesis" },
+    { "id": "cross-draft", "from": "synthesis", "to": "crossresponse" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Single-domain path", "items": ["One agent owns the analysis and produces one draft", "Domain expertise is applied before any evidence is rendered"] },
+    { "dot": "amber", "title": "Cross-domain path", "items": ["Both agents run, then a synthesis step merges their findings", "The combined draft carries both financial and clinical framing"] }
+  ]
+}

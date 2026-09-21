@@ -1,0 +1,168 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Chain-of-Thought Reasoning",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "context",
+      "label": "Context"
+    },
+    {
+      "id": "reasoning",
+      "label": "Reasoning Engine"
+    },
+    {
+      "id": "agents",
+      "label": "Domain Agents"
+    }
+  ],
+  "groups": [
+    {
+      "id": "steps",
+      "label": "Reasoning steps",
+      "lane": "reasoning",
+      "fromCol": 0,
+      "toCol": 5,
+      "variant": "emphasis"
+    }
+  ],
+  "mainPath": [
+    "problem",
+    "gathering",
+    "evaluation",
+    "synthesis",
+    "uncertainty",
+    "conclusion"
+  ],
+  "nodes": [
+    {
+      "id": "window",
+      "lane": "context",
+      "col": 0,
+      "type": "backend",
+      "label": "Context Window",
+      "sublabel": "ranked evidence",
+      "width": 150
+    },
+    {
+      "id": "problem",
+      "lane": "reasoning",
+      "col": 0,
+      "type": "backend",
+      "label": "Problem Analysis",
+      "width": 150
+    },
+    {
+      "id": "gathering",
+      "lane": "reasoning",
+      "col": 1,
+      "type": "backend",
+      "label": "Information Gathering",
+      "width": 165
+    },
+    {
+      "id": "evaluation",
+      "lane": "reasoning",
+      "col": 2,
+      "type": "backend",
+      "label": "Evaluation",
+      "width": 140
+    },
+    {
+      "id": "synthesis",
+      "lane": "reasoning",
+      "col": 3,
+      "type": "backend",
+      "label": "Synthesis",
+      "width": 140
+    },
+    {
+      "id": "uncertainty",
+      "lane": "reasoning",
+      "col": 4,
+      "type": "backend",
+      "label": "Uncertainty Assessment",
+      "width": 170
+    },
+    {
+      "id": "conclusion",
+      "lane": "reasoning",
+      "col": 5,
+      "type": "backend",
+      "label": "Conclusion",
+      "width": 140
+    },
+    {
+      "id": "domain",
+      "lane": "agents",
+      "col": 5,
+      "type": "backend",
+      "label": "Domain Agents",
+      "sublabel": "finance · medical",
+      "width": 150
+    }
+  ],
+  "edges": [
+    {
+      "id": "feed",
+      "from": "window",
+      "to": "problem",
+      "label": "formatted context",
+      "variant": "emphasis"
+    },
+    {
+      "id": "analyse",
+      "from": "problem",
+      "to": "gathering"
+    },
+    {
+      "id": "gather",
+      "from": "gathering",
+      "to": "evaluation"
+    },
+    {
+      "id": "evaluate",
+      "from": "evaluation",
+      "to": "synthesis"
+    },
+    {
+      "id": "synthesise",
+      "from": "synthesis",
+      "to": "uncertainty"
+    },
+    {
+      "id": "qualify",
+      "from": "uncertainty",
+      "to": "conclusion",
+      "variant": "emphasis"
+    },
+    {
+      "id": "handoff",
+      "from": "conclusion",
+      "to": "domain",
+      "label": "constructed CoT prompt",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "Six fixed steps",
+      "items": [
+        "Every answer walks the same sequence, so reasoning is comparable across queries",
+        "Uncertainty is assessed explicitly instead of being implied by hedging"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Why it is visible",
+      "items": [
+        "The step trace is what the interpretability metric scores",
+        "The agent receives a constructed prompt, not a free-form instruction"
+      ]
+    }
+  ]
+}

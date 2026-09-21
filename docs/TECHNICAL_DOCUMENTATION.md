@@ -57,32 +57,8 @@ FAIR-Agent is the **world's first LLM with quantifiable trustworthiness**, desig
 
 The system operates on a **6-layer architecture**:
 
-```mermaid
-graph TD
-    classDef layer fill:#f9f9f9,stroke:#333,stroke-width:2px;
-    classDef obs fill:#e1f5fe,stroke:#0277bd,stroke-width:2px,stroke-dasharray: 5 5;
-
-    L1[User Interaction Layer<br/>Browser/UI]:::layer
-    L2[Web Application Layer<br/>Django/ASGI]:::layer
-    L3[Core Orchestration Layer<br/>Routing]:::layer
-    L4[Agent Layer<br/>Finance/Medical/Cross]:::layer
-    L5[RAG & Knowledge Layer<br/>Hybrid Search]:::layer
-    L6[Inference Layer<br/>Ollama + Llama 3.2]:::layer
-    L7[Observability Layer<br/>Tracing/Metrics]:::obs
-
-    L1 --> L2
-    L2 --> L3
-    L3 --> L4
-    L4 --> L5
-    L5 --> L6
-    
-    L7 -.-> L1
-    L7 -.-> L2
-    L7 -.-> L3
-    L7 -.-> L4
-    L7 -.-> L5
-    L7 -.-> L6
-```
+> 📐 **[FAIR-Agent Layer Stack — open the interactive diagram](diagrams/layered-architecture.html)**
+> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`diagrams/src/`](diagrams/src/).*
 
 ### Component Interaction Flow
 
@@ -102,133 +78,8 @@ graph TD
 
 ### Detailed Architecture
 
-```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffcc00', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#fff', 'fontSize': '20px'}, 'flowchart': {'nodeSpacing': 50, 'rankSpacing': 50, 'curve': 'basis'}}}%%
-flowchart TD
-    classDef user fill:#f9f,stroke:#333,stroke-width:4px,font-size:24px,font-weight:bold;
-    classDef frontend fill:#bbf,stroke:#333,stroke-width:3px,font-size:20px;
-    classDef core fill:#bfb,stroke:#333,stroke-width:3px,font-size:20px;
-    classDef rag fill:#fbb,stroke:#333,stroke-width:3px,font-size:20px;
-    classDef ai fill:#ddf,stroke:#333,stroke-width:3px,font-size:20px;
-    classDef obs fill:#ddd,stroke:#333,stroke-width:3px,font-size:20px;
-
-    subgraph User_Layer [User Interaction Layer]
-        User((User)):::user
-        Browser["Web Browser / UI<br/>(HTML/JS/CSS)"]:::frontend
-    end
-
-    subgraph Web_Layer [Web Application Layer]
-        Django["Django Server<br/>(WSGI/ASGI)"]:::frontend
-        Views["View Logic<br/>(views.py)"]:::frontend
-        API["REST API Endpoints<br/>(/api/query)"]:::frontend
-        Session["Session Manager<br/>(DB/Cache)"]:::frontend
-    end
-
-    subgraph Core_Layer [Core Orchestration Layer]
-        Orchestrator["Orchestrator System<br/>(orchestrator.py)"]:::core
-        SpellCheck["Spell & Query Fixer<br/>(spell_checker.py)"]:::core
-        Classifier["Domain Classifier<br/>(Regex/Keyword)"]:::core
-        Router{Router}:::core
-        Aggregator["Response Aggregator<br/>(JSON Builder)"]:::core
-        Safety["Safety & Ethics Filter<br/>(Pattern Matcher)"]:::core
-    end
-
-    subgraph Agent_Layer [Domain Agents]
-        FinAgent["Finance Agent<br/>(finance_agent.py)"]:::core
-        MedAgent["Medical Agent<br/>(medical_agent.py)"]:::core
-        CrossAgent["Cross-Domain Logic<br/>(Synthesis)"]:::core
-        Reasoning["Reasoning Engine<br/>(cot_system.py)"]:::core
-    end
-
-    subgraph RAG_Layer ["RAG & Knowledge Layer"]
-        QueryEnc["Query Encoder<br/>(all-MiniLM-L6-v2)"]:::rag
-        VectorDB[("ChromaDB Vector Store<br/>(Persistent)")]:::rag
-        KnowledgeGraph[("Knowledge Graph<br/>(NetworkX)")]:::rag
-        DocStore[("Evidence Sources<br/>YAML/JSON")]:::rag
-        Internet["Internet Search<br/>(internet_rag.py)"]:::rag
-        HybridSearch["Hybrid Search Engine<br/>(Semantic + Keyword)"]:::rag
-        ReRanker["Cross-Encoder Re-ranker<br/>(ms-marco-MiniLM)"]:::rag
-        ContextWindow["Context Window Manager<br/>(Token Limiter)"]:::rag
-    end
-
-    subgraph Inference_Layer [Inference Layer]
-        Ollama["Ollama API Client<br/>(HTTP/JSON)"]:::ai
-        LlamaService["Ollama Service<br/>(Localhost:11434)"]:::ai
-        Model[["Llama 3.2 Model<br/>(GGUF Quantized)"]]:::ai
-    end
-
-    subgraph Obs_Layer ["Observability & Evaluation"]
-        Telemetry["Telemetry Manager<br/>(telemetry.py)"]:::obs
-        Tracer["Trace Storage<br/>(logs/telemetry + DB)"]:::obs
-        Metrics["Metrics Store<br/>(Latency/Tokens)"]:::obs
-        Evaluator["Offline Evaluator<br/>(evaluate.py)"]:::obs
-        Benchmarks[("Benchmark Datasets<br/>FinQA/MedMCQA")]:::obs
-        
-        %% Metrics Details
-        M_Faith["Faithfulness<br/>(faithfulness.py)"]:::obs
-        M_Safe["Safety<br/>(safety.py)"]:::obs
-        M_Adapt["Adaptability<br/>(adaptability.py)"]:::obs
-        M_Interp["Interpretability<br/>(interpretability.py)"]:::obs
-    end
-
-    %% Flows
-    User -->|1. Submit Query| Browser
-    Browser -->|2. HTTP POST| Django
-    Django -->|3. Route Request| Views
-    Views -->|4. API Call| API
-    API -->|5. Process| Orchestrator
-
-    %% Orchestration Flow
-    Orchestrator -->|Pre-process| SpellCheck
-    SpellCheck -->|6. Classify| Classifier
-    Classifier -->|Domain Tag| Router
-    Router -->|Finance| FinAgent
-    Router -->|Medical| MedAgent
-    Router -->|Both| CrossAgent
-
-    %% RAG Flow
-    FinAgent & MedAgent -->|7. Retrieve Context| HybridSearch
-    HybridSearch -->|Encode Query| QueryEnc
-    QueryEnc -->|Vector Search| VectorDB
-    HybridSearch -->|Graph Search| KnowledgeGraph
-    HybridSearch -->|Keyword Search| DocStore
-    FinAgent & MedAgent -->|Web Search| Internet
-    VectorDB & KnowledgeGraph & DocStore & Internet -->|Candidates| ReRanker
-    ReRanker -->|Top K Evidence| ContextWindow
-    ContextWindow -->|Formatted Context| Reasoning
-
-    %% Inference Flow
-    Reasoning -->|8. Construct CoT| FinAgent & MedAgent
-    FinAgent & MedAgent -->|9. Send Prompt| Ollama
-    Ollama -->|Generate| LlamaService
-    LlamaService -->|Inference| Model
-    Model -->|Tokens| LlamaService
-    LlamaService -->|Response Stream| Ollama
-    Ollama -->|Text| FinAgent & MedAgent
-
-    %% Response Flow
-    FinAgent & MedAgent -->|10. Raw Response| Safety
-    Safety -->|Validated Response| Aggregator
-    Aggregator -->|Final Output| Orchestrator
-    Orchestrator -->|JSON Response| API
-    API -->|Return Data| Views
-    Views -->|Render Template| Browser
-    Browser -->|Display| User
-
-    %% Observability Flow
-    Orchestrator -.->|Start Trace| Telemetry
-    FinAgent & MedAgent -.->|Span| Telemetry
-    Ollama -.->|Latency/Tokens| Telemetry
-    Telemetry -->|Store| Tracer & Metrics
-    Evaluator -.->|Read| Metrics
-    Evaluator -.->|Compare| Benchmarks
-    
-    %% Metrics Calculation Flow
-    Evaluator -.->|Calculate| M_Faith
-    Evaluator -.->|Calculate| M_Safe
-    Evaluator -.->|Calculate| M_Adapt
-    Evaluator -.->|Calculate| M_Interp
-```
+> 📐 **[FAIR-Agent System Architecture — open the interactive diagram](diagrams/system-architecture.html)**
+> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`diagrams/src/`](diagrams/src/).*
 
 ### Detailed Request Processing Flow
 
@@ -429,21 +280,8 @@ class FinanceResponse:
 
 **Architecture:**
 
-```mermaid
-flowchart TD
-    Q[Query Input] --> QE[Query Encoder<br/>all-MiniLM-L6-v2]
-    
-    QE --> VS[Vector Search<br/>ChromaDB]
-    QE --> GS[Graph Search<br/>NetworkX]
-    QE --> IS[Internet Search<br/>DuckDuckGo]
-    
-    VS --> CER[Cross-Encoder Re-ranker<br/>ms-marco-MiniLM]
-    GS --> CER
-    IS --> CER
-    
-    CER --> CWM[Context Window Manager<br/>Token Limiting]
-    CWM --> FC[Formatted Context for LLM]
-```
+> 📐 **[RAG Retrieval Pipeline — open the interactive diagram](diagrams/rag-retrieval-pipeline.html)**
+> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`diagrams/src/`](diagrams/src/).*
 
 **Key Components:**
 
@@ -481,30 +319,9 @@ flowchart TD
 - Domain-specific templates (Finance/Medical)
 
 **Architecture Flow:**
-```mermaid
-flowchart TD
-    ContextWindow -->|formatted context| Reasoning
-    Reasoning -->|Construct CoT| FinAgent & MedAgent
-```
+> 📐 **[Chain-of-Thought Reasoning — open the interactive diagram](diagrams/chain-of-thought-reasoning.html)**
+> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`diagrams/src/`](diagrams/src/).*
 
-**Reasoning Process Flow:**
-```mermaid
-flowchart TD
-    P[Problem Analysis] --> I[Information Gathering]
-    I --> E[Evaluation]
-    E --> S[Synthesis]
-    S --> U[Uncertainty Assessment]
-    U --> C[Conclusion]
-    
-    subgraph Steps [Reasoning Steps]
-    P
-    I
-    E
-    S
-    U
-    C
-    end
-```
 
 **Step Definitions:**
 1. **Problem Analysis:** Deconstructs the query into core components (e.g., Identifying symptoms or financial goals).
@@ -535,13 +352,8 @@ flowchart TD
 - Query expansion
 
 **Workflow:**
-```mermaid
-flowchart LR
-    IQ[Input Query] --> Tok[Tokenization]
-    Tok --> SC[Spell Check]
-    SC --> DT[Domain Terms]
-    DT --> CQ[Corrected Query]
-```
+> 📐 **[Query Preprocessing — open the interactive diagram](diagrams/query-preprocessing.html)**
+> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`diagrams/src/`](diagrams/src/).*
 
 **Workflow:**
 ```python
