@@ -35,8 +35,10 @@ The system operates on a comprehensive pipeline designed to ensure accuracy, saf
 
 ### Complete System Architecture
 
-> 📐 **[FAIR-Agent System Architecture — open the interactive diagram](docs/diagrams/system-architecture.html)**
-> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).*
+![FAIR-Agent System Architecture](docs/diagrams/system-architecture.svg)
+
+> 📐 **[Open the interactive version →](docs/diagrams/system-architecture.html)** — pan, zoom, search, trace any relationship,
+> focus a subsystem, switch light/dark, export PNG/SVG. Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).
 
 ### Workflow Steps
 1.  **User Query**: Received via Django web interface.
@@ -56,41 +58,59 @@ The system operates on a comprehensive pipeline designed to ensure accuracy, saf
 ### Detailed Pipeline Breakdown
 
 #### Stage 1: Query Reception & Validation
-> 📐 **[User Input Processing — open the interactive diagram](docs/diagrams/user-input-processing.html)**
-> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).*
+![User Input Processing](docs/diagrams/user-input-processing.svg)
+
+> 📐 **[Open the interactive version →](docs/diagrams/user-input-processing.html)** — pan, zoom, search, trace any relationship,
+> focus a subsystem, switch light/dark, export PNG/SVG. Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).
 
 #### Stage 2: Domain Classification & Intelligence Routing
-> 📐 **[Query Classification and Routing — open the interactive diagram](docs/diagrams/query-classification-routing.html)**
-> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).*
+![Query Classification and Routing](docs/diagrams/query-classification-routing.svg)
+
+> 📐 **[Open the interactive version →](docs/diagrams/query-classification-routing.html)** — pan, zoom, search, trace any relationship,
+> focus a subsystem, switch light/dark, export PNG/SVG. Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).
 
 #### Stage 3: Specialized Agent Processing
-> 📐 **[Domain Agent Processing — open the interactive diagram](docs/diagrams/agent-processing.html)**
-> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).*
+![Domain Agent Processing](docs/diagrams/agent-processing.svg)
+
+> 📐 **[Open the interactive version →](docs/diagrams/agent-processing.html)** — pan, zoom, search, trace any relationship,
+> focus a subsystem, switch light/dark, export PNG/SVG. Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).
 
 #### Stage 4: Advanced Evidence Retrieval (New!)
-> 📐 **[RAG Evidence Retrieval — open the interactive diagram](docs/diagrams/rag-evidence-retrieval.html)**
-> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).*
+![RAG Evidence Retrieval](docs/diagrams/rag-evidence-retrieval.svg)
+
+> 📐 **[Open the interactive version →](docs/diagrams/rag-evidence-retrieval.html)** — pan, zoom, search, trace any relationship,
+> focus a subsystem, switch light/dark, export PNG/SVG. Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).
 
 #### Stage 5: AI Model Processing
-> 📐 **[LLM Response Generation — open the interactive diagram](docs/diagrams/llm-generation.html)**
-> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).*
+![LLM Response Generation](docs/diagrams/llm-generation.svg)
+
+> 📐 **[Open the interactive version →](docs/diagrams/llm-generation.html)** — pan, zoom, search, trace any relationship,
+> focus a subsystem, switch light/dark, export PNG/SVG. Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).
 
 #### Stage 6: Enhancement Pipeline
-> 📐 **[Response Enhancement — open the interactive diagram](docs/diagrams/response-enhancement.html)**
-> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).*
+![Response Enhancement](docs/diagrams/response-enhancement.svg)
+
+> 📐 **[Open the interactive version →](docs/diagrams/response-enhancement.html)** — pan, zoom, search, trace any relationship,
+> focus a subsystem, switch light/dark, export PNG/SVG. Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).
 
 #### Stage 7: FAIR Evaluation & Scoring
-> 📐 **[FAIR Evaluation Scoring — open the interactive diagram](docs/diagrams/fair-evaluation.html)**
-> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).*
+![FAIR Evaluation Scoring](docs/diagrams/fair-evaluation.svg)
+
+> 📐 **[Open the interactive version →](docs/diagrams/fair-evaluation.html)** — pan, zoom, search, trace any relationship,
+> focus a subsystem, switch light/dark, export PNG/SVG. Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).
 
 #### Stage 8: Response Delivery & Analytics
-> 📐 **[Response Delivery and Analytics — open the interactive diagram](docs/diagrams/response-delivery.html)**
-> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).*
+![Response Delivery and Analytics](docs/diagrams/response-delivery.svg)
+
+> 📐 **[Open the interactive version →](docs/diagrams/response-delivery.html)** — pan, zoom, search, trace any relationship,
+> focus a subsystem, switch light/dark, export PNG/SVG. Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).
 
 ### System Component Architecture
 
-> 📐 **[FAIR-Agent Component Inventory — open the interactive diagram](docs/diagrams/component-architecture.html)**
-> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).*
+![FAIR-Agent Component Inventory](docs/diagrams/component-architecture.svg)
+
+> 📐 **[Open the interactive version →](docs/diagrams/component-architecture.html)** — pan, zoom, search, trace any relationship,
+> focus a subsystem, switch light/dark, export PNG/SVG. Source spec: [`docs/diagrams/src/`](docs/diagrams/src/).
 
 ### 📊 New Features (Dec 2025)
 - **System Dashboard**: Real-time telemetry visualization including trace execution, latency metrics, and error tracking.

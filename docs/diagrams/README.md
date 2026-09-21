@@ -37,6 +37,22 @@ node $ARCHIFY deliver  workflow <name>.workflow.json ../<name>.html --quality sh
 node $ARCHIFY visual-check ../<name>.html --json
 ```
 
+After exporting a fresh `.svg` from the viewer, re-apply the edge motion:
+
+```bash
+python3 animate-edges.py
+```
+
+That injects CSS animation that runs when GitHub renders the `.svg` inside an `<img>`:
+edges (`data-edge-from` paths) flow at ~14 px/s, already-dashed group frames drift at
+~4 px/s so they read as ambient rather than as data movement. Solid frames are untouched.
+Re-running upgrades the block in place rather than stacking a second one, and
+`prefers-reduced-motion` turns all of it off. A plain export is static — re-run this or
+the diagrams stop moving.
+
+All fifteen animate: fourteen have flowing edges, and `component-architecture.svg`, an
+inventory grid with no arrows at all, moves through its six layer frames.
+
 Use the type that matches the filename suffix (`architecture`, `workflow`, or `dataflow`).
 All fifteen specs currently pass `--quality showcase` with 9/9 artifact checks and
 zero composition errors, and every artifact is contained at 1440x900, 1600x1000,

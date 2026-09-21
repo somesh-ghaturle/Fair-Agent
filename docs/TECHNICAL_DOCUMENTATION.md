@@ -57,8 +57,10 @@ FAIR-Agent is the **world's first LLM with quantifiable trustworthiness**, desig
 
 The system operates on a **6-layer architecture**:
 
-> 📐 **[FAIR-Agent Layer Stack — open the interactive diagram](diagrams/layered-architecture.html)**
-> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`diagrams/src/`](diagrams/src/).*
+![FAIR-Agent Layer Stack](diagrams/layered-architecture.svg)
+
+> 📐 **[Open the interactive version →](diagrams/layered-architecture.html)** — pan, zoom, search, trace any relationship,
+> focus a subsystem, switch light/dark, export PNG/SVG. Source spec: [`diagrams/src/`](diagrams/src/).
 
 ### Component Interaction Flow
 
@@ -78,8 +80,10 @@ The system operates on a **6-layer architecture**:
 
 ### Detailed Architecture
 
-> 📐 **[FAIR-Agent System Architecture — open the interactive diagram](diagrams/system-architecture.html)**
-> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`diagrams/src/`](diagrams/src/).*
+![FAIR-Agent System Architecture](diagrams/system-architecture.svg)
+
+> 📐 **[Open the interactive version →](diagrams/system-architecture.html)** — pan, zoom, search, trace any relationship,
+> focus a subsystem, switch light/dark, export PNG/SVG. Source spec: [`diagrams/src/`](diagrams/src/).
 
 ### Detailed Request Processing Flow
 
@@ -280,8 +284,10 @@ class FinanceResponse:
 
 **Architecture:**
 
-> 📐 **[RAG Retrieval Pipeline — open the interactive diagram](diagrams/rag-retrieval-pipeline.html)**
-> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`diagrams/src/`](diagrams/src/).*
+![RAG Retrieval Pipeline](diagrams/rag-retrieval-pipeline.svg)
+
+> 📐 **[Open the interactive version →](diagrams/rag-retrieval-pipeline.html)** — pan, zoom, search, trace any relationship,
+> focus a subsystem, switch light/dark, export PNG/SVG. Source spec: [`diagrams/src/`](diagrams/src/).
 
 **Key Components:**
 
@@ -319,8 +325,10 @@ class FinanceResponse:
 - Domain-specific templates (Finance/Medical)
 
 **Architecture Flow:**
-> 📐 **[Chain-of-Thought Reasoning — open the interactive diagram](diagrams/chain-of-thought-reasoning.html)**
-> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`diagrams/src/`](diagrams/src/).*
+![Chain-of-Thought Reasoning](diagrams/chain-of-thought-reasoning.svg)
+
+> 📐 **[Open the interactive version →](diagrams/chain-of-thought-reasoning.html)** — pan, zoom, search, trace any relationship,
+> focus a subsystem, switch light/dark, export PNG/SVG. Source spec: [`diagrams/src/`](diagrams/src/).
 
 
 **Step Definitions:**
@@ -352,8 +360,10 @@ class FinanceResponse:
 - Query expansion
 
 **Workflow:**
-> 📐 **[Query Preprocessing — open the interactive diagram](diagrams/query-preprocessing.html)**
-> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`diagrams/src/`](diagrams/src/).*
+![Query Preprocessing](diagrams/query-preprocessing.svg)
+
+> 📐 **[Open the interactive version →](diagrams/query-preprocessing.html)** — pan, zoom, search, trace any relationship,
+> focus a subsystem, switch light/dark, export PNG/SVG. Source spec: [`diagrams/src/`](diagrams/src/).
 
 **Workflow:**
 ```python

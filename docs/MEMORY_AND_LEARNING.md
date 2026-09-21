@@ -58,8 +58,10 @@ The system "learns" by extracting knowledge from every interaction:
 
 Unlike a static chatbot, FAIR-Agent gets smarter with every interaction through this continuous loop:
 
-> 📐 **[Memory and Learning Loop — open the interactive diagram](diagrams/memory-learning-loop.html)**
-> <br/>*Archify artifact (pan, zoom, search, trace relationships, switch light/dark, export PNG/SVG). Source spec: [`diagrams/src/`](diagrams/src/).*
+![Memory and Learning Loop](diagrams/memory-learning-loop.svg)
+
+> 📐 **[Open the interactive version →](diagrams/memory-learning-loop.html)** — pan, zoom, search, trace any relationship,
+> focus a subsystem, switch light/dark, export PNG/SVG. Source spec: [`diagrams/src/`](diagrams/src/).
 
 ## 🛠️ Technical Implementation
 
