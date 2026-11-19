@@ -20,12 +20,11 @@
         overflow-x: auto;
         display: flex;
         justify-content: center;
-        min-height: 1000px; /* Significantly increased height */
     }
     
-    .mermaid {
+    .diagram-image {
         width: 100%;
-        height: 100%;
+        height: auto;
     }
     
     .component-card {
@@ -97,143 +96,14 @@
             <div class="architecture-container">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="text-white mb-0">System Data Flow & Component Interaction</h4>
-                    <div class="btn-group">
-                        <button id="downloadBtn" class="btn btn-secondary btn-sm" onclick="downloadSVG()">
-                            <i class="fas fa-file-code me-2"></i>Download SVG
-                        </button>
-                        <button id="downloadPngBtn" class="btn btn-primary btn-sm" onclick="downloadPNG()">
-                            <i class="fas fa-image me-2"></i>Download PNG
-                        </button>
-                    </div>
+                    <a class="btn btn-secondary btn-sm" download
+                       href="{% static 'img/system-data-flow.svg' %}">
+                        <i class="fas fa-file-code me-2"></i>Download SVG
+                    </a>
                 </div>
                 <div class="diagram-container">
-                    <div class="mermaid" id="mermaidDiagram">
-                        %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffcc00', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#fff', 'fontSize': '20px'}, 'flowchart': {'nodeSpacing': 50, 'rankSpacing': 50, 'curve': 'basis'}}}%%
-                        flowchart TD
-                            classDef user fill:#f9f,stroke:#333,stroke-width:4px,font-size:24px,font-weight:bold;
-                            classDef frontend fill:#bbf,stroke:#333,stroke-width:3px,font-size:20px;
-                            classDef core fill:#bfb,stroke:#333,stroke-width:3px,font-size:20px;
-                            classDef rag fill:#fbb,stroke:#333,stroke-width:3px,font-size:20px;
-                            classDef ai fill:#ddf,stroke:#333,stroke-width:3px,font-size:20px;
-                            classDef obs fill:#ddd,stroke:#333,stroke-width:3px,font-size:20px;
-
-                            subgraph User_Layer [User Interaction Layer]
-                                User((User)):::user
-                                Browser["Web Browser / UI<br/>(HTML/JS/CSS)"]:::frontend
-                            end
-
-                            subgraph Web_Layer [Web Application Layer]
-                                Django["Django Server<br/>(WSGI/ASGI)"]:::frontend
-                                Views["View Logic<br/>(views.py)"]:::frontend
-                                API["REST API Endpoints<br/>(/api/query)"]:::frontend
-                                Session["Session Manager<br/>(DB/Cache)"]:::frontend
-                            end
-
-                            subgraph Core_Layer [Core Orchestration Layer]
-                                Orchestrator["Orchestrator System<br/>(orchestrator.py)"]:::core
-                                SpellCheck["Spell & Query Fixer<br/>(spell_checker.py)"]:::core
-                                Classifier["Domain Classifier<br/>(Regex/Keyword)"]:::core
-                                Router{Router}:::core
-                                Aggregator["Response Aggregator<br/>(JSON Builder)"]:::core
-                                Safety["Safety & Ethics Filter<br/>(Pattern Matcher)"]:::core
-                            end
-
-                            subgraph Agent_Layer [Domain Agents]
-                                FinAgent["Finance Agent<br/>(finance_agent.py)"]:::core
-                                MedAgent["Medical Agent<br/>(medical_agent.py)"]:::core
-                                CrossAgent["Cross-Domain Logic<br/>(Synthesis)"]:::core
-                                Reasoning["Reasoning Engine<br/>(cot_system.py)"]:::core
-                            end
-
-                            subgraph RAG_Layer ["RAG & Knowledge Layer"]
-                                QueryEnc["Query Encoder<br/>(all-MiniLM-L6-v2)"]:::rag
-                                VectorDB[("ChromaDB Vector Store<br/>(Persistent)")]:::rag
-                                KnowledgeGraph[("Knowledge Graph<br/>(NetworkX)")]:::rag
-                                DocStore[("Evidence Sources<br/>YAML/JSON")]:::rag
-                                Internet["Internet Search<br/>(internet_rag.py)"]:::rag
-                                HybridSearch["Hybrid Search Engine<br/>(Semantic + Keyword)"]:::rag
-                                ReRanker["Cross-Encoder Re-ranker<br/>(ms-marco-MiniLM)"]:::rag
-                                ContextWindow["Context Window Manager<br/>(Token Limiter)"]:::rag
-                            end
-
-                            subgraph Inference_Layer [Inference Layer]
-                                Ollama["Ollama API Client<br/>(HTTP/JSON)"]:::ai
-                                LlamaService["Ollama Service<br/>(Localhost:11434)"]:::ai
-                                Model[["Llama 3.2 Model<br/>(GGUF Quantized)"]]:::ai
-                            end
-
-                            subgraph Obs_Layer ["Observability & Evaluation"]
-                                Telemetry["Telemetry Manager<br/>(telemetry.py)"]:::obs
-                                Tracer["Trace Storage<br/>(logs/telemetry + DB)"]:::obs
-                                Metrics["Metrics Store<br/>(Latency/Tokens)"]:::obs
-                                Evaluator["Offline Evaluator<br/>(evaluate.py)"]:::obs
-                                Benchmarks[("Benchmark Datasets<br/>FinQA/MedMCQA")]:::obs
-                                
-                                %% Metrics Details
-                                M_Faith["Faithfulness<br/>(faithfulness.py)"]:::obs
-                                M_Safe["Safety<br/>(safety.py)"]:::obs
-                                M_Adapt["Adaptability<br/>(adaptability.py)"]:::obs
-                                M_Interp["Interpretability<br/>(interpretability.py)"]:::obs
-                            end
-
-                            %% Flows
-                            User -->|1. Submit Query| Browser
-                            Browser -->|2. HTTP POST| Django
-                            Django -->|3. Route Request| Views
-                            Views -->|4. API Call| API
-                            API -->|5. Process| Orchestrator
-
-                            %% Orchestration Flow
-                            Orchestrator -->|Pre-process| SpellCheck
-                            SpellCheck -->|6. Classify| Classifier
-                            Classifier -->|Domain Tag| Router
-                            Router -->|Finance| FinAgent
-                            Router -->|Medical| MedAgent
-                            Router -->|Both| CrossAgent
-
-                            %% RAG Flow
-                            FinAgent & MedAgent -->|7. Retrieve Context| HybridSearch
-                            HybridSearch -->|Encode Query| QueryEnc
-                            QueryEnc -->|Vector Search| VectorDB
-                            HybridSearch -->|Graph Search| KnowledgeGraph
-                            HybridSearch -->|Keyword Search| DocStore
-                            FinAgent & MedAgent -->|Web Search| Internet
-                            VectorDB & KnowledgeGraph & DocStore & Internet -->|Candidates| ReRanker
-                            ReRanker -->|Top K Evidence| ContextWindow
-                            ContextWindow -->|Formatted Context| Reasoning
-
-                            %% Inference Flow
-                            Reasoning -->|8. Construct CoT| FinAgent & MedAgent
-                            FinAgent & MedAgent -->|9. Send Prompt| Ollama
-                            Ollama -->|Generate| LlamaService
-                            LlamaService -->|Inference| Model
-                            Model -->|Tokens| LlamaService
-                            LlamaService -->|Response Stream| Ollama
-                            Ollama -->|Text| FinAgent & MedAgent
-
-                            %% Response Flow
-                            FinAgent & MedAgent -->|10. Raw Response| Safety
-                            Safety -->|Validated Response| Aggregator
-                            Aggregator -->|Final Output| Orchestrator
-                            Orchestrator -->|JSON Response| API
-                            API -->|Return Data| Views
-                            Views -->|Render Template| Browser
-                            Browser -->|Display| User
-
-                            %% Observability Flow
-                            Orchestrator -.->|Start Trace| Telemetry
-                            FinAgent & MedAgent -.->|Span| Telemetry
-                            Ollama -.->|Latency/Tokens| Telemetry
-                            Telemetry -->|Store| Tracer & Metrics
-                            Evaluator -.->|Read| Metrics
-                            Evaluator -.->|Compare| Benchmarks
-                            
-                            %% Metrics Calculation Flow
-                            Evaluator -.->|Calculate| M_Faith
-                            Evaluator -.->|Calculate| M_Safe
-                            Evaluator -.->|Calculate| M_Adapt
-                            Evaluator -.->|Calculate| M_Interp
-                    </div>
+                    <img class="diagram-image" alt="FAIR-Agent system data flow and component interaction"
+                         src="{% static 'img/system-data-flow.svg' %}">
                 </div>
             </div>
         </div>
@@ -502,132 +372,4 @@
     </div>
 </div>
 
-<!-- Mermaid JS -->
-<script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({ 
-        startOnLoad: true,
-        theme: 'default',
-        securityLevel: 'loose',
-    });
-</script>
-
-<script>
-    function downloadSVG() {
-        const svg = document.querySelector('.mermaid svg');
-        if (!svg) {
-            alert('Diagram is still rendering. Please try again in a moment.');
-            return;
-        }
-        
-        // Get the SVG content
-        const serializer = new XMLSerializer();
-        let source = serializer.serializeToString(svg);
-        
-        // Add XML namespaces if missing
-        if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
-            source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
-        }
-        
-        // Add white background for better visibility when downloaded
-        // Mermaid SVGs often have transparent backgrounds
-        const styleMatch = source.match(/style="([^"]*)"/);
-        if (styleMatch) {
-            const style = styleMatch[1];
-            if (!style.includes('background-color')) {
-                source = source.replace(/style="([^"]*)"/, 'style="$1; background-color: white;"');
-            }
-        } else {
-            source = source.replace(/^<svg/, '<svg style="background-color: white;"');
-        }
-
-        // Create blob and download link
-        const blob = new Blob([source], {type: 'image/svg+xml;charset=utf-8'});
-        const url = URL.createObjectURL(blob);
-        
-        const downloadLink = document.createElement("a");
-        downloadLink.href = url;
-        downloadLink.download = "fair_agent_architecture.svg";
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-        URL.revokeObjectURL(url);
-    }
-
-    function downloadPNG() {
-        const svg = document.querySelector('.mermaid svg');
-        if (!svg) {
-            alert('Diagram is still rendering. Please try again in a moment.');
-            return;
-        }
-        
-        // Get the SVG content
-        const serializer = new XMLSerializer();
-        let source = serializer.serializeToString(svg);
-        
-        // Add namespaces
-        if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
-            source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
-        }
-
-        // Get dimensions from the live element
-        const bbox = svg.getBoundingClientRect();
-        
-        // Parse the serialized string back to a DOM element to safely modify attributes
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(source, "image/svg+xml");
-        const svgEl = xmlDoc.documentElement;
-        
-        // Force absolute dimensions to match the rendered size
-        // This fixes issues where creating an image from SVG fails if width/height are % or missing
-        svgEl.setAttribute("width", bbox.width);
-        svgEl.setAttribute("height", bbox.height);
-        
-        // Enforce white background
-        svgEl.style.backgroundColor = "white";
-        
-        // Re-serialize with changes
-        source = serializer.serializeToString(svgEl);
-
-        const img = new Image();
-        // Use Base64 encoding which is often more reliable than Blob URLs for this specific conversion
-        // unescape(encodeURIComponent(x)) handles unicode characters correctly for btoa
-        const base64 = btoa(unescape(encodeURIComponent(source)));
-        img.src = 'data:image/svg+xml;base64,' + base64;
-        
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const scale = 3; // Higher resolution (3x) for crisp text
-            
-            canvas.width = bbox.width * scale;
-            canvas.height = bbox.height * scale;
-            
-            const ctx = canvas.getContext('2d');
-            ctx.scale(scale, scale);
-            
-            // Fill white background again on canvas to be safe
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, canvas.width/scale, canvas.height/scale);
-            
-            try {
-                ctx.drawImage(img, 0, 0, bbox.width, bbox.height);
-                const pngUrl = canvas.toDataURL('image/png');
-                
-                const downloadLink = document.createElement("a");
-                downloadLink.href = pngUrl;
-                downloadLink.download = "fair_agent_architecture.png";
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
-            } catch (e) {
-                console.error("PNG Generation Error:", e);
-                alert('An error occurred while generating the PNG. Please check console for details.');
-            }
-        };
-        
-        img.onerror = function() {
-            alert('Failed to process SVG data for PNG conversion.');
-        };
-    }
-</script>
 {% endblock %}

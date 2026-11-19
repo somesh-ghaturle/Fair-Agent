@@ -1,6 +1,6 @@
 # FAIR-Agent Diagrams
 
-Fifteen interactive diagrams generated with [Archify](https://github.com/tt-a1i/archify).
+Sixteen interactive diagrams generated with [Archify](https://github.com/tt-a1i/archify).
 Each `.html` file is a self-contained artifact: inline SVG, no network calls, no build step.
 Open one directly in a browser (or `open <file>.html` on macOS).
 
@@ -24,6 +24,7 @@ light/dark themes, and PNG/JPEG/WebP/SVG export.
 | [FAIR Evaluation Scoring](fair-evaluation.html) | workflow | `README.md` stage 7 |
 | [Response Delivery and Analytics](response-delivery.html) | workflow | `README.md` stage 8 |
 | [Memory and Learning Loop](memory-learning-loop.html) | workflow | `MEMORY_AND_LEARNING.md` |
+| [Tracing and Telemetry Pipeline](tracing-pipeline.html) | sequence | `TRACING.md` (new — no prior diagram) |
 
 ## Editing
 
@@ -50,13 +51,33 @@ Re-running upgrades the block in place rather than stacking a second one, and
 `prefers-reduced-motion` turns all of it off. A plain export is static — re-run this or
 the diagrams stop moving.
 
-All fifteen animate: fourteen have flowing edges, and `component-architecture.svg`, an
+All sixteen animate: fifteen have flowing edges, and `component-architecture.svg`, an
 inventory grid with no arrows at all, moves through its six layer frames.
 
-Use the type that matches the filename suffix (`architecture`, `workflow`, or `dataflow`).
-All fifteen specs currently pass `--quality showcase` with 9/9 artifact checks and
-zero composition errors, and every artifact is contained at 1440x900, 1600x1000,
-1920x1080, and 2048x1320 in both themes.
+`tracing-pipeline.svg` and `system-architecture.svg` are exported theme-adaptive (they carry
+`[data-theme]` rules), so they follow GitHub's light/dark setting; the script leaves those
+exports without a backdrop.
+
+The script also covers `webapp/static/img/system-data-flow.svg`, the pre-rendered Mermaid
+diagram the Django architecture page serves. That one is not an archify artifact: it is
+Mermaid's own output, rendered once with `htmlLabels: false` so the file is well-formed
+XML that an `<img>` will load, and committed instead of drawn live from a CDN.
+
+Use the type that matches the filename suffix (`architecture`, `workflow`, `dataflow`, or `sequence`).
+All sixteen specs currently pass `--quality showcase` with 9/9 artifact checks and
+zero composition errors. Fifteen artifacts are contained at 1440x900, 1600x1000,
+1920x1080, and 2048x1320 in both themes. `tracing-pipeline.html` is not: its twelve
+messages are taller than a desktop screen at a readable text size, so the page scrolls
+vertically at all four sizes (checked 2026-11-18). Widening the viewBox shrinks the text
+below the 6px legibility floor and its message positions leave no room to compress, so
+fitting it would mean splitting it into two diagrams.
+
+## Thumbnail
+
+[`fair-agent-thumbnail.png`](fair-agent-thumbnail.png) is a 2560x1280 (2:1, GitHub's
+social-preview ratio) image of the system architecture with the project title, for a
+repository social preview or a portfolio card. It is rendered from the exported
+`system-architecture.svg`, so regenerate it whenever that diagram changes.
 
 `visual-check` writes PNG/JSON/HTML evidence sidecars next to the artifact; those are
 build evidence, not deliverables, and are not committed.

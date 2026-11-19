@@ -36,14 +36,15 @@
       },
       {
         "id": "observability",
-        "label": "Observability",
+        "label": "Scoring & observability",
         "focus": [
+          "django",
+          "evaluator",
           "orchestrator",
           "ollama",
-          "telemetry",
-          "evaluator"
+          "telemetry"
         ],
-        "note": "Spans, latency, and token counts stream to telemetry, which feeds the offline FAIR evaluator."
+        "note": "Django scores every answer on six FAIR metrics before returning it, while spans, latency, and token counts stream to telemetry."
       }
     ]
   },
@@ -80,7 +81,7 @@
       "id": "django",
       "type": "frontend",
       "label": "Django Server",
-      "sublabel": "views.py · /api/query",
+      "sublabel": "views.py · /api/query/process/",
       "pos": [
         530,
         40
@@ -94,7 +95,7 @@
       "id": "evaluator",
       "type": "backend",
       "label": "FAIR Evaluator",
-      "sublabel": "evaluate.py",
+      "sublabel": "6 FAIR metrics per answer",
       "pos": [
         1010,
         40
@@ -507,11 +508,10 @@
       ]
     },
     {
-      "id": "telemetry-evaluator",
-      "from": "telemetry",
+      "id": "django-evaluator",
+      "from": "django",
       "to": "evaluator",
-      "label": "metrics",
-      "variant": "dashed"
+      "label": "score answer"
     }
   ],
   "cards": [
@@ -519,7 +519,7 @@
       "dot": "cyan",
       "title": "Request handling",
       "items": [
-        "Django serves the UI and the /api/query endpoint",
+        "Django serves the UI and the /api/query/process/ endpoint",
         "The orchestrator owns spell correction, routing, and aggregation"
       ]
     },
@@ -536,7 +536,7 @@
       "title": "Safety and measurement",
       "items": [
         "Every answer passes the ethics and disclaimer filter before return",
-        "Telemetry feeds the offline FAIR evaluator"
+        "Every answer is scored on six FAIR metrics before Django returns it"
       ]
     }
   ]

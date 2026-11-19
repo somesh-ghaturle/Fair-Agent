@@ -5,13 +5,13 @@
 @keyframes archify-flow-10{to{stroke-dashoffset:-10}}
 @keyframes archify-flow-12{to{stroke-dashoffset:-12}}
 @keyframes archify-flow-16{to{stroke-dashoffset:-16}}
-path[data-edge-from]{stroke-dasharray:6 10;animation:archify-flow-16 1.1s linear infinite}
+path[data-edge-from],path.flowchart-link{stroke-dasharray:6 10;animation:archify-flow-16 1.1s linear infinite}
 path[data-edge-from][stroke-dasharray="4px, 4px"]{stroke-dasharray:4 4;animation-name:archify-flow-8;animation-duration:.55s}
 path[data-edge-from][stroke-dasharray="5px, 5px"]{stroke-dasharray:5 5;animation-name:archify-flow-10;animation-duration:.69s}
 rect[data-composition-frame-kind]:not([stroke-dasharray="none"]){animation:archify-flow-12 3s linear infinite}
 rect[data-composition-frame-kind][stroke-dasharray="4px, 4px"]{animation-name:archify-flow-8;animation-duration:2s}
 @media(prefers-reduced-motion:reduce){
-path[data-edge-from]{animation:none;stroke-dasharray:none}
+path[data-edge-from],path.flowchart-link{animation:none;stroke-dasharray:none}
 rect[data-composition-frame-kind]{animation:none}
 }
 </style>

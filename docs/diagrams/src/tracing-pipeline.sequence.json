@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Tracing and Telemetry Pipeline",
+    "quality_profile": "showcase",
+    "viewBox": [
+      980,
+      790
+    ],
+    "animation": "trace",
+    "views": [
+      {
+        "id": "trace-start",
+        "label": "Trace start",
+        "focus": [
+          "django",
+          "telemetry",
+          "orchestrator"
+        ],
+        "note": "The view opens a trace; contextvars carry trace_id down the stack so no function signature changes."
+      },
+      {
+        "id": "nested-spans",
+        "label": "Nested spans",
+        "focus": [
+          "orchestrator",
+          "agent",
+          "rag",
+          "ollama"
+        ],
+        "note": "Each step opens its own span, so retrieval time and inference time are separable."
+      },
+      {
+        "id": "flush",
+        "label": "Flush and store",
+        "focus": [
+          "telemetry",
+          "store"
+        ],
+        "note": "Spans close back up the stack, then the trace is written to JSON and mirrored into SQLite."
+      }
+    ],
+    "column_fit": "spread"
+  },
+  "participants": [
+    {
+      "id": "django",
+      "type": "frontend",
+      "label": "Django View",
+      "sublabel": "/api/query/process/"
+    },
+    {
+      "id": "telemetry",
+      "type": "backend",
+      "label": "Telemetry",
+      "sublabel": "TelemetryManager"
+    },
+    {
+      "id": "orchestrator",
+      "type": "backend",
+      "label": "Orchestrator",
+      "sublabel": "orchestrator.py"
+    },
+    {
+      "id": "agent",
+      "type": "backend",
+      "label": "Domain Agent",
+      "sublabel": "finance · medical"
+    },
+    {
+      "id": "rag",
+      "type": "backend",
+      "label": "RAG Retrieval",
+      "sublabel": "vector search · rerank"
+    },
+    {
+      "id": "ollama",
+      "type": "cloud",
+      "label": "Ollama Client",
+      "sublabel": "llama3.2 · :11434"
+    },
+    {
+      "id": "store",
+      "type": "database",
+      "label": "Trace Store",
+      "sublabel": "JSON + SQLite"
+    }
+  ],
+  "segments": [
+    {
+      "from": 150,
+      "to": 295,
+      "label": "Trace start"
+    },
+    {
+      "from": 315,
+      "to": 520,
+      "label": "Nested spans"
+    },
+    {
+      "from": 540,
+      "to": 700,
+      "label": "Flush and store"
+    }
+  ],
+  "messages": [
+    {
+      "id": "start-trace",
+      "from": "django",
+      "to": "telemetry",
+      "y": 188,
+      "label": "start_trace(trace_id)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "propagate",
+      "from": "telemetry",
+      "to": "orchestrator",
+      "y": 232,
+      "label": "trace_id via contextvars",
+      "variant": "dashed"
+    },
+    {
+      "id": "span-orchestrator",
+      "from": "orchestrator",
+      "to": "telemetry",
+      "y": 276,
+      "label": "start_span orchestrator_process"
+    },
+    {
+      "id": "route",
+      "from": "orchestrator",
+      "to": "agent",
+      "y": 330,
+      "label": "route classified query",
+      "variant": "emphasis"
+    },
+    {
+      "id": "span-rag",
+      "from": "agent",
+      "to": "rag",
+      "y": 374,
+      "label": "start_span rag_retrieval"
+    },
+    {
+      "id": "rag-return",
+      "from": "rag",
+      "to": "agent",
+      "y": 414,
+      "label": "top-k evidence",
+      "variant": "return"
+    },
+    {
+      "id": "span-llm",
+      "from": "agent",
+      "to": "ollama",
+      "y": 458,
+      "label": "start_span llm_inference"
+    },
+    {
+      "id": "llm-return",
+      "from": "ollama",
+      "to": "agent",
+      "y": 498,
+      "label": "answer · llm_tokens",
+      "variant": "return"
+    },
+    {
+      "id": "end-agent",
+      "from": "agent",
+      "to": "telemetry",
+      "y": 552,
+      "label": "end_span(status, duration_ms)"
+    },
+    {
+      "id": "end-orchestrator",
+      "from": "orchestrator",
+      "to": "telemetry",
+      "y": 596,
+      "label": "end_trace",
+      "variant": "emphasis"
+    },
+    {
+      "id": "write-json",
+      "from": "telemetry",
+      "to": "store",
+      "y": 640,
+      "label": "write logs/telemetry/*.json"
+    },
+    {
+      "id": "write-sqlite",
+      "from": "telemetry",
+      "to": "store",
+      "y": 680,
+      "label": "insert TraceLog · SpanLog",
+      "variant": "dashed"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "django",
+      "from": 182,
+      "to": 700,
+      "type": "frontend"
+    },
+    {
+      "participant": "telemetry",
+      "from": 188,
+      "to": 692,
+      "type": "backend"
+    },
+    {
+      "participant": "orchestrator",
+      "from": 226,
+      "to": 602,
+      "type": "backend"
+    },
+    {
+      "participant": "agent",
+      "from": 324,
+      "to": 558,
+      "type": "backend"
+    },
+    {
+      "participant": "rag",
+      "from": 368,
+      "to": 420,
+      "type": "backend"
+    },
+    {
+      "participant": "ollama",
+      "from": 452,
+      "to": 504,
+      "type": "cloud"
+    },
+    {
+      "participant": "store",
+      "from": 634,
+      "to": 688,
+      "type": "database"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Trace and span model",
+      "items": [
+        "A trace is one user request; spans are the steps nested inside it",
+        "Activation bars are the span durations the JSON records as duration_ms"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Instrumented without plumbing",
+      "items": [
+        "contextvars carry trace_id, so no function signature has to change",
+        "Orchestrator, agents, and OllamaClient are each instrumented in place"
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "Storage in migration",
+      "items": [
+        "Traces still land in logs/telemetry/ as one JSON file each",
+        "TraceLog and SpanLog mirror them into SQLite for Django Admin queries"
+      ]
+    }
+  ]
+}

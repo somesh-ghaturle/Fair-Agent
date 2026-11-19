@@ -12,6 +12,11 @@ The observability layer is designed to answer questions like:
 
 It uses a custom `TelemetryManager` that mimics OpenTelemetry concepts (Traces and Spans) but is lightweight and optimized for this specific architecture.
 
+![Tracing and Telemetry Pipeline](diagrams/tracing-pipeline.svg)
+
+> 📐 **[Open the interactive version →](diagrams/tracing-pipeline.html)** — pan, zoom, search, trace any relationship,
+> focus a subsystem, switch light/dark, export PNG/SVG. Source spec: [`diagrams/src/`](diagrams/src/).
+
 ## Key Components
 
 ### 1. Telemetry Manager (`src/observability/telemetry.py`)
